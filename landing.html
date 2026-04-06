@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beings — A quiet place to meet yourself</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:        #111510;
+      --bg-soft:   #161b14;
+      --sage:      #7a9e7e;
+      --sage-dim:  #4e6b52;
+      --lavender:  #b9a9cc;
+      --cream:     #e8e0d0;
+      --cream-dim: #b0a898;
+      --divider:   rgba(122, 158, 126, 0.18);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--cream);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.028;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Glow blobs ── */
+    .glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-1 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(122,158,126,0.12) 0%, transparent 70%);
+      top: -160px; left: -120px;
+    }
+    .glow-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(185,169,204,0.10) 0%, transparent 70%);
+      bottom: 10%; right: -100px;
+    }
+
+    /* ── Layout wrappers ── */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    section {
+      padding: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      z-index: 1;
+      padding: 40px 28px 0;
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.25rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sage);
+      text-decoration: none;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding-top: 120px;
+      padding-bottom: 88px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2.8rem, 7vw, 4.4rem);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      color: var(--cream);
+      margin-bottom: 32px;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--cream);
+    }
+
+    .subheadline {
+      font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+      color: var(--cream-dim);
+      max-width: 440px;
+      margin: 0 auto 56px;
+      line-height: 1.8;
+    }
+
+    /* ── CTA button ── */
+    .btn-primary {
+      display: inline-block;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 0.82rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--sage);
+      padding: 16px 40px;
+      border-radius: 60px;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 0 0 rgba(122,158,126,0);
+    }
+
+    .btn-primary:hover {
+      background: #8db492;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(122,158,126,0.25);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--divider);
+      margin: 0;
+    }
+
+    /* ── Belief statement ── */
+    .belief {
+      padding: 96px 0;
+      text-align: center;
+    }
+
+    .belief-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      line-height: 1.4;
+      color: var(--lavender);
+      letter-spacing: 0.01em;
+    }
+
+    .belief-mark {
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--sage-dim);
+      margin: 28px auto 0;
+    }
+
+    /* ── Email signup ── */
+    .signup {
+      padding: 80px 0 96px;
+      text-align: center;
+    }
+
+    .signup-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(1.5rem, 3.5vw, 2rem);
+      color: var(--cream);
+      margin-bottom: 12px;
+    }
+
+    .signup-sub {
+      font-size: 0.85rem;
+      color: var(--cream-dim);
+      margin-bottom: 36px;
+      letter-spacing: 0.02em;
+    }
+
+    .signup-form {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      max-width: 400px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--divider);
+      border-radius: 60px;
+      overflow: hidden;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .signup-form:focus-within {
+      border-color: rgba(122,158,126,0.5);
+      box-shadow: 0 0 0 4px rgba(122,158,126,0.08);
+    }
+
+    .signup-form input[type="email"] {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 15px 24px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 0.85rem;
+      color: var(--cream);
+      letter-spacing: 0.03em;
+    }
+
+    .signup-form input[type="email"]::placeholder {
+      color: var(--cream-dim);
+      opacity: 0.5;
+    }
+
+    .signup-form button {
+      background: var(--sage);
+      border: none;
+      cursor: pointer;
+      padding: 15px 28px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--bg);
+      border-radius: 0 60px 60px 0;
+      transition: background 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .signup-form button:hover {
+      background: #8db492;
+    }
+
+    .privacy-note {
+      margin-top: 16px;
+      font-size: 0.72rem;
+      color: var(--cream-dim);
+      opacity: 0.45;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 40px 28px 48px;
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-copy {
+      font-size: 0.72rem;
+      color: var(--cream-dim);
+      opacity: 0.35;
+      letter-spacing: 0.06em;
+    }
+
+    .social-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--cream-dim);
+      opacity: 0.55;
+      transition: opacity 0.25s ease, color 0.25s ease;
+    }
+
+    .social-link:hover {
+      opacity: 1;
+      color: var(--cream);
+    }
+
+    .social-link svg {
+      flex-shrink: 0;
+    }
+
+    /* ── Fade-in animation ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up {
+      opacity: 0;
+      animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .delay-1 { animation-delay: 0.15s; }
+    .delay-2 { animation-delay: 0.35s; }
+    .delay-3 { animation-delay: 0.55s; }
+    .delay-4 { animation-delay: 0.72s; }
+    .delay-5 { animation-delay: 0.88s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .hero { padding-top: 80px; padding-bottom: 64px; }
+      footer { justify-content: center; text-align: center; }
+      .signup-form { flex-direction: column; border-radius: 18px; }
+      .signup-form button { border-radius: 0 0 18px 18px; padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="index.html" class="wordmark">Beings</a>
+  </header>
+
+  <!-- Hero -->
+  <div class="container">
+    <section class="hero">
+      <span class="eyebrow fade-up delay-1">Daily reflection</span>
+      <h1 class="fade-up delay-2">A quiet place to<br /><em>meet yourself</em></h1>
+      <p class="subheadline fade-up delay-3">Each day, one question. You answer honestly.<br />Something gentle is reflected back.</p>
+      <a href="index.html" class="btn-primary fade-up delay-4">Begin your reflection</a>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- Belief -->
+    <section class="belief">
+      <p class="belief-text fade-up">"You are already whole.<br />Nothing is missing."</p>
+      <span class="belief-mark fade-up"></span>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- Email signup -->
+    <section class="signup">
+      <h2 class="signup-label fade-up">Join the journey</h2>
+      <p class="signup-sub fade-up delay-1">Gentle notes on reflection, presence, and becoming.</p>
+      <form class="signup-form fade-up delay-2" onsubmit="handleSignup(event)">
+        <input type="email" name="email" placeholder="your@email.com" autocomplete="email" required />
+        <button type="submit">Join</button>
+      </form>
+      <p class="privacy-note fade-up delay-3">No noise. Unsubscribe any time.</p>
+    </section>
+  </div>
+
+  <hr class="divider" style="position:relative;z-index:1;" />
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-copy">&copy; 2026 Beings</span>
+    <div class="social-links">
+      <!-- X / Twitter -->
+      <a href="https://x.com/BeingsDaily" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Beings on X">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+        </svg>
+        @BeingsDaily
+      </a>
+      <!-- YouTube -->
+      <a href="https://youtube.com/@BeingsDaily" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Beings on YouTube">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+        Beings Daily
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    function handleSignup(e) {
+      e.preventDefault();
+      const form = e.target;
+      const email = form.email.value.trim();
+      if (!email) return;
+      const btn = form.querySelector('button');
+      btn.textContent = 'Thank you';
+      btn.style.background = '#4e6b52';
+      btn.disabled = true;
+      form.email.value = '';
+      form.email.placeholder = 'See you on the journey';
+    }
+
+    // Intersection Observer for scroll-triggered fade-ins
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.fade-up').forEach(el => {
+      // Pause animation until element is in view (except hero elements which play immediately)
+      if (!el.closest('.hero')) {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+      }
+    });
+  </script>
+
+</body>
+</html>
