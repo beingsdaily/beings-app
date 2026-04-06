@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beings Voice</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #090c0f;
+      --surface:   #101418;
+      --surface2:  #141a20;
+      --border:    #1c2330;
+      --border2:   #263040;
+      --text:      #d4ddd0;
+      --muted:     #6a7870;
+      --sage:      #7aaa90;
+      --sage-soft: #96c0a8;
+      --lavender:  #8e90be;
+      --blue:      #6a8eaa;
+      --cream:     #e4edd8;
+      --error:     #a07a9a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px 64px;
+    }
+
+    /* ── Screens ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      animation: rise 0.5s ease both;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Wordmark ── */
+    .wordmark {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 52px;
+    }
+    .wordmark-title {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      color: var(--sage);
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+    .wordmark-sub {
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── Setup ── */
+    .setup-body {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .setup-heading {
+      font-family: 'Lora', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--cream);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .setup-sub {
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.65;
+      text-align: center;
+    }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      padding: 13px 16px;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus { border-color: var(--sage); }
+    input::placeholder { color: var(--muted); }
+    .field-hint {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.5;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: var(--sage);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 14px 24px;
+      transition: background 0.2s, opacity 0.2s;
+      width: 100%;
+    }
+    .btn-primary:hover { background: var(--sage-soft); }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      padding: 8px 14px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ── Error ── */
+    .error-msg {
+      color: var(--error);
+      font-size: 0.8rem;
+      display: none;
+      margin-top: 2px;
+    }
+    .error-msg.show { display: block; }
+
+    /* ── Main screen ── */
+    #screen-main { gap: 0; }
+
+    .main-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 44px;
+    }
+
+    /* ── Input area ── */
+    .input-section { width: 100%; }
+
+    .input-label {
+      color: var(--lavender);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      opacity: 0.85;
+    }
+
+    .raw-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'Lora', serif;
+      font-size: 1rem;
+      line-height: 1.75;
+      min-height: 160px;
+      outline: none;
+      padding: 18px 20px;
+      resize: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .raw-input:focus { border-color: var(--sage); }
+    .raw-input::placeholder { color: var(--muted); font-style: italic; }
+
+    .input-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .input-hint {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-style: italic;
+    }
+
+    .transform-btn {
+      background: var(--sage);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 11px 24px;
+      transition: background 0.2s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .transform-btn:hover { background: var(--sage-soft); }
+    .transform-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Results ── */
+    .results-section {
+      width: 100%;
+      margin-top: 44px;
+    }
+
+    .results-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      opacity: 0.7;
+    }
+
+    .post-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── Skeleton ── */
+    .skeleton-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .skel-line {
+      background: linear-gradient(90deg, var(--border) 25%, var(--border2) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      border-radius: 4px;
+      height: 13px;
+      animation: shimmer 1.6s infinite;
+    }
+    .skel-line.w-full { width: 100%; }
+    .skel-line.w-80   { width: 80%; }
+    .skel-line.w-60   { width: 60%; }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Post card ── */
+    .post-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .post-card:hover { border-color: var(--border2); }
+
+    .post-card-inner {
+      padding: 20px 20px 16px;
+    }
+
+    .post-variation {
+      color: var(--lavender);
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+
+    .post-text {
+      color: var(--cream);
+      font-family: 'Lora', serif;
+      font-size: 1rem;
+      line-height: 1.72;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .post-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .char-count {
+      font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.2s;
+    }
+    .char-count.ok      { color: var(--muted); }
+    .char-count.warn    { color: #b8a060; }
+    .char-count.over    { color: var(--error); }
+
+    .copy-btn {
+      align-items: center;
+      background: transparent;
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.76rem;
+      gap: 6px;
+      letter-spacing: 0.04em;
+      padding: 6px 12px;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--sage); color: var(--sage); }
+    .copy-btn.copied {
+      border-color: var(--sage);
+      color: var(--sage);
+    }
+    .copy-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    /* ── Footer ── */
+    .page-footer {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: 52px;
+    }
+
+    /* ── Variation labels ── */
+    .var-labels {
+      display: none;
+      width: 100%;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Setup screen ── -->
+<div class="screen active" id="screen-setup">
+  <div class="wordmark">
+    <span class="wordmark-title">Beings Voice</span>
+    <span class="wordmark-sub">your words, made gentle</span>
+  </div>
+  <div class="setup-body">
+    <div>
+      <h1 class="setup-heading">Turn raw thoughts into grounded words.</h1>
+      <p class="setup-sub">Paste what's in your head. Get three warm, honest posts for X — each one rooted in the truth that you're already whole.</p>
+    </div>
+    <div class="field">
+      <label for="setup-key">Anthropic API key</label>
+      <input type="password" id="setup-key" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" autofocus>
+      <p class="field-hint">Stored in your browser only. Never leaves your device except to reach Anthropic's servers.</p>
+      <p class="error-msg" id="setup-error"></p>
+    </div>
+    <button class="btn-primary" id="setup-btn">Begin</button>
+  </div>
+</div>
+
+<!-- ── Main screen ── -->
+<div class="screen" id="screen-main">
+
+  <div class="main-header" style="width:100%">
+    <div class="wordmark" style="margin-bottom:0; flex-direction:row; align-items:baseline; gap:10px;">
+      <span class="wordmark-title" style="font-size:0.9rem">Beings Voice</span>
+      <span class="wordmark-sub" style="font-size:0.68rem">your words, made gentle</span>
+    </div>
+    <button class="btn-ghost" id="settings-btn">settings</button>
+  </div>
+
+  <div class="input-section">
+    <div class="input-label">What's on your mind?</div>
+    <textarea
+      class="raw-input"
+      id="raw-input"
+      placeholder="Unfiltered thoughts, feelings, observations — anything. The rougher the better."
+      rows="6"
+    ></textarea>
+    <div class="input-footer">
+      <span class="input-hint">Cmd/Ctrl + Enter to transform</span>
+      <button class="transform-btn" id="transform-btn">Transform →</button>
+    </div>
+    <p class="error-msg" id="transform-error"></p>
+  </div>
+
+  <div class="results-section" id="results-section" style="display:none">
+    <div class="results-label">3 variations for X</div>
+    <div class="post-cards" id="post-cards"></div>
+  </div>
+
+  <div class="page-footer">
+    <span style="color:var(--muted); font-size:0.72rem; opacity:0.5">you are already whole</span>
+  </div>
+
+</div>
+
+<script>
+const API_URL = 'https://api.anthropic.com/v1/messages';
+
+const SYSTEM_PROMPT = `You are a voice coach helping someone share their authentic truth on X (formerly Twitter).
+
+Transform the raw input into exactly 3 distinct post variations. Each must:
+- Be 280 characters or fewer (count carefully — this is a hard limit)
+- Sound like a real, warm person — not a brand, not a self-help account
+- Be grounded in the belief that people are already whole and complete as they are
+- Feel honest and specific to what was shared, not generic
+- Use first person
+- Avoid hashtags, emojis, corporate language, toxic positivity, and self-help clichés
+
+Make the 3 variations genuinely different in feel:
+- Variation 1: reflective and inward — sitting with the feeling
+- Variation 2: relational and connective — reaching toward others who might feel the same
+- Variation 3: distilled and direct — the essential truth in as few words as possible
+
+Return ONLY a raw JSON array of exactly 3 strings. No explanation, no markdown, no code fences. Example format:
+["post one text here","post two text here","post three text here"]`;
+
+let apiKey = localStorage.getItem('beings_voice_key') || '';
+
+// ── Setup ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+document.getElementById('setup-key').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('setup-btn').click();
+});
+
+document.getElementById('setup-btn').addEventListener('click', () => {
+  const key = document.getElementById('setup-key').value.trim();
+  if (!key.startsWith('sk-')) {
+    showError('setup-error', 'That doesn\'t look like a valid API key.');
+    return;
+  }
+  localStorage.setItem('beings_voice_key', key);
+  apiKey = key;
+  showScreen('screen-main');
+  document.getElementById('raw-input').focus();
+});
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+  if (confirm('Clear your API key and reset?')) {
+    localStorage.removeItem('beings_voice_key');
+    apiKey = '';
+    document.getElementById('setup-key').value = '';
+    document.getElementById('raw-input').value = '';
+    document.getElementById('results-section').style.display = 'none';
+    showScreen('screen-setup');
+  }
+});
+
+// ── Transform ──
+document.getElementById('transform-btn').addEventListener('click', transform);
+document.getElementById('raw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) transform();
+});
+
+async function transform() {
+  const raw = document.getElementById('raw-input').value.trim();
+  if (!raw) return;
+
+  const btn = document.getElementById('transform-btn');
+  btn.disabled = true;
+  btn.textContent = 'Transforming…';
+
+  const resultsSection = document.getElementById('results-section');
+  const postCards = document.getElementById('post-cards');
+
+  // Show skeletons
+  resultsSection.style.display = 'block';
+  postCards.innerHTML = [1, 2, 3].map(() => `
+    <div class="skeleton-card">
+      <div class="skel-line w-full"></div>
+      <div class="skel-line w-full"></div>
+      <div class="skel-line w-80"></div>
+      <div class="skel-line w-60" style="margin-top:4px"></div>
+    </div>
+  `).join('');
+
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 600,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: raw }],
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const rawText = data.content?.find(b => b.type === 'text')?.text || '';
+
+    // Parse JSON — strip any accidental markdown fences
+    const cleaned = rawText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    let posts;
+    try {
+      posts = JSON.parse(cleaned);
+    } catch {
+      // Fallback: try to extract array portion
+      const match = cleaned.match(/\[[\s\S]*\]/);
+      if (match) posts = JSON.parse(match[0]);
+      else throw new Error('Couldn\'t parse the response. Please try again.');
+    }
+
+    if (!Array.isArray(posts) || posts.length < 3) {
+      throw new Error('Unexpected response format. Please try again.');
+    }
+
+    renderPosts(posts.slice(0, 3));
+
+  } catch (err) {
+    postCards.innerHTML = '';
+    resultsSection.style.display = 'none';
+    showError('transform-error', err.message || 'Something went wrong. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Transform →';
+  }
+}
+
+const VARIATION_NAMES = ['Reflective', 'Connective', 'Distilled'];
+
+function renderPosts(posts) {
+  const postCards = document.getElementById('post-cards');
+  postCards.innerHTML = '';
+
+  posts.forEach((text, i) => {
+    const len = text.length;
+    const countClass = len > 280 ? 'over' : len > 250 ? 'warn' : 'ok';
+
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.innerHTML = `
+      <div class="post-card-inner">
+        <div class="post-variation">${VARIATION_NAMES[i]}</div>
+        <div class="post-text">${escapeHtml(text)}</div>
+      </div>
+      <div class="post-card-footer">
+        <span class="char-count ${countClass}">${len} / 280</span>
+        <button class="copy-btn" data-text="${escapeAttr(text)}">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="5" width="9" height="9" rx="1.5"/>
+            <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/>
+          </svg>
+          Copy
+        </button>
+      </div>
+    `;
+
+    postCards.appendChild(card);
+  });
+
+  // Wire copy buttons
+  postCards.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.text;
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.classList.add('copied');
+        btn.innerHTML = `
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2.5 8.5l3.5 3.5 7-8"/>
+          </svg>
+          Copied
+        `;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="5" width="9" height="9" rx="1.5"/>
+              <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/>
+            </svg>
+            Copy
+          `;
+        }, 2200);
+      } catch {
+        // Fallback for browsers blocking clipboard
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2200);
+      }
+    });
+  });
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escapeAttr(str) {
+  return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ── Init ──
+if (apiKey) {
+  showScreen('screen-main');
+}
+</script>
+</body>
+</html>

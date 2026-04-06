@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beings</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #090c0f;
+      --surface:    #101418;
+      --border:     #1c2330;
+      --text:       #d4ddd0;
+      --muted:      #6a7870;
+      --sage:       #7aaa90;
+      --sage-soft:  #96c0a8;
+      --lavender:   #8e90be;
+      --blue:       #6a8eaa;
+      --cream:      #e4edd8;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 24px;
+    }
+
+    /* ── Screens ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 560px;
+      animation: rise 0.6s ease both;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Wordmark ── */
+    .wordmark {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      color: var(--sage);
+      text-transform: uppercase;
+      margin-bottom: 48px;
+      opacity: 0.85;
+    }
+
+    /* ── Setup screen ── */
+    .setup-body {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .setup-heading {
+      font-family: 'Lora', serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--cream);
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .setup-sub {
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      padding: 13px 16px;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus { border-color: var(--sage); }
+    input::placeholder { color: var(--muted); }
+
+    .field-hint {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+      margin-top: -4px;
+    }
+
+    .btn {
+      background: var(--sage);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      padding: 14px 24px;
+      transition: background 0.2s, opacity 0.2s;
+      width: 100%;
+    }
+    .btn:hover { background: var(--sage-soft); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+      padding: 10px 20px;
+      width: auto;
+    }
+    .btn-ghost:hover { background: transparent; border-color: var(--muted); color: var(--text); }
+
+    /* ── Main screen ── */
+    .main-top {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 52px;
+    }
+
+    .greeting {
+      color: var(--sage-soft);
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    .date-line {
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+    }
+
+    .question-wrap {
+      width: 100%;
+      margin-bottom: 36px;
+      text-align: center;
+    }
+
+    .question-label {
+      color: var(--lavender);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      opacity: 0.8;
+    }
+
+    .question {
+      font-family: 'Lora', serif;
+      font-size: 1.55rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--cream);
+    }
+
+    textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Lora', serif;
+      font-size: 1rem;
+      line-height: 1.75;
+      min-height: 140px;
+      outline: none;
+      padding: 18px 20px;
+      resize: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    textarea:focus { border-color: var(--sage); }
+    textarea::placeholder { color: var(--muted); font-style: italic; }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+      width: 100%;
+    }
+
+    .submit-btn {
+      background: transparent;
+      border: 1px solid var(--sage);
+      border-radius: 8px;
+      color: var(--sage);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 11px 24px;
+      transition: all 0.2s;
+    }
+    .submit-btn:hover { background: var(--sage); color: var(--bg); }
+    .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Reflection response ── */
+    .reflection-wrap {
+      width: 100%;
+      margin-top: 40px;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .reflection-wrap.visible { opacity: 1; }
+
+    .reflection-divider {
+      align-items: center;
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .reflection-divider::before,
+    .reflection-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .reflection-divider span {
+      color: var(--blue);
+      font-size: 1rem;
+      opacity: 0.6;
+    }
+
+    .reflection-text {
+      color: var(--cream);
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      line-height: 1.85;
+      text-align: center;
+    }
+
+    .cursor-blink::after {
+      content: '·';
+      animation: blink 0.9s step-end infinite;
+      color: var(--sage);
+      font-style: normal;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── Already responded state ── */
+    .responded-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-style: italic;
+      margin-top: 14px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 60px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+
+    /* ── Error ── */
+    .error-msg {
+      color: #a07a9a;
+      font-size: 0.82rem;
+      margin-top: 8px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* ── History screen ── */
+    #screen-history {
+      align-self: flex-start;
+      padding-top: 48px;
+      padding-bottom: 64px;
+    }
+
+    .history-nav {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      padding: 0;
+      transition: color 0.2s;
+      width: auto;
+    }
+    .back-btn:hover { background: none; color: var(--text); }
+
+    .history-count {
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+    }
+
+    .history-empty {
+      color: var(--muted);
+      font-family: 'Lora', serif;
+      font-style: italic;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 60px;
+      line-height: 1.7;
+    }
+
+    .entry-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .entry-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .entry-card:hover { border-color: #2e3a48; }
+
+    .entry-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .entry-date {
+      color: var(--sage);
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      flex-shrink: 0;
+    }
+
+    .entry-question-preview {
+      color: var(--muted);
+      font-family: 'Lora', serif;
+      font-size: 0.88rem;
+      font-style: italic;
+      line-height: 1.4;
+      text-align: right;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
+
+    .entry-body {
+      display: none;
+      padding: 0 20px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .entry-body.open { display: block; }
+
+    .entry-question-full {
+      color: var(--lavender);
+      font-family: 'Lora', serif;
+      font-size: 0.9rem;
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 14px;
+      padding-top: 16px;
+      opacity: 0.85;
+    }
+
+    .entry-response {
+      color: var(--text);
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      white-space: pre-wrap;
+    }
+
+    .entry-reflection-wrap {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .entry-reflection-label {
+      color: var(--blue);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      opacity: 0.7;
+    }
+
+    .entry-reflection-text {
+      color: var(--cream);
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      font-style: italic;
+      line-height: 1.8;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Setup Screen ── -->
+<div class="screen active" id="screen-setup">
+  <div class="wordmark">Beings</div>
+  <div class="setup-body">
+    <div>
+      <h1 class="setup-heading">A quiet place to meet yourself.</h1>
+      <p class="setup-sub">Each day, one question. You answer honestly. Something gentle is reflected back.</p>
+    </div>
+
+    <div class="field">
+      <label for="input-name">What shall I call you?</label>
+      <input type="text" id="input-name" placeholder="Your name" autocomplete="off" autofocus>
+    </div>
+
+    <div class="field">
+      <label for="input-key">Anthropic API key</label>
+      <input type="password" id="input-key" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+      <p class="field-hint">Stored only in your browser. Never sent anywhere but Anthropic's servers.</p>
+      <p class="error-msg" id="setup-error"></p>
+    </div>
+
+    <button class="btn" id="setup-btn">Enter</button>
+  </div>
+</div>
+
+<!-- ── Main Screen ── -->
+<div class="screen" id="screen-main">
+  <div class="wordmark">Beings</div>
+
+  <div class="main-top">
+    <div class="greeting" id="greeting"></div>
+    <div class="date-line" id="date-line"></div>
+  </div>
+
+  <div class="question-wrap">
+    <div class="question-label">Today's reflection</div>
+    <div class="question" id="question-text"></div>
+  </div>
+
+  <textarea id="reflection-input" placeholder="Write as little or as much as feels true…" rows="5"></textarea>
+
+  <div class="actions">
+    <button class="submit-btn" id="submit-btn">Reflect →</button>
+  </div>
+
+  <p class="error-msg" id="reflect-error"></p>
+
+  <div class="reflection-wrap" id="reflection-wrap">
+    <div class="reflection-divider"><span>✦</span></div>
+    <div class="reflection-text" id="reflection-text"></div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-note">you are already whole</span>
+    <span class="footer-note">·</span>
+    <button class="btn-ghost btn" id="history-btn">past reflections</button>
+    <button class="btn-ghost btn" id="settings-btn">settings</button>
+  </div>
+</div>
+
+<!-- ── History Screen ── -->
+<div class="screen" id="screen-history">
+  <div class="history-nav">
+    <button class="back-btn" id="back-btn">← today</button>
+    <span class="history-count" id="history-count"></span>
+  </div>
+  <div class="wordmark" style="margin-bottom: 36px">Beings</div>
+  <div id="entry-list" class="entry-list"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  "What are you carrying today that deserves a little gentleness?",
+  "What small moment brought you back to yourself recently?",
+  "Where in your body do you feel most at home right now?",
+  "What are you learning to accept about yourself?",
+  "What does your heart want you to hear today?",
+  "What are you not saying that quietly wants to be said?",
+  "What feels like enough, right now, in this moment?",
+  "What part of yourself have you been hardest on lately?",
+  "What are you grateful for that you rarely think to name?",
+  "What are you ready to let be exactly as it is?",
+  "What would it feel like to trust yourself completely today?",
+  "What are you protecting yourself from feeling?",
+  "When did you last let yourself be fully seen?",
+  "What does rest mean to you right now?",
+  "What truth are you circling without quite landing on?",
+  "What are you afraid to want?",
+  "What would you do today if you knew you were enough?",
+  "What part of your story are you still making peace with?",
+  "What are you more ready for than you think?",
+  "What does your wisest self want you to remember?",
+  "What have you been too busy to grieve?",
+  "What does love ask of you today?",
+  "What are you outgrowing that you haven't named yet?",
+  "What would you tell yourself from ten years ago?",
+  "What are you holding onto that you could release?",
+  "What do you need more of right now?",
+  "What are you beginning to understand about yourself?",
+  "What brings you home to yourself most quickly?",
+  "What is asking for your attention beneath the noise?",
+  "What would full presence feel like for you today?",
+];
+
+const SYSTEM_PROMPT = `You are a warm, grounded, loving presence — a wise mirror.
+
+The person sharing with you is already whole. Nothing is missing. Nothing needs to be fixed or improved. Hold this as absolute truth.
+
+When they share their reflection, your only role is to witness them with tenderness and reflect back what you genuinely hear — not advice, not reframing, not encouragement to change. Simply presence. Warmth. Recognition.
+
+Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let them feel truly seen. Weave in — gently, naturally — the quiet truth that they are already complete.`;
+
+const API_URL = 'https://api.anthropic.com/v1/messages';
+
+// ── State ──
+let apiKey = localStorage.getItem('beings_key') || '';
+let userName = localStorage.getItem('beings_name') || '';
+
+function localDateStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+
+function todayKey() {
+  return 'beings_response_' + localDateStr();
+}
+
+function todayQuestion() {
+  const d = new Date();
+  // deterministic index from local calendar date, not UTC epoch
+  const idx = (d.getFullYear() * 366 + d.getMonth() * 31 + d.getDate()) % QUESTIONS.length;
+  return QUESTIONS[idx];
+}
+
+function greetingText(name) {
+  const h = new Date().getHours();
+  if (h < 5)  return `Still with you, ${name}.`;
+  if (h < 12) return `Good morning, ${name}.`;
+  if (h < 17) return `Good afternoon, ${name}.`;
+  if (h < 21) return `Good evening, ${name}.`;
+  return `Good night, ${name}.`;
+}
+
+function dateText() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+// ── Screens ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  // re-trigger animation
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ── Setup ──
+document.getElementById('setup-btn').addEventListener('click', () => {
+  const name = document.getElementById('input-name').value.trim();
+  const key  = document.getElementById('input-key').value.trim();
+
+  if (!name) { showError('setup-error', 'Please enter your name.'); return; }
+  if (!key.startsWith('sk-')) { showError('setup-error', 'That doesn\'t look like a valid API key.'); return; }
+
+  localStorage.setItem('beings_name', name);
+  localStorage.setItem('beings_key', key);
+  userName = name;
+  apiKey = key;
+  initMain();
+});
+
+['input-name', 'input-key'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('setup-btn').click();
+  });
+});
+
+// ── Main ──
+function initMain() {
+  initializedDate = localDateStr();
+  document.getElementById('greeting').textContent = greetingText(userName);
+  document.getElementById('date-line').textContent = dateText();
+  document.getElementById('question-text').textContent = todayQuestion();
+
+  const saved = localStorage.getItem(todayKey());
+  if (saved) {
+    try {
+      const { entry, reflection } = JSON.parse(saved);
+      document.getElementById('reflection-input').value = entry;
+      document.getElementById('reflection-input').disabled = true;
+      document.getElementById('submit-btn').disabled = true;
+
+      const wrap = document.getElementById('reflection-wrap');
+      const text = document.getElementById('reflection-text');
+      text.textContent = reflection;
+      wrap.classList.add('visible');
+
+      const note = document.createElement('p');
+      note.className = 'responded-note';
+      note.textContent = 'You\'ve already reflected today. Come back tomorrow.';
+      wrap.after(note);
+    } catch {}
+  }
+
+  showScreen('screen-main');
+}
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+  if (confirm('Clear your name and API key?')) {
+    localStorage.removeItem('beings_name');
+    localStorage.removeItem('beings_key');
+    userName = ''; apiKey = '';
+    document.getElementById('input-name').value = '';
+    document.getElementById('input-key').value = '';
+    showScreen('screen-setup');
+  }
+});
+
+document.getElementById('history-btn').addEventListener('click', () => {
+  loadHistory();
+  showScreen('screen-history');
+  window.scrollTo({ top: 0 });
+});
+
+document.getElementById('back-btn').addEventListener('click', () => {
+  showScreen('screen-main');
+  window.scrollTo({ top: 0 });
+});
+
+// ── History ──
+function getEntries() {
+  const entries = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key.startsWith('beings_response_')) continue;
+    const date = key.replace('beings_response_', '');
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      entries.push({ date, ...data });
+    } catch {}
+  }
+  return entries.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function formatEntryDate(dateStr) {
+  // dateStr is YYYY-MM-DD; parse as local date to avoid timezone shifts
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+}
+
+function loadHistory() {
+  const entries = getEntries();
+  const list = document.getElementById('entry-list');
+  const countEl = document.getElementById('history-count');
+
+  list.innerHTML = '';
+
+  const past = entries.filter(e => e.date !== localDateStr());
+
+  countEl.textContent = past.length === 0 ? '' :
+    past.length === 1 ? '1 entry' : `${past.length} entries`;
+
+  if (past.length === 0) {
+    list.innerHTML = '<p class="history-empty">Your past reflections<br>will appear here.</p>';
+    return;
+  }
+
+  past.forEach(entry => {
+    const card = document.createElement('div');
+    card.className = 'entry-card';
+
+    const header = document.createElement('div');
+    header.className = 'entry-header';
+    header.innerHTML = `
+      <span class="entry-date">${formatEntryDate(entry.date)}</span>
+      <span class="entry-question-preview">${entry.question || ''}</span>
+    `;
+
+    const body = document.createElement('div');
+    body.className = 'entry-body';
+    body.innerHTML = `
+      ${entry.question ? `<p class="entry-question-full">${entry.question}</p>` : ''}
+      <p class="entry-response">${entry.entry}</p>
+      ${entry.reflection ? `
+        <div class="entry-reflection-wrap">
+          <div class="entry-reflection-label">reflection</div>
+          <p class="entry-reflection-text">${entry.reflection}</p>
+        </div>` : ''}
+    `;
+
+    header.addEventListener('click', () => {
+      body.classList.toggle('open');
+    });
+
+    card.appendChild(header);
+    card.appendChild(body);
+    list.appendChild(card);
+  });
+}
+
+// ── Submit ──
+document.getElementById('submit-btn').addEventListener('click', reflect);
+document.getElementById('reflection-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) reflect();
+});
+
+async function reflect() {
+  const entry = document.getElementById('reflection-input').value.trim();
+  if (!entry) return;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  const question = todayQuestion();
+  const userContent = `Today's reflection question: "${question}"\n\nMy response: ${entry}`;
+
+  const wrap = document.getElementById('reflection-wrap');
+  const text = document.getElementById('reflection-text');
+  text.textContent = '';
+  text.classList.add('cursor-blink');
+  wrap.classList.add('visible');
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 300,
+        stream: true,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userContent }],
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `HTTP ${res.status}`);
+    }
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    let full = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const evt = JSON.parse(data);
+          if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+            full += evt.delta.text;
+            text.textContent = full;
+          }
+        } catch {}
+      }
+    }
+
+    text.classList.remove('cursor-blink');
+    document.getElementById('reflection-input').disabled = true;
+
+    // Save today's entry (include question for history view)
+    localStorage.setItem(todayKey(), JSON.stringify({ question, entry, reflection: full }));
+
+    const note = document.createElement('p');
+    note.className = 'responded-note';
+    note.textContent = 'You\'ve reflected for today. Come back tomorrow.';
+    wrap.after(note);
+
+  } catch (err) {
+    text.classList.remove('cursor-blink');
+    text.textContent = '';
+    wrap.classList.remove('visible');
+    btn.disabled = false;
+    btn.textContent = 'Reflect →';
+    showError('reflect-error', err.message || 'Something went wrong. Please try again.');
+  }
+}
+
+// ── Auto-refresh on new day ──
+// Track the date the page was last initialised. When the user returns to the
+// tab after midnight, visibilitychange fires — if the date has rolled over,
+// re-init so they see the fresh question with a clean input.
+let initializedDate = null;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (!initializedDate || !userName || !apiKey) return;
+  if (localDateStr() !== initializedDate) {
+    // New day — reset the main screen and re-init
+    const input = document.getElementById('reflection-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const reflWrap = document.getElementById('reflection-wrap');
+    const reflText = document.getElementById('reflection-text');
+    input.value = '';
+    input.disabled = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Reflect →';
+    reflWrap.classList.remove('visible');
+    reflText.textContent = '';
+    document.querySelectorAll('.responded-note').forEach(n => n.remove());
+    initMain();
+  }
+});
+
+// ── Init ──
+if (userName && apiKey) {
+  initMain();
+}
+</script>
+</body>
+</html>

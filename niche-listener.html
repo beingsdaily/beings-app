@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Niche Listener</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --card: #161616;
+      --border: #222222;
+      --text: #e2e2e2;
+      --muted: #505050;
+      --muted2: #333;
+      --pain: #f87171;
+      --questions: #60a5fa;
+      --content: #34d399;
+      --language: #a78bfa;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .app {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #e2e2e2 30%, #666 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* ── API Key Row ── */
+    .api-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .api-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── Inputs ── */
+    input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 0.65rem 1rem;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    input::placeholder { color: var(--muted); }
+
+    input:focus { border-color: #3a3a3a; }
+
+    /* ── Search Row ── */
+    .search-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .search-row input {
+      font-size: 1.05rem;
+      padding: 0.85rem 1.2rem;
+    }
+
+    /* ── Buttons ── */
+    button {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem 1.6rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: opacity 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+
+    button:hover { opacity: 0.88; }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-sm {
+      padding: 0.55rem 1rem;
+      font-size: 0.78rem;
+    }
+
+    /* ── Status ── */
+    .status {
+      min-height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .spinner {
+      width: 15px;
+      height: 15px;
+      border: 2px solid var(--muted2);
+      border-top-color: #888;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results Grid ── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .results-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+
+    .card-full { grid-column: 1 / -1; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .card-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card-count {
+      margin-left: auto;
+      font-size: 0.7rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.5rem;
+      border-radius: 100px;
+    }
+
+    /* type colors */
+    .card-pain   .dot { background: var(--pain); }
+    .card-pain   .card-name { color: var(--pain); }
+    .card-q      .dot { background: var(--questions); }
+    .card-q      .card-name { color: var(--questions); }
+    .card-idea   .dot { background: var(--content); }
+    .card-idea   .card-name { color: var(--content); }
+    .card-lang   .dot { background: var(--language); }
+    .card-lang   .card-name { color: var(--language); }
+
+    /* ── Items ── */
+    .item {
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .item:last-child { border-bottom: none; padding-bottom: 0; }
+    .item:first-child { padding-top: 0; }
+
+    .item-num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .item-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+      line-height: 1.35;
+    }
+
+    .item-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .item-extra {
+      font-size: 0.75rem;
+      color: #3d3d3d;
+      margin-top: 0.35rem;
+      font-style: italic;
+      line-height: 1.45;
+      border-left: 2px solid var(--border);
+      padding-left: 0.6rem;
+    }
+
+    /* ── Language Tags ── */
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      background: rgba(167, 139, 250, 0.08);
+      border: 1px solid rgba(167, 139, 250, 0.18);
+      color: var(--language);
+      padding: 0.3rem 0.8rem;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    /* ── Sources ── */
+    .sources {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding-top: 0.5rem;
+    }
+
+    .sources .pill {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin: 0.15rem;
+      color: #666;
+    }
+
+    /* ── Error ── */
+    .error-box {
+      background: rgba(248, 113, 113, 0.07);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      color: var(--pain);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      margin-top: 1rem;
+    }
+
+    /* ── Saved indicator ── */
+    .saved-flash {
+      color: var(--content);
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <h1>Niche Listener</h1>
+    <p>Discover what your audience really thinks — Reddit research, powered by Claude</p>
+  </header>
+
+  <div class="api-row">
+    <span class="api-label">API Key</span>
+    <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+    <span class="saved-flash" id="savedFlash" style="display:none">Saved</span>
+    <button class="btn-sm" onclick="saveKey()">Save</button>
+  </div>
+
+  <div class="search-row">
+    <input type="text" id="topic"
+      placeholder="Enter a niche or topic (e.g. solopreneurs, keto diet, 3D printing…)"
+      onkeydown="if(event.key==='Enter') analyze()">
+    <button id="analyzeBtn" onclick="analyze()">Analyze</button>
+  </div>
+
+  <div class="status" id="status"></div>
+  <div id="output"></div>
+
+</div>
+
+<script>
+  // ── API key persistence ──────────────────────────────────────────────────
+  const keyInput = document.getElementById('apiKey');
+  keyInput.value = localStorage.getItem('niche_listener_key') || '';
+
+  keyInput.addEventListener('input', () => {
+    const v = keyInput.value.trim();
+    if (v) localStorage.setItem('niche_listener_key', v);
+  });
+
+  function saveKey() {
+    const v = keyInput.value.trim();
+    if (!v) return;
+    localStorage.setItem('niche_listener_key', v);
+    const flash = document.getElementById('savedFlash');
+    flash.style.display = 'inline';
+    setTimeout(() => flash.style.display = 'none', 2000);
+  }
+
+  // ── UI helpers ───────────────────────────────────────────────────────────
+  function setStatus(msg, loading = false) {
+    const el = document.getElementById('status');
+    if (!msg) { el.innerHTML = ''; return; }
+    el.innerHTML = loading
+      ? `<div class="spinner"></div><span>${msg}</span>`
+      : `<span>${msg}</span>`;
+  }
+
+  function showError(msg) {
+    document.getElementById('output').innerHTML =
+      `<div class="error-box"><strong>Error:</strong> ${esc(msg)}</div>`;
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Reddit data gathering ────────────────────────────────────────────────
+  async function redditFetch(url) {
+    const proxied = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+    const r = await fetch(proxied);
+    if (!r.ok) throw new Error(`Reddit returned ${r.status} — try a different topic.`);
+    return r.json();
+  }
+
+  async function gatherData(topic) {
+    // 1. Search top posts
+    setStatus('Searching Reddit for relevant posts…', true);
+    const searchUrl =
+      `https://www.reddit.com/search.json?q=${encodeURIComponent(topic)}`
+      + `&sort=top&t=month&limit=25&raw_json=1`;
+    const searchData = await redditFetch(searchUrl);
+    const posts = searchData.data.children.map(c => c.data);
+
+    if (!posts.length)
+      throw new Error('No Reddit posts found for this topic. Try a broader search term.');
+
+    // 2. Also grab top posts from the most-mentioned subreddit for extra signal
+    const subCounts = {};
+    posts.forEach(p => { subCounts[p.subreddit] = (subCounts[p.subreddit] || 0) + 1; });
+    const topSub = Object.entries(subCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+    let subPosts = [];
+    if (topSub) {
+      try {
+        setStatus(`Fetching top posts from r/${topSub}…`, true);
+        const subUrl =
+          `https://www.reddit.com/r/${topSub}/top.json?t=month&limit=10&raw_json=1`;
+        const subData = await redditFetch(subUrl);
+        subPosts = subData.data.children.map(c => c.data);
+      } catch (_) { /* non-fatal */ }
+    }
+
+    // Merge & de-duplicate by id
+    const seen = new Set();
+    const allPosts = [...posts, ...subPosts].filter(p => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    }).slice(0, 12);
+
+    // 3. Fetch comments for top posts
+    setStatus('Reading top comments…', true);
+    const results = [];
+
+    for (const post of allPosts.slice(0, 9)) {
+      try {
+        const url =
+          `https://www.reddit.com/r/${post.subreddit}/comments/${post.id}.json`
+          + `?limit=15&sort=top&depth=1&raw_json=1`;
+        const data = await redditFetch(url);
+        const comments = data[1].data.children
+          .filter(c => c.kind === 't1')
+          .map(c => c.data.body)
+          .filter(b => b && b !== '[deleted]' && b !== '[removed]' && b.length > 40)
+          .slice(0, 12);
+
+        results.push({
+          title: post.title,
+          body: post.selftext ? post.selftext.slice(0, 600) : '',
+          subreddit: post.subreddit,
+          score: post.score,
+          numComments: post.num_comments,
+          comments,
+        });
+      } catch (_) {
+        results.push({
+          title: post.title,
+          body: post.selftext ? post.selftext.slice(0, 600) : '',
+          subreddit: post.subreddit,
+          score: post.score,
+          numComments: post.num_comments,
+          comments: [],
+        });
+      }
+      await new Promise(r => setTimeout(r, 120)); // gentle rate limiting
+    }
+
+    return results;
+  }
+
+  // ── Claude analysis ──────────────────────────────────────────────────────
+  async function analyzeWithClaude(data, topic, apiKey) {
+    setStatus('Analyzing with Claude AI…', true);
+
+    const corpus = data.map(p => {
+      const lines = [`[r/${p.subreddit}] [↑${p.score}] ${p.title}`];
+      if (p.body) lines.push(p.body);
+      if (p.comments.length) {
+        lines.push('Top comments:');
+        p.comments.forEach(c => lines.push(`  • ${c}`));
+      }
+      return lines.join('\n');
+    }).join('\n\n────\n\n');
+
+    const prompt = `You are a sharp market research analyst. Analyze the Reddit discussions below about the topic: "${topic}".
+
+${corpus.slice(0, 30000)}
+
+Return a single valid JSON object with exactly this structure — no markdown, no explanation, just JSON:
+
+{
+  "painPoints": [
+    {
+      "title": "short name for the pain",
+      "description": "what exactly is frustrating people and why it matters",
+      "evidence": "a representative quote or close paraphrase from the data"
+    }
+  ],
+  "questions": [
+    {
+      "title": "the core question in plain language",
+      "description": "what drives this question and what answer people need",
+      "frequency": "very common / common / occasional"
+    }
+  ],
+  "contentIdeas": [
+    {
+      "title": "specific content piece title",
+      "description": "what to cover and why it will resonate with this community",
+      "angle": "the hook or unique angle that makes it compelling"
+    }
+  ],
+  "language": [
+    "exact phrase or term people use"
+  ]
+}
+
+Requirements:
+• Exactly 5 items each for painPoints, questions, contentIdeas
+• 12–18 items for language (verbatim phrases, jargon, terms from the data)
+• Be specific — no generic filler. Ground every point in the actual data.
+• Use the community's exact words whenever possible.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2800,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Claude API error (${resp.status})`);
+    }
+
+    const result = await resp.json();
+    const raw = result.content[0].text.trim();
+
+    // Extract JSON robustly
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Could not parse the analysis response. Try again.');
+    return JSON.parse(match[0]);
+  }
+
+  // ── Rendering ────────────────────────────────────────────────────────────
+  function renderResults(analysis, data) {
+    const subreddits = [...new Set(data.map(d => d.subreddit))];
+    const totalComments = data.reduce((s, d) => s + d.comments.length, 0);
+
+    document.getElementById('output').innerHTML = `
+      <div class="results-grid">
+        ${card('card-pain',  'Pain Points',   analysis.painPoints,    'evidence')}
+        ${card('card-q',     'Top Questions', analysis.questions,     'frequency')}
+        ${card('card-idea',  'Content Ideas', analysis.contentIdeas,  'angle')}
+        ${langCard(analysis.language)}
+        <div class="sources card-full">
+          Analyzed <strong>${data.length}</strong> posts &middot;
+          <strong>${totalComments}</strong> comments &middot;
+          Subreddits:
+          ${subreddits.map(s => `<span class="pill">r/${s}</span>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  function card(cls, label, items, extraKey) {
+    const rows = items.map((item, i) => `
+      <div class="item">
+        <div class="item-num">0${i + 1}</div>
+        <div class="item-title">${esc(item.title)}</div>
+        <div class="item-desc">${esc(item.description)}</div>
+        ${item[extraKey]
+          ? `<div class="item-extra">${esc(item[extraKey])}</div>`
+          : ''}
+      </div>`).join('');
+
+    return `
+      <div class="card ${cls}">
+        <div class="card-head">
+          <div class="dot"></div>
+          <span class="card-name">${label}</span>
+          <span class="card-count">${items.length}</span>
+        </div>
+        ${rows}
+      </div>`;
+  }
+
+  function langCard(terms) {
+    const tags = terms.map(t => `<span class="tag">${esc(t)}</span>`).join('');
+    return `
+      <div class="card card-lang card-full">
+        <div class="card-head">
+          <div class="dot"></div>
+          <span class="card-name">Language People Use</span>
+          <span class="card-count">${terms.length} terms</span>
+        </div>
+        <div class="tag-cloud">${tags}</div>
+      </div>`;
+  }
+
+  // ── Main ─────────────────────────────────────────────────────────────────
+  async function analyze() {
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) return;
+
+    const apiKey =
+      localStorage.getItem('niche_listener_key') || keyInput.value.trim();
+    if (!apiKey) {
+      showError('Please enter your Anthropic API key and click Save.');
+      return;
+    }
+
+    const btn = document.getElementById('analyzeBtn');
+    btn.disabled = true;
+    document.getElementById('output').innerHTML = '';
+
+    try {
+      const redditData = await gatherData(topic);
+      const analysis   = await analyzeWithClaude(redditData, topic, apiKey);
+      setStatus('');
+      renderResults(analysis, redditData);
+    } catch (err) {
+      setStatus('');
+      showError(err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
