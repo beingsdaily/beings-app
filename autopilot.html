@@ -494,10 +494,11 @@
 
   // ── Reddit fetch ──────────────────────────────────────────
   async function redditFetch(url) {
-    const proxied = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+    const proxied = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
     const r = await fetch(proxied);
     if (!r.ok) throw new Error(`Reddit returned ${r.status} — try again shortly.`);
-    return r.json();
+    const wrapper = await r.json();
+    return JSON.parse(wrapper.contents);
   }
 
   async function fetchRedditContent() {
