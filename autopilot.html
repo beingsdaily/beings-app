@@ -466,6 +466,7 @@
 <script>
   // ── State ──────────────────────────────────────────────────
   let queue = JSON.parse(localStorage.getItem('beings_queue') || '[]');
+  let drafts = [];
 
   // ── Init ──────────────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', () => {
@@ -566,6 +567,7 @@ Return ONLY a JSON array with exactly 3 strings, no other text. Example format:
 
   // ── Render draft cards ────────────────────────────────────
   function renderDrafts(posts) {
+    drafts = posts;
     const section = document.getElementById('drafts-section');
     const grid = document.getElementById('cards-grid');
     grid.innerHTML = '';
@@ -583,14 +585,19 @@ Return ONLY a JSON array with exactly 3 strings, no other text. Example format:
         <div class="post-text">${escHtml(text)}</div>
         <div class="char-count ${overLimit ? 'over' : ''}">${charLen} / 280 characters</div>
         <div class="card-actions">
-          <button class="btn-approve" onclick="approve(${i}, ${JSON.stringify(text).replace(/</g,'\\u003c')})">Approve</button>
-          <button class="btn-skip" onclick="skip(${i})">Skip</button>
+          <button class="btn-approve" data-index="${i}">Approve</button>
+          <button class="btn-skip" data-index="${i}">Skip</button>
         </div>`;
+
+      card.querySelector('.btn-approve').addEventListener('click', () => approve(i));
+      card.querySelector('.btn-skip').addEventListener('click', () => skip(i));
+
       grid.appendChild(card);
     });
   }
 
-  function approve(i, text) {
+  function approve(i) {
+    const text = drafts[i];
     const card = document.getElementById(`card-${i}`);
     card.classList.add('approved');
     card.querySelector('.card-actions').innerHTML =
