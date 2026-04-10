@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beings — Daily Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d1610;
+      --bg-card:     #121c14;
+      --bg-raised:   #172019;
+      --border:      rgba(122,158,126,0.13);
+      --border-md:   rgba(122,158,126,0.25);
+      --sage:        #7a9e7e;
+      --sage-dim:    #4e6b52;
+      --sage-bright: #90b894;
+      --sage-glow:   rgba(122,158,126,0.18);
+      --lavender:    #b9a9cc;
+      --lav-dim:     rgba(185,169,204,0.5);
+      --cream:       #e6dece;
+      --cream-dim:   #8a8278;
+      --cream-faint: rgba(230,222,206,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Noise */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+    }
+
+    /* Ambient glow */
+    body::after {
+      content: '';
+      position: fixed;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(122,158,126,0.07) 0%, transparent 65%);
+      top: -200px; left: 50%; transform: translateX(-50%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .page {
+      position: relative; z-index: 1;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 48px 0 44px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 44px;
+    }
+
+    .wordmark {
+      display: inline-block;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 0.75rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      margin-bottom: 28px;
+    }
+
+    .date-display {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2rem, 6vw, 2.8rem);
+      color: var(--cream);
+      letter-spacing: -0.01em;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .day-name {
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--sage);
+      font-weight: 300;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.63rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      margin-bottom: 18px;
+      font-weight: 400;
+    }
+
+    /* ── Habits ── */
+    .habits { margin-bottom: 48px; }
+
+    .habit-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 20px 22px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.25s, background 0.25s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .habit-row:hover { border-color: var(--border-md); }
+
+    .habit-row.done {
+      border-color: rgba(122,158,126,0.35);
+      background: rgba(122,158,126,0.06);
+    }
+
+    /* Circle */
+    .habit-circle {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid var(--sage-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s, border-color 0.3s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .habit-row.done .habit-circle {
+      background: var(--sage);
+      border-color: var(--sage);
+      transform: scale(1.05);
+    }
+
+    /* Ripple fill */
+    .habit-circle::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--sage);
+      transform: scale(0);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .habit-row.done .habit-circle::before { transform: scale(1); }
+
+    /* Checkmark SVG */
+    .check-icon {
+      position: relative; z-index: 1;
+      opacity: 0;
+      transform: scale(0.5) rotate(-10deg);
+      transition: opacity 0.2s 0.1s, transform 0.25s 0.1s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .habit-row.done .check-icon {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+
+    .habit-info { flex: 1; }
+
+    .habit-name {
+      font-size: 0.95rem;
+      color: var(--cream);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      margin-bottom: 3px;
+      transition: color 0.2s;
+    }
+
+    .habit-row.done .habit-name { color: var(--sage-bright); }
+
+    .habit-streak {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: var(--lav-dim);
+      font-weight: 300;
+    }
+
+    .habit-streak .streak-num {
+      color: var(--lavender);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    /* ── 7-day calendar ── */
+    .calendar-wrap { margin-bottom: 48px; }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: 90px repeat(7, 1fr);
+      gap: 6px 5px;
+      align-items: center;
+    }
+
+    .cal-day-label {
+      grid-column: 2 / -1;
+      display: contents;
+    }
+
+    .cal-header {
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream-dim);
+      text-align: center;
+      padding-bottom: 4px;
+      font-weight: 400;
+    }
+
+    .cal-header.today-col { color: var(--sage); }
+
+    .cal-habit-label {
+      font-size: 0.72rem;
+      color: var(--cream-dim);
+      letter-spacing: 0.04em;
+      font-weight: 300;
+      padding-right: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cal-dot {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      transition: background 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cal-dot.filled {
+      background: var(--sage-dim);
+      border-color: var(--sage);
+    }
+
+    .cal-dot.filled-today {
+      background: var(--sage);
+      border-color: var(--sage-bright);
+      box-shadow: 0 0 8px rgba(122,158,126,0.3);
+    }
+
+    .cal-dot svg { display: none; }
+    .cal-dot.filled svg,
+    .cal-dot.filled-today svg {
+      display: block;
+      opacity: 0.7;
+    }
+
+    /* ── Quick capture ── */
+    .capture-wrap { margin-bottom: 32px; }
+
+    textarea {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1.65;
+      resize: none;
+      outline: none;
+      min-height: 88px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    textarea:focus {
+      border-color: var(--border-md);
+      box-shadow: 0 0 0 3px rgba(122,158,126,0.07);
+    }
+
+    textarea::placeholder { color: var(--cream-dim); opacity: 0.4; }
+
+    .capture-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .btn-save {
+      background: transparent;
+      border: 1px solid var(--border-md);
+      border-radius: 8px;
+      padding: 9px 22px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sage);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .btn-save:hover {
+      background: var(--sage-glow);
+      border-color: var(--sage);
+      color: var(--sage-bright);
+    }
+
+    .btn-save:disabled { opacity: 0.35; cursor: default; }
+
+    /* ── Recent thoughts ── */
+    .thoughts-wrap { }
+
+    .thought-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeUp 0.3s ease forwards;
+    }
+
+    .thought-item:first-child { border-top: 1px solid var(--border); }
+
+    .thought-meta {
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      margin-bottom: 5px;
+      font-weight: 400;
+    }
+
+    .thought-text {
+      font-size: 0.88rem;
+      color: var(--cream-dim);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 44px 0 36px;
+    }
+
+    /* ── Fade anim ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+    .fd2 { animation-delay: 0.1s; }
+    .fd3 { animation-delay: 0.2s; }
+    .fd4 { animation-delay: 0.3s; }
+    .fd5 { animation-delay: 0.4s; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: 40px;
+      padding: 10px 22px;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      color: var(--sage);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 100;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header class="fade-in">
+    <div class="wordmark">Beings</div>
+    <div class="date-display" id="date-display"></div>
+    <div class="day-name" id="day-name"></div>
+  </header>
+
+  <!-- Habits -->
+  <section class="habits fade-in fd2">
+    <div class="section-label">Today</div>
+    <div id="habits-list"></div>
+  </section>
+
+  <hr class="divider fade-in fd3" />
+
+  <!-- 7-day calendar -->
+  <section class="calendar-wrap fade-in fd3">
+    <div class="section-label">Past 7 days</div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </section>
+
+  <hr class="divider fade-in fd4" />
+
+  <!-- Quick capture -->
+  <section class="capture-wrap fade-in fd4">
+    <div class="section-label">Capture a thought</div>
+    <textarea id="thought-input" placeholder="What's present for you right now…" rows="3"></textarea>
+    <div class="capture-actions">
+      <button class="btn-save" id="save-thought-btn" onclick="saveThought()">Save</button>
+    </div>
+  </section>
+
+  <!-- Recent thoughts -->
+  <section class="thoughts-wrap fade-in fd5">
+    <div class="section-label" id="thoughts-label" style="display:none;">Recent thoughts</div>
+    <div id="thoughts-list"></div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────
+  const HABITS = [
+    { id: 'reflection', name: 'Daily Reflection', icon: '◎' },
+    { id: 'xpost',      name: 'X Post',           icon: '✦' },
+    { id: 'obsidian',   name: 'Obsidian Note',    icon: '◈' },
+  ];
+
+  const STORAGE_KEY   = 'beings_habit_data';
+  const THOUGHTS_KEY  = 'beings_thoughts';
+
+  // ── Helpers ───────────────────────────────────────────────
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function dateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function shiftDate(baseDate, days) {
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  function loadData() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  }
+
+  function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function loadThoughts() {
+    return JSON.parse(localStorage.getItem(THOUGHTS_KEY) || '[]');
+  }
+
+  function saveThoughts(arr) {
+    localStorage.setItem(THOUGHTS_KEY, JSON.stringify(arr));
+  }
+
+  function calcStreak(habitId) {
+    const data = loadData();
+    let streak = 0;
+    const today = new Date();
+
+    // Count backwards from today
+    for (let i = 0; i <= 365; i++) {
+      const d = shiftDate(today, -i);
+      const k = dateKey(d);
+      if (data[k] && data[k][habitId]) {
+        streak++;
+      } else {
+        // Allow today to be incomplete without breaking streak
+        if (i === 0) continue;
+        break;
+      }
+    }
+    return streak;
+  }
+
+  // ── Date header ───────────────────────────────────────────
+  function renderHeader() {
+    const now = new Date();
+    const months = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+    document.getElementById('date-display').textContent =
+      `${months[now.getMonth()]} ${now.getDate()}`;
+    document.getElementById('day-name').textContent = days[now.getDay()];
+  }
+
+  // ── Habits ────────────────────────────────────────────────
+  function renderHabits() {
+    const data   = loadData();
+    const today  = todayKey();
+    const dayData = data[today] || {};
+    const list   = document.getElementById('habits-list');
+    list.innerHTML = '';
+
+    HABITS.forEach(h => {
+      const done   = !!dayData[h.id];
+      const streak = calcStreak(h.id);
+
+      const row = document.createElement('div');
+      row.className = `habit-row${done ? ' done' : ''}`;
+      row.setAttribute('role', 'checkbox');
+      row.setAttribute('aria-checked', done);
+      row.setAttribute('tabindex', '0');
+
+      row.innerHTML = `
+        <div class="habit-circle">
+          <svg class="check-icon" width="13" height="10" viewBox="0 0 13 10" fill="none">
+            <path d="M1.5 5L5 8.5L11.5 1.5" stroke="#0d1610" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="habit-info">
+          <div class="habit-name">${h.name}</div>
+          <div class="habit-streak">
+            ${streak > 0
+              ? `<span class="streak-num">${streak}</span> day${streak === 1 ? '' : 's'} in a row`
+              : 'Begin today'}
+          </div>
+        </div>`;
+
+      const toggle = () => {
+        const d = loadData();
+        const td = todayKey();
+        if (!d[td]) d[td] = {};
+        d[td][h.id] = !d[td][h.id];
+        saveData(d);
+        renderHabits();
+        renderCalendar();
+        if (d[td][h.id]) toast('Marked complete');
+      };
+
+      row.addEventListener('click', toggle);
+      row.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }});
+      list.appendChild(row);
+    });
+  }
+
+  // ── Calendar ──────────────────────────────────────────────
+  function renderCalendar() {
+    const data  = loadData();
+    const today = new Date();
+    const grid  = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+
+    // Build last 7 days (oldest first)
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      days.push(shiftDate(today, -i));
+    }
+
+    const dayLabels = ['S','M','T','W','T','F','S'];
+
+    // Empty top-left cell
+    const blank = document.createElement('div');
+    grid.appendChild(blank);
+
+    // Day headers
+    days.forEach((d, i) => {
+      const isToday = dateKey(d) === todayKey();
+      const el = document.createElement('div');
+      el.className = `cal-header${isToday ? ' today-col' : ''}`;
+      el.textContent = dayLabels[d.getDay()];
+      grid.appendChild(el);
+    });
+
+    // Each habit row
+    HABITS.forEach(h => {
+      const label = document.createElement('div');
+      label.className = 'cal-habit-label';
+      label.textContent = h.name.replace(' ', '\u00a0');
+      grid.appendChild(label);
+
+      days.forEach(d => {
+        const k   = dateKey(d);
+        const done = !!(data[k] && data[k][h.id]);
+        const isToday = k === todayKey();
+
+        const dot = document.createElement('div');
+        dot.className = 'cal-dot' + (done ? (isToday ? ' filled-today' : ' filled') : '');
+        dot.innerHTML = done
+          ? `<svg width="6" height="5" viewBox="0 0 6 5" fill="none">
+               <path d="M0.75 2.5L2.25 4L5.25 1" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+             </svg>`
+          : '';
+        grid.appendChild(dot);
+      });
+    });
+  }
+
+  // ── Thoughts ──────────────────────────────────────────────
+  function saveThought() {
+    const input = document.getElementById('thought-input');
+    const text  = input.value.trim();
+    if (!text) return;
+
+    const thoughts = loadThoughts();
+    thoughts.unshift({ date: new Date().toISOString(), text });
+    saveThoughts(thoughts.slice(0, 30)); // keep last 30
+
+    input.value = '';
+    renderThoughts();
+    toast('Thought saved');
+  }
+
+  function renderThoughts() {
+    const thoughts = loadThoughts();
+    const list     = document.getElementById('thoughts-list');
+    const label    = document.getElementById('thoughts-label');
+
+    list.innerHTML = '';
+    if (!thoughts.length) { label.style.display = 'none'; return; }
+    label.style.display = 'block';
+
+    thoughts.slice(0, 8).forEach(t => {
+      const d    = new Date(t.date);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const meta = `${months[d.getMonth()]} ${d.getDate()} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+      const el = document.createElement('div');
+      el.className = 'thought-item';
+      el.innerHTML = `<div class="thought-meta">${meta}</div><div class="thought-text">${escHtml(t.text)}</div>`;
+      list.appendChild(el);
+    });
+  }
+
+  // ── Toast ─────────────────────────────────────────────────
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // ── Ctrl+Enter to save thought ────────────────────────────
+  document.getElementById('thought-input').addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') saveThought();
+  });
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  renderHeader();
+  renderHabits();
+  renderCalendar();
+  renderThoughts();
+</script>
+</body>
+</html>
