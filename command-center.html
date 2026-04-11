@@ -6,194 +6,207 @@
   <title>Beings — Command Center</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Night mode (default) ── */
+    /* ════════════════════════════════════════════
+       NIGHT MODE — default
+    ════════════════════════════════════════════ */
     :root {
-      --bg:          #0d1610;
-      --bg-card:     #111b12;
-      --bg-raised:   #162018;
-      --bg-input:    #141e15;
-      --border:      rgba(122,158,126,0.13);
-      --border-md:   rgba(122,158,126,0.28);
-      --border-lav:  rgba(185,169,204,0.15);
-      --sage:        #7a9e7e;
-      --sage-dim:    #4e6b52;
-      --sage-bright: #90b894;
-      --sage-glow:   rgba(122,158,126,0.12);
-      --lavender:    #b9a9cc;
-      --lav-dim:     rgba(185,169,204,0.45);
-      --cream:       #e6dece;
-      --cream-dim:   #8a8278;
-      --cream-faint: rgba(230,222,206,0.06);
-      --noise-opacity: 0.025;
-      --glow-color:  rgba(122,158,126,0.06);
+      --bg:           #0e1a1a;
+      --bg-card:      #132424;
+      --bg-raised:    #192e2e;
+      --bg-input:     #162828;
+      --accent:       #b39ddb;
+      --accent-dim:   rgba(179,157,219,0.5);
+      --accent-glow:  rgba(179,157,219,0.12);
+      --accent2:      #7aaa8a;
+      --accent2-dim:  #4d7a5c;
+      --border:       rgba(179,157,219,0.12);
+      --border-md:    rgba(179,157,219,0.28);
+      --text:         #e8e4dc;
+      --text-dim:     #7a8a85;
+      --text-faint:   rgba(232,228,220,0.06);
+      --cta:          #b39ddb;
+      --cta-text:     #0e1a1a;
+      --noise:        0.022;
+      --shadow:       rgba(0,0,0,0.35);
     }
 
-    /* ── Day mode ── */
-    body.day-mode {
-      --bg:          #f5f0e8;
-      --bg-card:     #faf7f2;
-      --bg-raised:   #f0ebe0;
-      --bg-input:    #ede8de;
-      --border:      rgba(90,130,95,0.18);
-      --border-md:   rgba(90,130,95,0.38);
-      --border-lav:  rgba(140,120,170,0.2);
-      --sage:        #5a7a5e;
-      --sage-dim:    #7a9e7e;
-      --sage-bright: #3d6642;
-      --sage-glow:   rgba(90,130,95,0.1);
-      --lavender:    #7b6a96;
-      --lav-dim:     rgba(123,106,150,0.55);
-      --cream:       #2c2820;
-      --cream-dim:   #6b6258;
-      --cream-faint: rgba(44,40,32,0.05);
-      --noise-opacity: 0.018;
-      --glow-color:  rgba(180,210,160,0.18);
-    }
-
-    body.day-mode::after {
-      background: radial-gradient(ellipse, var(--glow-color) 0%, transparent 65%);
+    /* ════════════════════════════════════════════
+       DAY MODE
+    ════════════════════════════════════════════ */
+    body.day {
+      --bg:           #f5ede0;
+      --bg-card:      #fdf8f0;
+      --bg-raised:    #ede3d4;
+      --bg-input:     #e8dece;
+      --accent:       #c4622d;
+      --accent-dim:   rgba(196,98,45,0.55);
+      --accent-glow:  rgba(196,98,45,0.1);
+      --accent2:      #7a8c5e;
+      --accent2-dim:  #9aac7e;
+      --border:       rgba(196,98,45,0.15);
+      --border-md:    rgba(196,98,45,0.32);
+      --text:         #2d2218;
+      --text-dim:     #8c7a68;
+      --text-faint:   rgba(45,34,24,0.05);
+      --cta:          #c4622d;
+      --cta-text:     #fdf8f0;
+      --noise:        0.016;
+      --shadow:       rgba(100,60,20,0.12);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
-      color: var(--cream);
-      font-family: 'Jost', sans-serif;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 300;
       min-height: 100vh;
       overflow-x: hidden;
+      transition: background 0.45s ease, color 0.35s ease;
     }
 
+    /* Texture */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: var(--noise-opacity);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: var(--noise);
       pointer-events: none;
     }
 
-    /* ─── Mode toggle ────────────────────────────── */
-    .mode-toggle {
+    .page {
+      position: relative; z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 96px;
+    }
+
+    /* ════════════════════════════════════════════
+       HEADER
+    ════════════════════════════════════════════ */
+    header {
+      padding: 40px 0 36px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+
+    .header-top {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .wordmark {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .date-pill {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
       background: var(--bg-raised);
       border: 1px solid var(--border);
       border-radius: 40px;
-      padding: 7px 14px;
-      font-family: 'Jost', sans-serif;
+      padding: 7px 16px;
+    }
+
+    /* Mode toggle */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 7px 16px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.72rem;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      color: var(--cream-dim);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
       cursor: pointer;
       transition: border-color 0.2s, color 0.2s, background 0.2s;
       white-space: nowrap;
     }
 
-    .mode-toggle:hover { border-color: var(--border-md); color: var(--cream); }
-
-    body { transition: background 0.4s ease, color 0.3s ease; }
-
-    body::after {
-      content: '';
-      position: fixed;
-      width: 700px; height: 500px;
-      background: radial-gradient(ellipse, rgba(122,158,126,0.06) 0%, transparent 65%);
-      top: -150px; left: 50%; transform: translateX(-50%);
-      pointer-events: none; z-index: 0;
+    .mode-toggle:hover {
+      border-color: var(--border-md);
+      color: var(--text);
     }
 
-    .page {
-      position: relative; z-index: 1;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0 24px 80px;
-    }
-
-    /* ─── Header ─────────────────────────────────── */
-    header {
-      padding: 44px 0 40px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 44px;
-    }
-
-    .header-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 28px;
-    }
-
-    .wordmark {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 0.72rem;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--sage-dim);
-      text-decoration: none;
-    }
-
-    .date-block { text-align: right; }
-
-    .date-full {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 0.78rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--sage);
-    }
-
+    /* Greeting */
     .greeting {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Fraunces', serif;
       font-style: italic;
       font-weight: 300;
-      font-size: clamp(2rem, 5vw, 3rem);
-      color: var(--cream);
-      line-height: 1.1;
-      letter-spacing: -0.01em;
+      font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
     }
 
-    /* ─── Priority ──────────────────────────────── */
-    .priority-wrap {
-      margin-bottom: 44px;
-    }
-
+    /* ════════════════════════════════════════════
+       SECTION LABELS
+    ════════════════════════════════════════════ */
     .section-label {
-      font-size: 0.62rem;
-      letter-spacing: 0.3em;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--sage-dim);
-      margin-bottom: 14px;
-      font-weight: 400;
+      color: var(--accent);
+      margin-bottom: 16px;
     }
+
+    /* ════════════════════════════════════════════
+       PRIORITY BANNER
+    ════════════════════════════════════════════ */
+    .priority-wrap { margin-bottom: 36px; }
 
     .priority-field {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      transition: border-color 0.2s;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      box-shadow: 0 2px 12px var(--shadow);
     }
 
-    .priority-field:focus-within { border-color: var(--border-md); }
+    .priority-field:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow), 0 2px 12px var(--shadow);
+    }
 
     .priority-marker {
-      width: 6px; height: 6px;
+      width: 10px; height: 10px;
       border-radius: 50%;
-      background: var(--sage);
+      background: var(--accent);
       flex-shrink: 0;
-      box-shadow: 0 0 8px rgba(122,158,126,0.5);
+      box-shadow: 0 0 10px var(--accent-dim);
     }
 
     .priority-input {
@@ -201,71 +214,74 @@
       background: transparent;
       border: none;
       outline: none;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
+      font-family: 'Fraunces', serif;
+      font-size: 1.15rem;
       font-weight: 300;
-      color: var(--cream);
+      font-style: italic;
+      color: var(--text);
       letter-spacing: 0.01em;
     }
 
     .priority-input::placeholder {
-      color: var(--cream-dim);
-      opacity: 0.4;
-      font-style: italic;
+      color: var(--text-dim);
+      opacity: 0.55;
     }
 
     .priority-save {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 6px 16px;
-      font-family: 'Jost', sans-serif;
-      font-size: 0.68rem;
-      font-weight: 400;
-      letter-spacing: 0.14em;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      padding: 9px 20px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--sage-dim);
+      color: var(--cta-text);
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      transition: opacity 0.2s, transform 0.15s;
       white-space: nowrap;
     }
 
-    .priority-save:hover { border-color: var(--sage); color: var(--sage); }
+    .priority-save:hover { opacity: 0.88; transform: translateY(-1px); }
 
-    /* ─── Grid layout ───────────────────────────── */
+    /* ════════════════════════════════════════════
+       GRID
+    ════════════════════════════════════════════ */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 20px;
+      gap: 18px;
+      margin-bottom: 18px;
     }
 
-    .grid-wide {
-      grid-template-columns: 1fr;
-    }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
 
-    @media (max-width: 640px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-
-    /* ─── Card ───────────────────────────────────── */
+    /* ════════════════════════════════════════════
+       CARDS
+    ════════════════════════════════════════════ */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
+      border-radius: 20px;
+      padding: 24px 26px;
+      box-shadow: 0 2px 16px var(--shadow);
+      transition: background 0.35s, border-color 0.35s;
     }
 
     .card-label {
-      font-size: 0.68rem;
-      letter-spacing: 0.2em;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--sage-dim);
-      margin-bottom: 20px;
-      font-weight: 400;
+      color: var(--accent);
+      margin-bottom: 18px;
     }
 
-    /* ─── Habits ─────────────────────────────────── */
+    /* ════════════════════════════════════════════
+       HABITS
+    ════════════════════════════════════════════ */
     .habit-row {
       display: flex;
       align-items: center;
@@ -275,7 +291,6 @@
       cursor: pointer;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      transition: opacity 0.2s;
     }
 
     .habit-row:last-child { border-bottom: none; padding-bottom: 0; }
@@ -283,60 +298,63 @@
 
     .habit-circle {
       flex-shrink: 0;
-      width: 28px; height: 28px;
+      width: 30px; height: 30px;
       border-radius: 50%;
-      border: 1.5px solid var(--sage-dim);
+      border: 1.5px solid var(--accent2-dim);
       display: flex; align-items: center; justify-content: center;
-      transition: background 0.3s, border-color 0.3s, transform 0.2s;
+      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
       position: relative; overflow: hidden;
     }
 
     .habit-circle::before {
       content: '';
       position: absolute; inset: 0; border-radius: 50%;
-      background: var(--sage);
+      background: var(--accent2);
       transform: scale(0);
-      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
     }
 
     .habit-row.done .habit-circle {
-      border-color: var(--sage);
-      transform: scale(1.08);
+      border-color: var(--accent2);
+      transform: scale(1.1);
     }
 
     .habit-row.done .habit-circle::before { transform: scale(1); }
 
     .check-svg {
       position: relative; z-index: 1;
-      opacity: 0;
-      transform: scale(0.4);
-      transition: opacity 0.2s 0.08s, transform 0.22s 0.08s cubic-bezier(0.34,1.56,0.64,1);
+      opacity: 0; transform: scale(0.3);
+      transition: opacity 0.2s 0.08s, transform 0.25s 0.08s cubic-bezier(0.34,1.56,0.64,1);
     }
 
     .habit-row.done .check-svg { opacity: 1; transform: scale(1); }
 
     .habit-name {
       flex: 1;
-      font-size: 0.88rem;
-      color: var(--cream-dim);
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      font-weight: 400;
       transition: color 0.2s;
     }
 
-    .habit-row.done .habit-name { color: var(--sage-bright); }
+    .habit-row.done .habit-name {
+      color: var(--accent2);
+      text-decoration: line-through;
+      text-decoration-color: var(--accent2-dim);
+    }
 
     .habit-streak {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Fraunces', serif;
       font-style: italic;
-      font-size: 0.88rem;
-      color: var(--lav-dim);
+      font-size: 0.9rem;
+      color: var(--accent-dim);
+      font-weight: 300;
     }
 
-    /* ─── Quick links ───────────────────────────── */
-    .links-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    /* ════════════════════════════════════════════
+       APP LINKS
+    ════════════════════════════════════════════ */
+    .links-grid { display: flex; flex-direction: column; gap: 7px; }
 
     .app-link {
       display: flex;
@@ -345,47 +363,45 @@
       padding: 11px 14px;
       background: var(--bg-raised);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 12px;
       text-decoration: none;
-      transition: border-color 0.2s, background 0.2s;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
     }
 
     .app-link:hover {
-      border-color: var(--border-md);
-      background: rgba(122,158,126,0.07);
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      transform: translateX(3px);
     }
 
     .app-link-dot {
       width: 7px; height: 7px;
       border-radius: 50%;
-      background: var(--sage-dim);
+      background: var(--accent);
       flex-shrink: 0;
+      opacity: 0.7;
     }
 
     .app-link-name {
       flex: 1;
-      font-size: 0.82rem;
-      color: var(--cream-dim);
-      letter-spacing: 0.03em;
+      font-size: 0.83rem;
+      color: var(--text-dim);
+      font-weight: 400;
     }
 
-    .app-link-arrow {
-      font-size: 0.7rem;
-      color: var(--sage-dim);
-      opacity: 0.6;
-    }
+    .app-link:hover .app-link-name { color: var(--text); }
+    .app-link-arrow { font-size: 0.75rem; color: var(--accent); opacity: 0.7; }
 
-    /* ─── Calendar / Events ─────────────────────── */
-    .events-list {
-      margin-bottom: 16px;
-      min-height: 32px;
-    }
+    /* ════════════════════════════════════════════
+       CALENDAR / EVENTS
+    ════════════════════════════════════════════ */
+    .events-list { margin-bottom: 16px; min-height: 28px; }
 
     .event-item {
       display: flex;
       align-items: baseline;
       gap: 12px;
-      padding: 9px 0;
+      padding: 10px 0;
       border-bottom: 1px solid var(--border);
     }
 
@@ -394,109 +410,98 @@
     .event-time {
       font-size: 0.7rem;
       letter-spacing: 0.08em;
-      color: var(--lavender);
+      color: var(--accent);
       flex-shrink: 0;
       min-width: 44px;
+      font-weight: 500;
     }
 
-    .event-title {
-      font-size: 0.88rem;
-      color: var(--cream-dim);
-    }
+    .event-title { font-size: 0.88rem; color: var(--text-dim); }
 
     .event-del {
       margin-left: auto;
-      background: none;
-      border: none;
-      color: var(--sage-dim);
-      cursor: pointer;
-      font-size: 0.7rem;
-      opacity: 0;
-      transition: opacity 0.2s;
+      background: none; border: none;
+      color: var(--text-dim);
+      cursor: pointer; font-size: 0.7rem;
+      opacity: 0; transition: opacity 0.2s;
       padding: 0 4px;
     }
 
-    .event-item:hover .event-del { opacity: 0.7; }
+    .event-item:hover .event-del { opacity: 0.6; }
 
     .event-empty {
-      font-size: 0.8rem;
-      color: var(--cream-dim);
-      opacity: 0.35;
-      padding: 8px 0;
+      font-family: 'Fraunces', serif;
       font-style: italic;
-      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      opacity: 0.45;
+      padding: 6px 0;
     }
 
-    .add-event-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .add-event-row { display: flex; gap: 8px; align-items: center; }
 
     .input-sm {
       background: var(--bg-input);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-family: 'Jost', sans-serif;
+      border-radius: 10px;
+      padding: 9px 13px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.8rem;
       font-weight: 300;
-      color: var(--cream);
+      color: var(--text);
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .input-sm:focus { border-color: var(--border-md); }
-    .input-sm::placeholder { color: var(--cream-dim); opacity: 0.4; }
-
-    .input-time { width: 78px; }
+    .input-sm:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .input-sm::placeholder { color: var(--text-dim); opacity: 0.45; }
+    .input-time { width: 76px; }
     .input-title { flex: 1; }
 
     .btn-add {
-      background: var(--sage-glow);
-      border: 1px solid var(--border-md);
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-family: 'Jost', sans-serif;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.72rem;
-      font-weight: 400;
-      letter-spacing: 0.12em;
+      font-weight: 500;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--sage);
+      color: var(--cta-text);
       cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
+      transition: opacity 0.2s, transform 0.15s;
       white-space: nowrap;
     }
 
-    .btn-add:hover { background: rgba(122,158,126,0.2); border-color: var(--sage); }
+    .btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
 
-    /* ─── Quick capture ─────────────────────────── */
-    .capture-card { }
-
+    /* ════════════════════════════════════════════
+       TEXTAREAS + SHARED INPUTS
+    ════════════════════════════════════════════ */
     textarea {
       width: 100%;
       background: var(--bg-input);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 14px 16px;
-      font-family: 'Jost', sans-serif;
-      font-size: 0.86rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
       font-weight: 300;
-      color: var(--cream);
+      color: var(--text);
       line-height: 1.65;
       resize: none;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
-      letter-spacing: 0.02em;
       display: block;
     }
 
     textarea:focus {
-      border-color: var(--border-md);
-      box-shadow: 0 0 0 3px rgba(122,158,126,0.06);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
-    textarea::placeholder { color: var(--cream-dim); opacity: 0.35; }
+    textarea::placeholder { color: var(--text-dim); opacity: 0.4; }
 
     .save-row {
       display: flex;
@@ -506,139 +511,65 @@
 
     .btn-soft {
       background: transparent;
-      border: 1px solid var(--border-md);
-      border-radius: 8px;
-      padding: 8px 20px;
-      font-family: 'Jost', sans-serif;
-      font-size: 0.7rem;
-      font-weight: 400;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--sage);
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-    }
-
-    .btn-soft:hover { background: var(--sage-glow); border-color: var(--sage); }
-
-    /* ─── Brain Dump ─────────────────────────────── */
-    .brain-card { }
-
-    .brain-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .brain-count {
-      font-size: 0.68rem;
-      color: var(--lav-dim);
-      letter-spacing: 0.1em;
-    }
-
-    .dump-input-wrap {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .dump-input {
-      flex: 1;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border-md);
       border-radius: 10px;
-      padding: 13px 16px;
-      font-family: 'Jost', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 300;
-      color: var(--cream);
-      outline: none;
-      transition: border-color 0.2s;
+      padding: 9px 22px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
     }
 
-    .dump-input:focus { border-color: var(--border-md); }
-    .dump-input::placeholder { color: var(--cream-dim); opacity: 0.35; }
-
-    .dump-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
+    .btn-soft:hover {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      transform: translateY(-1px);
     }
 
-    .dump-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
+    .btn-soft:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+    /* ════════════════════════════════════════════
+       THOUGHTS LIST
+    ════════════════════════════════════════════ */
+    .thought-item {
       padding: 11px 0;
       border-bottom: 1px solid var(--border);
-      animation: fadeIn 0.25s ease forwards;
     }
 
-    .dump-item:last-child { border-bottom: none; }
+    .thought-item:last-child { border-bottom: none; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(-6px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    .dump-bullet {
-      color: var(--sage-dim);
-      font-size: 0.7rem;
-      margin-top: 3px;
-      flex-shrink: 0;
-    }
-
-    .dump-text {
-      flex: 1;
-      font-size: 0.86rem;
-      color: var(--cream-dim);
-      line-height: 1.55;
-    }
-
-    .dump-del {
-      background: none;
-      border: none;
-      color: var(--sage-dim);
-      cursor: pointer;
-      font-size: 0.7rem;
-      opacity: 0;
-      transition: opacity 0.2s;
-      padding: 0 2px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .dump-item:hover .dump-del { opacity: 0.6; }
-
-    .clear-dump {
-      background: none;
-      border: none;
-      font-family: 'Jost', sans-serif;
-      font-size: 0.65rem;
+    .thought-meta {
+      font-size: 0.62rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--sage-dim);
-      cursor: pointer;
-      opacity: 0.6;
-      transition: opacity 0.2s;
-      padding: 0;
+      color: var(--accent);
+      opacity: 0.7;
+      margin-bottom: 4px;
+      font-weight: 500;
     }
 
-    .clear-dump:hover { opacity: 1; }
+    .thought-text {
+      font-size: 0.86rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
 
-    /* ─── Reflection card ───────────────────────── */
-    .reflection-card { }
-
+    /* ════════════════════════════════════════════
+       REFLECTION CARD
+    ════════════════════════════════════════════ */
     .rc-question {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Fraunces', serif;
       font-style: italic;
       font-weight: 300;
-      font-size: 1.25rem;
-      color: var(--cream);
-      line-height: 1.45;
+      font-size: 1.3rem;
+      color: var(--text);
+      line-height: 1.5;
       margin-bottom: 20px;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.01em;
     }
 
     .rc-api-row {
@@ -651,22 +582,22 @@
       flex: 1;
       background: var(--bg-input);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 9px 14px;
-      font-family: 'Jost', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.8rem;
       font-weight: 300;
-      color: var(--cream);
+      color: var(--text);
       outline: none;
       transition: border-color 0.2s;
     }
 
-    .rc-key-input:focus { border-color: var(--border-md); }
-    .rc-key-input::placeholder { color: var(--cream-dim); opacity: 0.4; }
+    .rc-key-input:focus { border-color: var(--accent); }
+    .rc-key-input::placeholder { color: var(--text-dim); opacity: 0.4; }
 
     .rc-response {
-      margin-top: 20px;
-      padding-top: 20px;
+      margin-top: 22px;
+      padding-top: 22px;
       border-top: 1px solid var(--border);
       opacity: 0;
       transition: opacity 0.7s ease;
@@ -677,8 +608,8 @@
     .rc-divider {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
 
     .rc-divider::before, .rc-divider::after {
@@ -686,136 +617,210 @@
       background: var(--border);
     }
 
-    .rc-divider-mark {
-      color: var(--lavender);
-      font-size: 0.8rem;
-      opacity: 0.6;
-    }
+    .rc-divider-mark { color: var(--accent); font-size: 0.85rem; opacity: 0.7; }
 
     .rc-response-text {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Fraunces', serif;
       font-size: 1.05rem;
       font-weight: 300;
-      line-height: 1.75;
-      color: var(--cream);
+      line-height: 1.8;
+      color: var(--text);
     }
 
     .rc-done-note {
-      margin-top: 12px;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      color: var(--sage-dim);
+      margin-top: 14px;
+      font-family: 'Fraunces', serif;
       font-style: italic;
-      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.82rem;
+      color: var(--accent2);
+      opacity: 0.8;
     }
 
     .rc-err {
       margin-top: 10px;
-      font-size: 0.75rem;
-      color: #c07070;
+      font-size: 0.76rem;
+      color: #e07070;
       min-height: 16px;
     }
 
-    /* ─── Thoughts list ──────────────────────────── */
-    .thought-item {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
+    /* ════════════════════════════════════════════
+       BRAIN DUMP
+    ════════════════════════════════════════════ */
+    .brain-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
     }
 
-    .thought-item:last-child { border-bottom: none; }
+    .brain-count {
+      font-size: 0.7rem;
+      color: var(--accent-dim);
+      letter-spacing: 0.1em;
+      font-weight: 400;
+    }
 
-    .thought-meta {
-      font-size: 0.62rem;
-      letter-spacing: 0.12em;
+    .clear-dump {
+      background: none; border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--sage-dim);
-      margin-bottom: 4px;
+      color: var(--text-dim);
+      cursor: pointer;
+      opacity: 0.55;
+      transition: opacity 0.2s, color 0.2s;
     }
 
-    .thought-text {
-      font-size: 0.86rem;
-      color: var(--cream-dim);
-      line-height: 1.6;
+    .clear-dump:hover { opacity: 1; color: var(--accent); }
+
+    .dump-input-wrap { margin-bottom: 14px; }
+
+    .dump-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    /* ─── Toast ──────────────────────────────────── */
+    .dump-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .dump-input::placeholder { color: var(--text-dim); opacity: 0.38; }
+
+    .dump-list { display: flex; flex-direction: column; }
+
+    .dump-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      animation: slideIn 0.25s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .dump-item:last-child { border-bottom: none; }
+
+    .dump-bullet {
+      color: var(--accent);
+      font-size: 1rem;
+      margin-top: 0;
+      flex-shrink: 0;
+      line-height: 1.5;
+    }
+
+    .dump-text {
+      flex: 1;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .dump-del {
+      background: none; border: none;
+      color: var(--text-dim);
+      cursor: pointer; font-size: 0.7rem;
+      opacity: 0; transition: opacity 0.2s;
+      padding: 0 2px; flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .dump-item:hover .dump-del { opacity: 0.5; }
+
+    /* ════════════════════════════════════════════
+       TOAST
+    ════════════════════════════════════════════ */
     .toast {
       position: fixed;
       bottom: 28px; left: 50%;
       transform: translateX(-50%) translateY(14px);
-      background: var(--bg-card);
-      border: 1px solid var(--border-md);
+      background: var(--accent);
+      color: var(--cta-text);
       border-radius: 40px;
-      padding: 9px 22px;
-      font-size: 0.74rem;
+      padding: 10px 24px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
       letter-spacing: 0.08em;
-      color: var(--sage);
       opacity: 0;
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
       z-index: 100;
       white-space: nowrap;
+      box-shadow: 0 4px 20px var(--shadow);
     }
 
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ─── Fade in ────────────────────────────────── */
+    /* ════════════════════════════════════════════
+       ANIMATIONS
+    ════════════════════════════════════════════ */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .fade { opacity: 0; animation: fadeUp 0.6s ease forwards; }
-    .d1 { animation-delay: 0.05s; }
-    .d2 { animation-delay: 0.12s; }
-    .d3 { animation-delay: 0.2s; }
-    .d4 { animation-delay: 0.28s; }
-    .d5 { animation-delay: 0.36s; }
-    .d6 { animation-delay: 0.44s; }
+    .fade { opacity: 0; animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+    .d1 { animation-delay: 0.04s; }
+    .d2 { animation-delay: 0.11s; }
+    .d3 { animation-delay: 0.18s; }
+    .d4 { animation-delay: 0.26s; }
+    .d5 { animation-delay: 0.34s; }
+    .d6 { animation-delay: 0.42s; }
   </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- Header -->
+  <!-- ── Header ── -->
   <header class="fade d1">
     <div class="header-top">
       <a href="index.html" class="wordmark">Beings</a>
-      <div style="display:flex;align-items:center;gap:12px;">
+      <div class="header-right">
         <button class="mode-toggle" id="mode-toggle" onclick="toggleMode()">
           <span id="mode-icon">☀️</span>
           <span id="mode-label">Day</span>
         </button>
-        <div class="date-block">
-          <div class="date-full" id="date-full"></div>
-        </div>
+        <div class="date-pill" id="date-full"></div>
       </div>
     </div>
     <div class="greeting" id="greeting"></div>
   </header>
 
-  <!-- Priority -->
+  <!-- ── One Priority ── -->
   <section class="priority-wrap fade d2">
     <div class="section-label">🎯 What's the ONE thing that matters most today?</div>
     <div class="priority-field">
       <div class="priority-marker"></div>
       <input class="priority-input" id="priority-input"
-             type="text" placeholder="Name it and let everything else breathe…"
+             type="text" placeholder="Name it. Let everything else breathe."
              maxlength="120" />
-      <button class="priority-save" onclick="savePriority()">Set</button>
+      <button class="priority-save" onclick="savePriority()">Lock it in</button>
     </div>
   </section>
 
-  <!-- Row 1: Habits + Quick Links -->
+  <!-- ── Row 1: Habits + Links ── -->
   <div class="grid fade d3">
 
-    <!-- Habits -->
     <div class="card">
       <div class="card-label">✅ Today's Habits</div>
       <div id="habits-list"></div>
     </div>
 
-    <!-- Quick Links -->
     <div class="card">
       <div class="card-label">🔗 Beings Apps</div>
       <div class="links-grid">
@@ -854,38 +859,35 @@
 
   </div>
 
-  <!-- Row 2: Calendar + Quick Capture -->
+  <!-- ── Row 2: Schedule + Capture ── -->
   <div class="grid fade d4">
 
-    <!-- Calendar -->
     <div class="card">
       <div class="card-label">📅 Today's Schedule</div>
       <div class="events-list" id="events-list"></div>
       <div class="add-event-row">
         <input class="input-sm input-time" id="event-time" type="text" placeholder="9:00" maxlength="8" />
-        <input class="input-sm input-title" id="event-title" type="text" placeholder="Add event…" maxlength="80" />
+        <input class="input-sm input-title" id="event-title" type="text" placeholder="Add an event…" maxlength="80" />
         <button class="btn-add" onclick="addEvent()">Add</button>
       </div>
     </div>
 
-    <!-- Quick Capture -->
-    <div class="card capture-card">
+    <div class="card">
       <div class="card-label">💭 Capture a Thought</div>
-      <textarea id="thought-input" rows="4" placeholder="What's present for you right now…"></textarea>
+      <textarea id="thought-input" rows="4" placeholder="What's alive in you right now? No filter needed."></textarea>
       <div class="save-row">
-        <button class="btn-soft" onclick="saveThought()">Save thought</button>
+        <button class="btn-soft" onclick="saveThought()">Save it</button>
       </div>
       <div id="thoughts-list" style="margin-top:14px;"></div>
     </div>
 
   </div>
 
-  <!-- Daily Reflection - full width -->
-  <div class="card reflection-card fade d5" style="margin-bottom:20px;" id="rc-card">
+  <!-- ── Daily Reflection — full width ── -->
+  <div class="card fade d5" style="margin-bottom:18px;" id="rc-card">
     <div class="card-label">🌿 Daily Reflection</div>
     <div class="rc-question" id="rc-question"></div>
 
-    <!-- API key row — hidden once key is saved -->
     <div class="rc-api-row" id="rc-api-row" style="display:none;">
       <input class="rc-key-input" id="rc-key-input" type="password"
              placeholder="Anthropic API key (sk-ant-…)" autocomplete="off" />
@@ -905,8 +907,8 @@
     </div>
   </div>
 
-  <!-- Brain Dump - full width -->
-  <div class="card brain-card fade d6" style="margin-bottom:20px;">
+  <!-- ── Brain Dump — full width ── -->
+  <div class="card fade d6" style="margin-bottom:0;">
     <div class="brain-header">
       <div class="card-label" style="margin-bottom:0;">🧠 Brain Dump</div>
       <div style="display:flex;align-items:center;gap:16px;">
@@ -916,7 +918,7 @@
     </div>
     <div class="dump-input-wrap">
       <input class="dump-input" id="dump-input" type="text"
-             placeholder="Type a thought and press Enter — no judgment…" />
+             placeholder="Drop it here. No judgment, no filter. Just let it out." />
     </div>
     <div class="dump-list" id="dump-list"></div>
   </div>
@@ -926,7 +928,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Keys ──────────────────────────────────────────────────
+  // ── Storage keys ──────────────────────────────────────────
   const HABITS_KEY   = 'beings_habit_data';
   const THOUGHTS_KEY = 'beings_thoughts';
   const PRIORITY_KEY = 'beings_priority';
@@ -984,15 +986,15 @@
       `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
 
     const phrases = h < 12
-      ? [ 'Good morning! Ready to show up for yourself today? 🌅',
-          'Good morning. The day is still quiet. Make it yours. ☀️',
-          'Morning! One breath, one step. You've got this. 🌿' ]
+      ? [ 'Good morning. The day is yours. 🌅',
+          'Morning! One breath, one step. You\'ve got this. 🌿',
+          'Good morning — ready to show up for yourself today? ☀️' ]
       : h < 17
-      ? [ 'Good afternoon. How are you actually doing? 🍃',
-          'Hey, good afternoon. Pause for a second — how do you feel? 🌤️',
-          'Afternoon check-in. Still breathing. Still whole. ✨' ]
+      ? [ 'Hey, good afternoon. How are you actually doing? 🍃',
+          'Afternoon check-in. Still whole. Still here. ✨',
+          'Good afternoon. Pause for a second — what do you need? 🌤️' ]
       : [ 'Good evening. You made it through another day. 🌙',
-          'Evening. Time to come back to yourself. 🕯️',
+          'Evening — time to come back to yourself. 🕯️',
           'Good evening. Rest is not laziness — it\'s wisdom. 🌙' ];
 
     const idx = (now.getDate() + h) % phrases.length;
@@ -1001,9 +1003,8 @@
 
   // ── Priority ──────────────────────────────────────────────
   function renderPriority() {
-    const data  = load(PRIORITY_KEY, {});
-    const today = todayKey();
-    if (data.date === today && data.text) {
+    const data = load(PRIORITY_KEY, {});
+    if (data.date === todayKey() && data.text) {
       document.getElementById('priority-input').value = data.text;
     }
   }
@@ -1011,7 +1012,7 @@
   function savePriority() {
     const text = document.getElementById('priority-input').value.trim();
     save(PRIORITY_KEY, { date: todayKey(), text });
-    toast('Priority set');
+    toast('Priority locked in 🎯');
   }
 
   document.getElementById('priority-input').addEventListener('keydown', e => {
@@ -1037,7 +1038,7 @@
       row.innerHTML = `
         <div class="habit-circle">
           <svg class="check-svg" width="11" height="8" viewBox="0 0 11 8" fill="none">
-            <path d="M1 4L4 7L10 1" stroke="#0d1610" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1 4L4 7L10 1" stroke="var(--bg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <span class="habit-name">${h.name}</span>
@@ -1050,7 +1051,7 @@
         d[td][h.id] = !d[td][h.id];
         save(HABITS_KEY, d);
         renderHabits();
-        if (d[td][h.id]) toast(`${h.name} done`);
+        if (d[td][h.id]) toast(`${h.name} done ✓`);
       };
 
       row.addEventListener('click', toggle);
@@ -1070,7 +1071,7 @@
                      .sort((a,b) => a.time.localeCompare(b.time));
 
     if (!items.length) {
-      list.innerHTML = `<div class="event-empty">Nothing scheduled yet.</div>`;
+      list.innerHTML = `<div class="event-empty">Wide open. Add something.</div>`;
       return;
     }
 
@@ -1099,8 +1100,7 @@
     const today = todayKey();
     const items = all.filter(e => e.date === today);
     items.splice(index, 1);
-    const other = all.filter(e => e.date !== today);
-    save(EVENTS_KEY, [...other, ...items]);
+    save(EVENTS_KEY, [...all.filter(e => e.date !== today), ...items]);
     renderEvents();
   }
 
@@ -1118,7 +1118,7 @@
     save(THOUGHTS_KEY, all.slice(0, 30));
     input.value = '';
     renderThoughts();
-    toast('Saved');
+    toast('Saved 💭');
   }
 
   function renderThoughts() {
@@ -1152,7 +1152,7 @@
       const el = document.createElement('div');
       el.className = 'dump-item';
       el.innerHTML = `
-        <span class="dump-bullet">◦</span>
+        <span class="dump-bullet">·</span>
         <span class="dump-text">${escHtml(text)}</span>
         <button class="dump-del" onclick="deleteDump(${i})" title="Remove">✕</button>`;
       list.appendChild(el);
@@ -1197,16 +1197,7 @@
     toast._t = setTimeout(() => t.classList.remove('show'), 2000);
   }
 
-  // ── Init ──────────────────────────────────────────────────
-  renderHeader();
-  renderPriority();
-  renderHabits();
-  renderEvents();
-  renderThoughts();
-  renderDump();
-  initReflection();
-
-  // ── Daily Reflection ─────────────────────────────────────
+  // ── Daily Reflection ──────────────────────────────────────
   const RC_QUESTIONS = [
     "What are you carrying today that deserves a little gentleness?",
     "What small moment brought you back to yourself recently?",
@@ -1254,38 +1245,30 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
     return RC_QUESTIONS[idx];
   }
 
-  function rcStorageKey() {
-    return 'beings_response_' + todayKey();
-  }
+  function rcStorageKey() { return 'beings_response_' + todayKey(); }
 
   function initReflection() {
-    const question = rcTodayQuestion();
-    document.getElementById('rc-question').textContent = question;
+    document.getElementById('rc-question').textContent = rcTodayQuestion();
 
-    const apiKey = localStorage.getItem('beings_key') || '';
-    if (!apiKey) {
+    if (!localStorage.getItem('beings_key')) {
       document.getElementById('rc-api-row').style.display = 'flex';
     }
 
-    // Restore today's saved reflection if it exists
     try {
       const saved = localStorage.getItem(rcStorageKey());
       if (saved) {
         const { entry, reflection } = JSON.parse(saved);
         const input = document.getElementById('rc-input');
-        input.value      = entry;
-        input.disabled   = true;
+        input.value    = entry;
+        input.disabled = true;
         const btn = document.getElementById('rc-btn');
-        btn.disabled     = true;
-        btn.textContent  = 'Reflected ✓';
-
-        const respText = document.getElementById('rc-response-text');
-        respText.textContent = reflection;
+        btn.disabled   = true;
+        btn.textContent = 'Reflected ✓';
+        document.getElementById('rc-response-text').textContent = reflection;
         document.getElementById('rc-response').classList.add('visible');
-
         const note = document.createElement('p');
         note.className   = 'rc-done-note';
-        note.textContent = 'You've already reflected today. Come back tomorrow.';
+        note.textContent = 'You\'ve already reflected today. Come back tomorrow. 🌱';
         document.getElementById('rc-response').appendChild(note);
       }
     } catch {}
@@ -1300,7 +1283,7 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
     localStorage.setItem('beings_key', val);
     document.getElementById('rc-api-row').style.display = 'none';
     document.getElementById('rc-err').textContent = '';
-    toast('API key saved');
+    toast('API key saved 🔑');
   }
 
   async function rcReflect() {
@@ -1321,9 +1304,8 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
 
     const question    = rcTodayQuestion();
     const userContent = `Today's reflection question: "${question}"\n\nMy response: ${entry}`;
-
-    const respWrap = document.getElementById('rc-response');
-    const respText = document.getElementById('rc-response-text');
+    const respWrap    = document.getElementById('rc-response');
+    const respText    = document.getElementById('rc-response-text');
     respText.textContent = '';
     respWrap.classList.add('visible');
     respWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1364,30 +1346,21 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
           const data = line.slice(6).trim();
           if (data === '[DONE]') break;
           try {
-            const json  = JSON.parse(data);
-            const delta = json?.delta?.text || '';
-            if (delta) {
-              full += delta;
-              respText.textContent = full;
-            }
+            const delta = JSON.parse(data)?.delta?.text || '';
+            if (delta) { full += delta; respText.textContent = full; }
           } catch {}
         }
       }
 
-      // Save to same localStorage structure as index.html
       localStorage.setItem(rcStorageKey(), JSON.stringify({
-        date: new Date().toISOString(),
-        question,
-        entry,
-        reflection: full,
+        date: new Date().toISOString(), question, entry, reflection: full,
       }));
 
       document.getElementById('rc-input').disabled = true;
       btn.textContent = 'Reflected ✓';
-
       const note = document.createElement('p');
       note.className   = 'rc-done-note';
-      note.textContent = 'You've already reflected today. Come back tomorrow.';
+      note.textContent = 'You\'ve already reflected today. Come back tomorrow. 🌱';
       respWrap.appendChild(note);
 
     } catch (err) {
@@ -1406,22 +1379,28 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
     if (e.key === 'Enter') rcSaveKey();
   });
 
-  // ── Day / Night mode toggle ───────────────────────────────
+  // ── Day / Night mode ──────────────────────────────────────
   function applyMode(mode) {
     const isDay = mode === 'day';
-    document.body.classList.toggle('day-mode', isDay);
+    document.body.classList.toggle('day', isDay);
     document.getElementById('mode-icon').textContent  = isDay ? '🌙' : '☀️';
     document.getElementById('mode-label').textContent = isDay ? 'Night' : 'Day';
     localStorage.setItem('beings_color_mode', mode);
   }
 
   function toggleMode() {
-    const current = localStorage.getItem('beings_color_mode') || 'night';
-    applyMode(current === 'day' ? 'night' : 'day');
+    applyMode((localStorage.getItem('beings_color_mode') || 'night') === 'day' ? 'night' : 'day');
   }
 
-  // Restore saved mode on load
+  // ── Init ──────────────────────────────────────────────────
   applyMode(localStorage.getItem('beings_color_mode') || 'night');
+  renderHeader();
+  renderPriority();
+  renderHabits();
+  renderEvents();
+  renderThoughts();
+  renderDump();
+  initReflection();
 </script>
 </body>
 </html>
