@@ -575,6 +575,95 @@
 
     .clear-dump:hover { opacity: 1; }
 
+    /* ─── Reflection card ───────────────────────── */
+    .reflection-card { }
+
+    .rc-question {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.25rem;
+      color: var(--cream);
+      line-height: 1.45;
+      margin-bottom: 20px;
+      letter-spacing: 0.01em;
+    }
+
+    .rc-api-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .rc-key-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: var(--cream);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .rc-key-input:focus { border-color: var(--border-md); }
+    .rc-key-input::placeholder { color: var(--cream-dim); opacity: 0.4; }
+
+    .rc-response {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      opacity: 0;
+      transition: opacity 0.7s ease;
+    }
+
+    .rc-response.visible { opacity: 1; }
+
+    .rc-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .rc-divider::before, .rc-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    .rc-divider-mark {
+      color: var(--lavender);
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+
+    .rc-response-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--cream);
+    }
+
+    .rc-done-note {
+      margin-top: 12px;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--sage-dim);
+      font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    .rc-err {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: #c07070;
+      min-height: 16px;
+    }
+
     /* ─── Thoughts list ──────────────────────────── */
     .thought-item {
       padding: 12px 0;
@@ -733,8 +822,33 @@
 
   </div>
 
+  <!-- Daily Reflection - full width -->
+  <div class="card reflection-card fade d5" style="margin-bottom:20px;" id="rc-card">
+    <div class="card-label">Today's reflection</div>
+    <div class="rc-question" id="rc-question"></div>
+
+    <!-- API key row — hidden once key is saved -->
+    <div class="rc-api-row" id="rc-api-row" style="display:none;">
+      <input class="rc-key-input" id="rc-key-input" type="password"
+             placeholder="Anthropic API key (sk-ant-…)" autocomplete="off" />
+      <button class="btn-soft" onclick="rcSaveKey()">Save key</button>
+    </div>
+
+    <textarea id="rc-input" rows="4"
+              placeholder="Write as little or as much as feels true…"></textarea>
+    <div class="save-row">
+      <button class="btn-soft" id="rc-btn" onclick="rcReflect()">Reflect →</button>
+    </div>
+    <p class="rc-err" id="rc-err"></p>
+
+    <div class="rc-response" id="rc-response">
+      <div class="rc-divider"><span class="rc-divider-mark">✦</span></div>
+      <div class="rc-response-text" id="rc-response-text"></div>
+    </div>
+  </div>
+
   <!-- Brain Dump - full width -->
-  <div class="card brain-card fade d5" style="margin-bottom:20px;">
+  <div class="card brain-card fade d6" style="margin-bottom:20px;">
     <div class="brain-header">
       <div class="card-label" style="margin-bottom:0;">Brain Dump</div>
       <div style="display:flex;align-items:center;gap:16px;">
@@ -1023,6 +1137,207 @@
   renderEvents();
   renderThoughts();
   renderDump();
+  initReflection();
+
+  // ── Daily Reflection ─────────────────────────────────────
+  const RC_QUESTIONS = [
+    "What are you carrying today that deserves a little gentleness?",
+    "What small moment brought you back to yourself recently?",
+    "Where in your body do you feel most at home right now?",
+    "What are you learning to accept about yourself?",
+    "What does your heart want you to hear today?",
+    "What are you not saying that quietly wants to be said?",
+    "What feels like enough, right now, in this moment?",
+    "What part of yourself have you been hardest on lately?",
+    "What are you grateful for that you rarely think to name?",
+    "What are you ready to let be exactly as it is?",
+    "What would it feel like to trust yourself completely today?",
+    "What are you protecting yourself from feeling?",
+    "When did you last let yourself be fully seen?",
+    "What does rest mean to you right now?",
+    "What truth are you circling without quite landing on?",
+    "What are you afraid to want?",
+    "What would you do today if you knew you were enough?",
+    "What part of your story are you still making peace with?",
+    "What are you more ready for than you think?",
+    "What does your wisest self want you to remember?",
+    "What have you been too busy to grieve?",
+    "What does love ask of you today?",
+    "What are you outgrowing that you haven't named yet?",
+    "What would you tell yourself from ten years ago?",
+    "What are you holding onto that you could release?",
+    "What do you need more of right now?",
+    "What are you beginning to understand about yourself?",
+    "What brings you home to yourself most quickly?",
+    "What is asking for your attention beneath the noise?",
+    "What would full presence feel like for you today?",
+  ];
+
+  const RC_SYSTEM = `You are a warm, grounded, loving presence — a wise mirror.
+
+The person sharing with you is already whole. Nothing is missing. Nothing needs to be fixed or improved. Hold this as absolute truth.
+
+When they share their reflection, your only role is to witness them with tenderness and reflect back what you genuinely hear — not advice, not reframing, not encouragement to change. Simply presence. Warmth. Recognition.
+
+Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let them feel truly seen. Weave in — gently, naturally — the quiet truth that they are already complete.`;
+
+  function rcTodayQuestion() {
+    const d   = new Date();
+    const idx = (d.getFullYear() * 366 + d.getMonth() * 31 + d.getDate()) % RC_QUESTIONS.length;
+    return RC_QUESTIONS[idx];
+  }
+
+  function rcStorageKey() {
+    return 'beings_response_' + todayKey();
+  }
+
+  function initReflection() {
+    const question = rcTodayQuestion();
+    document.getElementById('rc-question').textContent = question;
+
+    const apiKey = localStorage.getItem('beings_key') || '';
+    if (!apiKey) {
+      document.getElementById('rc-api-row').style.display = 'flex';
+    }
+
+    // Restore today's saved reflection if it exists
+    try {
+      const saved = localStorage.getItem(rcStorageKey());
+      if (saved) {
+        const { entry, reflection } = JSON.parse(saved);
+        const input = document.getElementById('rc-input');
+        input.value      = entry;
+        input.disabled   = true;
+        const btn = document.getElementById('rc-btn');
+        btn.disabled     = true;
+        btn.textContent  = 'Reflected ✓';
+
+        const respText = document.getElementById('rc-response-text');
+        respText.textContent = reflection;
+        document.getElementById('rc-response').classList.add('visible');
+
+        const note = document.createElement('p');
+        note.className   = 'rc-done-note';
+        note.textContent = 'You've already reflected today. Come back tomorrow.';
+        document.getElementById('rc-response').appendChild(note);
+      }
+    } catch {}
+  }
+
+  function rcSaveKey() {
+    const val = document.getElementById('rc-key-input').value.trim();
+    if (!val.startsWith('sk-ant-')) {
+      document.getElementById('rc-err').textContent = 'Key should start with sk-ant-';
+      return;
+    }
+    localStorage.setItem('beings_key', val);
+    document.getElementById('rc-api-row').style.display = 'none';
+    document.getElementById('rc-err').textContent = '';
+    toast('API key saved');
+  }
+
+  async function rcReflect() {
+    const entry  = document.getElementById('rc-input').value.trim();
+    if (!entry) return;
+
+    const apiKey = localStorage.getItem('beings_key') || '';
+    if (!apiKey) {
+      document.getElementById('rc-api-row').style.display = 'flex';
+      document.getElementById('rc-err').textContent = 'Please enter your API key above.';
+      return;
+    }
+
+    const btn = document.getElementById('rc-btn');
+    btn.disabled    = true;
+    btn.textContent = '…';
+    document.getElementById('rc-err').textContent = '';
+
+    const question    = rcTodayQuestion();
+    const userContent = `Today's reflection question: "${question}"\n\nMy response: ${entry}`;
+
+    const respWrap = document.getElementById('rc-response');
+    const respText = document.getElementById('rc-response-text');
+    respText.textContent = '';
+    respWrap.classList.add('visible');
+    respWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-6',
+          max_tokens: 300,
+          stream: true,
+          system: RC_SYSTEM,
+          messages: [{ role: 'user', content: userContent }],
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `HTTP ${res.status}`);
+      }
+
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let full = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split('\n')) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') break;
+          try {
+            const json  = JSON.parse(data);
+            const delta = json?.delta?.text || '';
+            if (delta) {
+              full += delta;
+              respText.textContent = full;
+            }
+          } catch {}
+        }
+      }
+
+      // Save to same localStorage structure as index.html
+      localStorage.setItem(rcStorageKey(), JSON.stringify({
+        date: new Date().toISOString(),
+        question,
+        entry,
+        reflection: full,
+      }));
+
+      document.getElementById('rc-input').disabled = true;
+      btn.textContent = 'Reflected ✓';
+
+      const note = document.createElement('p');
+      note.className   = 'rc-done-note';
+      note.textContent = 'You've already reflected today. Come back tomorrow.';
+      respWrap.appendChild(note);
+
+    } catch (err) {
+      respWrap.classList.remove('visible');
+      btn.disabled    = false;
+      btn.textContent = 'Reflect →';
+      document.getElementById('rc-err').textContent = err.message || 'Something went wrong. Try again.';
+    }
+  }
+
+  document.getElementById('rc-input').addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') rcReflect();
+  });
+
+  document.getElementById('rc-key-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') rcSaveKey();
+  });
 </script>
 </body>
 </html>
