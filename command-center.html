@@ -10,6 +10,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Night mode (default) ── */
     :root {
       --bg:          #0d1610;
       --bg-card:     #111b12;
@@ -27,6 +28,34 @@
       --cream:       #e6dece;
       --cream-dim:   #8a8278;
       --cream-faint: rgba(230,222,206,0.06);
+      --noise-opacity: 0.025;
+      --glow-color:  rgba(122,158,126,0.06);
+    }
+
+    /* ── Day mode ── */
+    body.day-mode {
+      --bg:          #f5f0e8;
+      --bg-card:     #faf7f2;
+      --bg-raised:   #f0ebe0;
+      --bg-input:    #ede8de;
+      --border:      rgba(90,130,95,0.18);
+      --border-md:   rgba(90,130,95,0.38);
+      --border-lav:  rgba(140,120,170,0.2);
+      --sage:        #5a7a5e;
+      --sage-dim:    #7a9e7e;
+      --sage-bright: #3d6642;
+      --sage-glow:   rgba(90,130,95,0.1);
+      --lavender:    #7b6a96;
+      --lav-dim:     rgba(123,106,150,0.55);
+      --cream:       #2c2820;
+      --cream-dim:   #6b6258;
+      --cream-faint: rgba(44,40,32,0.05);
+      --noise-opacity: 0.018;
+      --glow-color:  rgba(180,210,160,0.18);
+    }
+
+    body.day-mode::after {
+      background: radial-gradient(ellipse, var(--glow-color) 0%, transparent 65%);
     }
 
     html { scroll-behavior: smooth; }
@@ -44,9 +73,32 @@
       content: '';
       position: fixed; inset: 0; z-index: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.025;
+      opacity: var(--noise-opacity);
       pointer-events: none;
     }
+
+    /* ─── Mode toggle ────────────────────────────── */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 7px 14px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      color: var(--cream-dim);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .mode-toggle:hover { border-color: var(--border-md); color: var(--cream); }
+
+    body { transition: background 0.4s ease, color 0.3s ease; }
 
     body::after {
       content: '';
@@ -205,8 +257,8 @@
     }
 
     .card-label {
-      font-size: 0.62rem;
-      letter-spacing: 0.3em;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--sage-dim);
       margin-bottom: 20px;
@@ -729,8 +781,14 @@
   <header class="fade d1">
     <div class="header-top">
       <a href="index.html" class="wordmark">Beings</a>
-      <div class="date-block">
-        <div class="date-full" id="date-full"></div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mode-toggle" id="mode-toggle" onclick="toggleMode()">
+          <span id="mode-icon">☀️</span>
+          <span id="mode-label">Day</span>
+        </button>
+        <div class="date-block">
+          <div class="date-full" id="date-full"></div>
+        </div>
       </div>
     </div>
     <div class="greeting" id="greeting"></div>
@@ -738,11 +796,11 @@
 
   <!-- Priority -->
   <section class="priority-wrap fade d2">
-    <div class="section-label">One thing today</div>
+    <div class="section-label">🎯 What's the ONE thing that matters most today?</div>
     <div class="priority-field">
       <div class="priority-marker"></div>
       <input class="priority-input" id="priority-input"
-             type="text" placeholder="What matters most right now…"
+             type="text" placeholder="Name it and let everything else breathe…"
              maxlength="120" />
       <button class="priority-save" onclick="savePriority()">Set</button>
     </div>
@@ -753,13 +811,13 @@
 
     <!-- Habits -->
     <div class="card">
-      <div class="card-label">Today's habits</div>
+      <div class="card-label">✅ Today's Habits</div>
       <div id="habits-list"></div>
     </div>
 
     <!-- Quick Links -->
     <div class="card">
-      <div class="card-label">Beings apps</div>
+      <div class="card-label">🔗 Beings Apps</div>
       <div class="links-grid">
         <a href="index.html" class="app-link">
           <div class="app-link-dot"></div>
@@ -801,7 +859,7 @@
 
     <!-- Calendar -->
     <div class="card">
-      <div class="card-label">Today's schedule</div>
+      <div class="card-label">📅 Today's Schedule</div>
       <div class="events-list" id="events-list"></div>
       <div class="add-event-row">
         <input class="input-sm input-time" id="event-time" type="text" placeholder="9:00" maxlength="8" />
@@ -812,7 +870,7 @@
 
     <!-- Quick Capture -->
     <div class="card capture-card">
-      <div class="card-label">Quick capture</div>
+      <div class="card-label">💭 Capture a Thought</div>
       <textarea id="thought-input" rows="4" placeholder="What's present for you right now…"></textarea>
       <div class="save-row">
         <button class="btn-soft" onclick="saveThought()">Save thought</button>
@@ -824,7 +882,7 @@
 
   <!-- Daily Reflection - full width -->
   <div class="card reflection-card fade d5" style="margin-bottom:20px;" id="rc-card">
-    <div class="card-label">Today's reflection</div>
+    <div class="card-label">🌿 Daily Reflection</div>
     <div class="rc-question" id="rc-question"></div>
 
     <!-- API key row — hidden once key is saved -->
@@ -850,7 +908,7 @@
   <!-- Brain Dump - full width -->
   <div class="card brain-card fade d6" style="margin-bottom:20px;">
     <div class="brain-header">
-      <div class="card-label" style="margin-bottom:0;">Brain Dump</div>
+      <div class="card-label" style="margin-bottom:0;">🧠 Brain Dump</div>
       <div style="display:flex;align-items:center;gap:16px;">
         <span class="brain-count" id="dump-count"></span>
         <button class="clear-dump" onclick="clearDump()">Clear all</button>
@@ -925,11 +983,20 @@
     document.getElementById('date-full').textContent =
       `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
 
-    const phrase = h < 12 ? 'Good morning'
-                 : h < 17 ? 'Good afternoon'
-                 :           'Good evening';
+    const phrases = h < 12
+      ? [ 'Good morning! Ready to show up for yourself today? 🌅',
+          'Good morning. The day is still quiet. Make it yours. ☀️',
+          'Morning! One breath, one step. You've got this. 🌿' ]
+      : h < 17
+      ? [ 'Good afternoon. How are you actually doing? 🍃',
+          'Hey, good afternoon. Pause for a second — how do you feel? 🌤️',
+          'Afternoon check-in. Still breathing. Still whole. ✨' ]
+      : [ 'Good evening. You made it through another day. 🌙',
+          'Evening. Time to come back to yourself. 🕯️',
+          'Good evening. Rest is not laziness — it\'s wisdom. 🌙' ];
 
-    document.getElementById('greeting').textContent = `${phrase}.`;
+    const idx = (now.getDate() + h) % phrases.length;
+    document.getElementById('greeting').textContent = phrases[idx];
   }
 
   // ── Priority ──────────────────────────────────────────────
@@ -1338,6 +1405,23 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
   document.getElementById('rc-key-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') rcSaveKey();
   });
+
+  // ── Day / Night mode toggle ───────────────────────────────
+  function applyMode(mode) {
+    const isDay = mode === 'day';
+    document.body.classList.toggle('day-mode', isDay);
+    document.getElementById('mode-icon').textContent  = isDay ? '🌙' : '☀️';
+    document.getElementById('mode-label').textContent = isDay ? 'Night' : 'Day';
+    localStorage.setItem('beings_color_mode', mode);
+  }
+
+  function toggleMode() {
+    const current = localStorage.getItem('beings_color_mode') || 'night';
+    applyMode(current === 'day' ? 'night' : 'day');
+  }
+
+  // Restore saved mode on load
+  applyMode(localStorage.getItem('beings_color_mode') || 'night');
 </script>
 </body>
 </html>
