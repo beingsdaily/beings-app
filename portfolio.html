@@ -674,9 +674,9 @@
       opacity: 1;
     }
 
-    /* ── Animations ────────────────────────────── */
+    /* ── Hero animations (CSS, run on load) ───── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(22px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
@@ -685,11 +685,45 @@
       animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
     }
 
-    .d1 { animation-delay: 0.1s; }
-    .d2 { animation-delay: 0.2s; }
-    .d3 { animation-delay: 0.32s; }
-    .d4 { animation-delay: 0.44s; }
-    .d5 { animation-delay: 0.56s; }
+    .d1 { animation-delay: 0.08s; }
+    .d2 { animation-delay: 0.22s; }
+    .d3 { animation-delay: 0.38s; }
+    .d4 { animation-delay: 0.52s; }
+    .d5 { animation-delay: 0.66s; }
+
+    /* ── Scroll-triggered animation base states ─ */
+    .anim-up {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.6s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .anim-from-left {
+      opacity: 0;
+      transform: translateX(-36px);
+      transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.65s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .anim-from-right {
+      opacity: 0;
+      transform: translateX(36px);
+      transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.65s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .anim-scale {
+      opacity: 0;
+      transform: translateY(20px) scale(0.975);
+      transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.6s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .anim-revealed {
+      opacity: 1 !important;
+      transform: none !important;
+    }
 
     /* ── Responsive ────────────────────────────── */
     @media (max-width: 800px) {
@@ -740,7 +774,7 @@
   <!-- About -->
   <section class="section" id="about">
     <div class="about-grid">
-      <div class="about-left">
+      <div class="about-left anim-from-left">
         <div class="section-tag">About</div>
         <h2>Builder at the edge of AI and humanity.</h2>
         <p class="about-highlight">I came from education. I arrived at AI. Both are about the same thing: helping people understand themselves and the world.</p>
@@ -759,7 +793,7 @@
           </div>
         </div>
       </div>
-      <div class="about-body">
+      <div class="about-body anim-from-right">
         <p>My path into AI wasn't traditional. I came from education — working directly with people, understanding how they learn, where they struggle, and what actually helps them grow. That grounding in human behavior turned out to be exactly what AI work needs most.</p>
         <p>I taught myself to build with <strong>Claude and the Anthropic API</strong> and shipped a full suite of production tools under the <strong>Beings</strong> brand — a daily reflection app, a content autopilot, a voice journaling tool, a niche research system, a habit tracker, and a command center. Every tool is live, in production, and built entirely by me.</p>
         <p>As a <strong>neurodivergent thinker</strong>, I naturally notice the gaps between how AI systems are designed and how real people actually use them. I think in edge cases. I question default assumptions. I care deeply about the human in human-in-the-loop.</p>
@@ -979,23 +1013,176 @@
   </footer>
 
   <script>
-    // Scroll-triggered animations
-    const observer = new IntersectionObserver((entries) => {
+    // ── Scroll-triggered animations via IntersectionObserver ──────────────
+
+    function reveal(el) {
+      el.classList.add('anim-revealed');
+    }
+
+    // Generic observer — fires when element is 12% visible
+    const baseObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-          observer.unobserve(entry.target);
+          reveal(entry.target);
+          baseObserver.unobserve(entry.target);
         }
       });
     }, { threshold: 0.12 });
 
-    document.querySelectorAll('.skill-card, .project-card, .service-item, .work-cta, .about-stat, .contact-link').forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(16px)';
-      el.style.transition = 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)';
-      observer.observe(el);
+    // Stagger observer — fires a parent, then staggers children
+    function observeStagger(selector, animClass, baseDelay, step, threshold = 0.08) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.querySelectorAll(selector).forEach((el, i) => {
+              el.style.transitionDelay = (baseDelay + i * step) + 's';
+              reveal(el);
+            });
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold });
+      return obs;
+    }
+
+    // ── About columns (left + right) ──────────────────────────────────────
+    document.querySelectorAll('.anim-from-left, .anim-from-right').forEach(el => {
+      baseObserver.observe(el);
     });
+
+    // ── Skills — stagger one by one ───────────────────────────────────────
+    document.querySelectorAll('.skill-card').forEach((el, i) => {
+      el.classList.add('anim-up');
+      el.style.transitionDelay = (i * 0.07) + 's';
+    });
+    const skillsGrid = document.querySelector('.skills-grid');
+    if (skillsGrid) {
+      const skillObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.querySelectorAll('.skill-card').forEach(el => reveal(el));
+            skillObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.06 });
+      skillObs.observe(skillsGrid);
+    }
+
+    // ── Project cards — scale + fade, staggered ───────────────────────────
+    document.querySelectorAll('.project-card').forEach((el, i) => {
+      el.classList.add('anim-scale');
+      el.style.transitionDelay = (i * 0.09) + 's';
+    });
+    const projectsGrid = document.querySelector('.projects-grid');
+    if (projectsGrid) {
+      const projObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.querySelectorAll('.project-card').forEach(el => reveal(el));
+            projObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05 });
+      projObs.observe(projectsGrid);
+    }
+
+    // ── Skills section header ─────────────────────────────────────────────
+    const skillsSection = document.querySelector('#skills');
+    if (skillsSection) {
+      [skillsSection.querySelector('.section-tag'), skillsSection.querySelector('h2')].forEach((el, i) => {
+        if (!el) return;
+        el.classList.add('anim-up');
+        el.style.transitionDelay = (i * 0.1) + 's';
+        baseObserver.observe(el);
+      });
+    }
+
+    // ── Projects section header ───────────────────────────────────────────
+    const projectsSection = document.querySelector('#projects');
+    if (projectsSection) {
+      [
+        projectsSection.querySelector('.section-tag'),
+        projectsSection.querySelector('h2'),
+        projectsSection.querySelector('.projects-intro')
+      ].forEach((el, i) => {
+        if (!el) return;
+        el.classList.add('anim-up');
+        el.style.transitionDelay = (i * 0.1) + 's';
+        baseObserver.observe(el);
+      });
+    }
+
+    // ── Work With Me — fade up in sequence ───────────────────────────────
+    const workSection = document.querySelector('#work');
+    if (workSection) {
+      [
+        workSection.querySelector('.section-tag'),
+        workSection.querySelector('h2'),
+        workSection.querySelector('.availability-badge'),
+        workSection.querySelector('.work-intro'),
+      ].forEach((el, i) => {
+        if (!el) return;
+        el.classList.add('anim-up');
+        el.style.transitionDelay = (i * 0.1) + 's';
+        baseObserver.observe(el);
+      });
+
+      workSection.querySelectorAll('.service-item').forEach((el, i) => {
+        el.classList.add('anim-up');
+        el.style.transitionDelay = (0.1 + i * 0.08) + 's';
+      });
+      const servicesList = workSection.querySelector('.services-list');
+      if (servicesList) {
+        const svcObs = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.querySelectorAll('.service-item').forEach(el => reveal(el));
+              svcObs.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        svcObs.observe(servicesList);
+      }
+
+      const workCta = workSection.querySelector('.work-cta');
+      if (workCta) {
+        workCta.classList.add('anim-up');
+        workCta.style.transitionDelay = '0.15s';
+        baseObserver.observe(workCta);
+      }
+    }
+
+    // ── Contact — slides up ───────────────────────────────────────────────
+    const contactSection = document.querySelector('#contact');
+    if (contactSection) {
+      [
+        contactSection.querySelector('.section-tag'),
+        contactSection.querySelector('h2'),
+        contactSection.querySelector('.contact-sub'),
+      ].forEach((el, i) => {
+        if (!el) return;
+        el.classList.add('anim-up');
+        el.style.transitionDelay = (i * 0.1) + 's';
+        baseObserver.observe(el);
+      });
+
+      contactSection.querySelectorAll('.contact-link').forEach((el, i) => {
+        el.classList.add('anim-up');
+        el.style.transitionDelay = (0.1 + i * 0.08) + 's';
+      });
+      const contactLinks = contactSection.querySelector('.contact-links');
+      if (contactLinks) {
+        const clObs = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.querySelectorAll('.contact-link').forEach(el => reveal(el));
+              clObs.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        clObs.observe(contactLinks);
+      }
+    }
   </script>
 
 </body>
