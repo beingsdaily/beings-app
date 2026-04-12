@@ -1,0 +1,159 @@
+{
+  "name": "Beings Daily Content Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Every Morning 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /home/tonycharlesmoore/chat-app/public && node beings-pipeline.js"
+      },
+      "id": "a1b2c3d4-0002-0002-0002-000000000002",
+      "name": "Run Beings Pipeline",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-exit-code",
+              "leftValue": "={{ $json.exitCode }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0003-0003-0003-000000000003",
+      "name": "Pipeline succeeded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "fileSelector": "/home/tonycharlesmoore/chat-app/public/beings-queue.json",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0004-0004-0004-000000000004",
+      "name": "Read Queue File",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [960, 220]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Parse queue and return pending posts added today\nconst fileContent = $input.first().binary?.data;\nif (!fileContent) return [{ json: { pending: 0, posts: [] } }];\n\nconst decoded = Buffer.from(fileContent, 'base64').toString('utf8');\nconst queue = JSON.parse(decoded);\n\nconst today = new Date().toISOString().slice(0, 10);\nconst todaysPosts = queue.filter(p =>\n  p.generated_at?.startsWith(today) && p.status === 'pending'\n);\n\nreturn [{\n  json: {\n    pending: todaysPosts.length,\n    total_in_queue: queue.filter(p => p.status === 'pending').length,\n    todays_posts: todaysPosts\n  }\n}];"
+      },
+      "id": "a1b2c3d4-0005-0005-0005-000000000005",
+      "name": "Parse Today's Posts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 220]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Log the failure output for debugging\nconst output = $input.first().json;\nconsole.error('Beings pipeline failed!');\nconsole.error('stdout:', output.stdout);\nconsole.error('stderr:', output.stderr);\nconsole.error('exitCode:', output.exitCode);\nreturn [{ json: { error: true, message: output.stderr || 'Pipeline exited with code ' + output.exitCode } }];"
+      },
+      "id": "a1b2c3d4-0006-0006-0006-000000000006",
+      "name": "Log Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 400]
+    }
+  ],
+  "connections": {
+    "Every Morning 8am": {
+      "main": [
+        [
+          {
+            "node": "Run Beings Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Beings Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Pipeline succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipeline succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Read Queue File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Queue File": {
+      "main": [
+        [
+          {
+            "node": "Parse Today's Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["beings", "content", "automation"],
+  "triggerCount": 0,
+  "versionId": "beings-pipeline-v1"
+}
