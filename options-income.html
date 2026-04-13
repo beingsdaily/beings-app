@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Income — Beings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #0e1a1a;
+            --bg2:       #0b1412;
+            --card:      rgba(255,255,255,0.028);
+            --card-hi:   rgba(255,255,255,0.045);
+            --sage:      #7a9e7e;
+            --sage-dim:  rgba(122,158,126,0.18);
+            --lavender:  #b9a9cc;
+            --lav-dim:   rgba(185,169,204,0.18);
+            --cream:     #e8e0d0;
+            --muted:     rgba(232,224,208,0.38);
+            --border:    rgba(122,158,126,0.14);
+            --border2:   rgba(185,169,204,0.12);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--cream);
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ─── Grain overlay ─────────────────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.025;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── Layout shell ─────────────────────────────────────── */
+        .shell {
+            position: relative;
+            z-index: 1;
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 0 2rem 6rem;
+        }
+
+        /* ─── Header ───────────────────────────────────────────── */
+        header {
+            padding: 4.5rem 0 3.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 3.5rem;
+            position: relative;
+        }
+
+        .wordmark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.6rem, 7vw, 5rem);
+            font-weight: 300;
+            letter-spacing: 0.06em;
+            line-height: 1;
+            color: var(--cream);
+        }
+
+        .wordmark em {
+            font-style: italic;
+            color: var(--sage);
+        }
+
+        .tagline {
+            margin-top: 1rem;
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .header-rule {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            color: var(--muted);
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .header-rule::before,
+        .header-rule::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ─── Controls ─────────────────────────────────────────── */
+        .controls {
+            max-width: 680px;
+            margin: 0 auto 3rem;
+        }
+
+        /* API key section */
+        .key-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+            background: var(--card);
+        }
+
+        .key-label {
+            padding: 0 1rem;
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            white-space: nowrap;
+            border-right: 1px solid var(--border);
+            height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .key-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--cream);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            padding: 0 1rem;
+            height: 44px;
+            letter-spacing: 0.04em;
+        }
+
+        .key-input::placeholder { color: rgba(232,224,208,0.2); }
+
+        .key-status {
+            padding: 0 1rem;
+            font-size: 0.65rem;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            white-space: nowrap;
+            border-left: 1px solid var(--border);
+            height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .key-status.set { color: var(--sage); }
+
+        /* Model selector */
+        .model-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+            background: var(--card);
+            border-top: none;
+        }
+
+        .model-label {
+            padding: 0 1rem;
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            white-space: nowrap;
+            border-right: 1px solid var(--border);
+            height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .model-select {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--cream);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0 1rem;
+            height: 36px;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .model-select option { background: #0e1a1a; }
+
+        /* Tickers */
+        .tickers-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.9rem;
+        }
+
+        .tickers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 2rem;
+        }
+
+        .chip {
+            position: relative;
+        }
+
+        .chip input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+        .chip label {
+            display: block;
+            padding: 0.5rem 1.2rem;
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+            user-select: none;
+        }
+
+        .chip input:checked + label {
+            border-color: var(--sage);
+            color: var(--sage);
+            background: var(--sage-dim);
+        }
+
+        .chip label:hover { border-color: rgba(122,158,126,0.4); }
+
+        /* Run button */
+        .run-wrap { text-align: center; }
+
+        .run-btn {
+            background: none;
+            border: 1px solid var(--sage);
+            color: var(--sage);
+            padding: 0.85rem 3.5rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: background 0.25s, color 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .run-btn:not(:disabled):hover {
+            background: var(--sage-dim);
+        }
+
+        .run-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* ─── Status log ───────────────────────────────────────── */
+        .status-log {
+            max-width: 680px;
+            margin: 2rem auto 0;
+            display: none;
+        }
+
+        .status-log.visible { display: block; }
+
+        .status-line {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.45rem 0;
+            font-size: 0.75rem;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateX(-6px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--muted);
+            flex-shrink: 0;
+        }
+
+        .status-dot.ok   { background: var(--sage); }
+        .status-dot.err  { background: #cc7070; }
+        .status-dot.spin {
+            background: none;
+            border: 1px solid var(--sage);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ─── Results ──────────────────────────────────────────── */
+        #results {
+            margin-top: 3.5rem;
+        }
+
+        .ticker-block {
+            margin-bottom: 4rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .ticker-head {
+            display: flex;
+            align-items: baseline;
+            gap: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .ticker-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            color: var(--cream);
+        }
+
+        .ticker-price-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--sage);
+            letter-spacing: 0.04em;
+        }
+
+        .plays-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 1px;
+            background: var(--border);
+        }
+
+        /* ─── Play card ─────────────────────────────────────────── */
+        .play-card {
+            background: var(--bg);
+            padding: 1.6rem;
+            transition: background 0.2s;
+            cursor: default;
+        }
+
+        .play-card:hover { background: var(--card-hi); }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.1rem;
+        }
+
+        .period-badge {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--lavender);
+            padding: 0.25rem 0.6rem;
+            border: 1px solid var(--border2);
+            margin-bottom: 0.6rem;
+            display: inline-block;
+        }
+
+        .strategy-badge {
+            font-size: 0.6rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 0.28rem 0.7rem;
+            border: 1px solid;
+        }
+
+        .strategy-badge.call {
+            border-color: var(--sage);
+            color: var(--sage);
+        }
+
+        .strategy-badge.put {
+            border-color: var(--lavender);
+            color: var(--lavender);
+        }
+
+        .risk-tag {
+            font-size: 0.6rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .risk-tag.conservative { color: var(--sage); }
+        .risk-tag.moderate     { color: var(--cream); }
+        .risk-tag.aggressive   { color: #cc9a70; }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            margin-bottom: 1.2rem;
+        }
+
+        .metric {
+            background: var(--bg2);
+            padding: 0.65rem 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .metric-lbl {
+            font-size: 0.56rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .metric-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            color: var(--cream);
+            letter-spacing: 0.02em;
+        }
+
+        .metric-val.highlight { color: var(--sage); }
+
+        .explanation {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.02rem;
+            line-height: 1.65;
+            color: rgba(232,224,208,0.65);
+        }
+
+        /* ─── Error / empty states ─────────────────────────────── */
+        .state-msg {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .state-msg p {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--muted);
+        }
+
+        .state-msg.err p { color: #cc8888; }
+
+        /* ─── Disclaimer ────────────────────────────────────────── */
+        .disclaimer {
+            max-width: 720px;
+            margin: 5rem auto 0;
+            padding: 1.5rem 1.75rem;
+            border: 1px solid var(--border2);
+            background: rgba(185,169,204,0.03);
+        }
+
+        .disclaimer p {
+            font-size: 0.72rem;
+            line-height: 1.8;
+            color: rgba(232,224,208,0.32);
+            letter-spacing: 0.02em;
+        }
+
+        .disclaimer strong {
+            color: var(--lavender);
+            font-weight: 400;
+            letter-spacing: 0.06em;
+        }
+
+        /* ─── Responsive ────────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .shell { padding: 0 1rem 4rem; }
+            .plays-grid { grid-template-columns: 1fr; }
+            .wordmark { font-size: 2.4rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+
+    <header>
+        <div class="wordmark">Options <em>Income</em></div>
+        <div class="tagline">Covered Calls &amp; Cash-Secured Puts · AI-Ranked · Real Market Data</div>
+        <div class="header-rule">Powered by Yahoo Finance + Claude</div>
+    </header>
+
+    <!-- Controls -->
+    <div class="controls">
+
+        <!-- API key -->
+        <div class="key-row">
+            <span class="key-label">Anthropic API Key</span>
+            <input class="key-input" type="password" id="apiKeyInput"
+                   placeholder="sk-ant-…" autocomplete="off"
+                   oninput="onKeyInput(this.value)" />
+            <span class="key-status" id="keyStatus">not set</span>
+        </div>
+
+        <!-- Model -->
+        <div class="model-row">
+            <span class="model-label">Model</span>
+            <select class="model-select" id="modelSelect">
+                <option value="claude-haiku-4-5-20251001">claude-haiku-4-5 — fast, economical</option>
+                <option value="claude-sonnet-4-6" selected>claude-sonnet-4-6 — deeper analysis</option>
+            </select>
+        </div>
+
+        <!-- Tickers -->
+        <div class="tickers-label">Select tickers</div>
+        <div class="tickers">
+            <div class="chip"><input type="checkbox" id="t-SPY"  value="SPY"  checked><label for="t-SPY">SPY</label></div>
+            <div class="chip"><input type="checkbox" id="t-QQQ"  value="QQQ"  checked><label for="t-QQQ">QQQ</label></div>
+            <div class="chip"><input type="checkbox" id="t-AAPL" value="AAPL" checked><label for="t-AAPL">AAPL</label></div>
+            <div class="chip"><input type="checkbox" id="t-MSFT" value="MSFT" checked><label for="t-MSFT">MSFT</label></div>
+            <div class="chip"><input type="checkbox" id="t-TSLA" value="TSLA"><label for="t-TSLA">TSLA</label></div>
+            <div class="chip"><input type="checkbox" id="t-NVDA" value="NVDA"><label for="t-NVDA">NVDA</label></div>
+        </div>
+
+        <div class="run-wrap">
+            <button class="run-btn" id="runBtn" onclick="runAnalysis()">Analyze Options</button>
+        </div>
+
+        <!-- Live status log -->
+        <div class="status-log" id="statusLog"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="results"></div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        <p>
+            <strong>NOT FINANCIAL ADVICE.</strong> This tool is for educational and informational purposes only.
+            Options trading involves significant risk of loss and is not appropriate for all investors. Premium
+            estimates are based on real-time bid/ask data but may not reflect actual fill prices. The AI-generated
+            analysis does not constitute investment advice, a recommendation, or a solicitation to buy or sell
+            any security. Always conduct your own due diligence and consult a licensed financial professional
+            before making investment decisions. Past performance does not guarantee future results.
+        </p>
+    </div>
+
+</div>
+
+<script>
+// ─── Constants ──────────────────────────────────────────────────────────────
+const PROXY    = 'https://corsproxy.io/?';
+const YF_BASE  = 'https://query1.finance.yahoo.com/v7/finance/options/';
+const ANTHRO   = 'https://api.anthropic.com/v1/messages';
+const LS_KEY   = 'beings_anthropic_key';
+
+// ─── API Key management ──────────────────────────────────────────────────────
+(function init() {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) {
+        document.getElementById('apiKeyInput').value = saved;
+        setKeyStatus(true);
+    }
+})();
+
+function onKeyInput(val) {
+    const trimmed = val.trim();
+    if (trimmed) {
+        localStorage.setItem(LS_KEY, trimmed);
+        setKeyStatus(true);
+    } else {
+        localStorage.removeItem(LS_KEY);
+        setKeyStatus(false);
+    }
+}
+
+function setKeyStatus(ok) {
+    const el = document.getElementById('keyStatus');
+    el.textContent = ok ? '● set' : 'not set';
+    el.className   = 'key-status' + (ok ? ' set' : '');
+}
+
+// ─── Status log helpers ──────────────────────────────────────────────────────
+function logLine(msg, state = 'spin') {
+    const log = document.getElementById('statusLog');
+    log.classList.add('visible');
+    const id  = 'sl-' + Date.now() + Math.random();
+    const el  = document.createElement('div');
+    el.className = 'status-line';
+    el.id = id;
+    el.innerHTML = `<span class="status-dot ${state}"></span><span>${msg}</span>`;
+    log.appendChild(el);
+    return id;
+}
+
+function updateLine(id, msg, state) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.querySelector('.status-dot').className = 'status-dot ' + state;
+    el.querySelector('span:last-child').textContent = msg;
+}
+
+function clearLog() {
+    const log = document.getElementById('statusLog');
+    log.innerHTML = '';
+    log.classList.remove('visible');
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function proxyUrl(url) {
+    return PROXY + encodeURIComponent(url);
+}
+
+function fmtDate(ts) {
+    return new Date(ts * 1000).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric'
+    });
+}
+
+function mid(bid, ask) {
+    const b = parseFloat(bid) || 0;
+    const a = parseFloat(ask) || 0;
+    if (b > 0 && a > 0) return ((b + a) / 2).toFixed(2);
+    if (b > 0) return b.toFixed(2);
+    if (a > 0) return a.toFixed(2);
+    return null;
+}
+
+function annualYield(premium, strike, daysToExp) {
+    if (!premium || !strike || !daysToExp || daysToExp <= 0) return null;
+    const pct = (parseFloat(premium) / parseFloat(strike)) * (365 / daysToExp) * 100;
+    return pct.toFixed(1) + '%';
+}
+
+function selectedTickers() {
+    return Array.from(document.querySelectorAll('.chip input:checked')).map(c => c.value);
+}
+
+// ─── Yahoo Finance fetch ─────────────────────────────────────────────────────
+async function fetchOptions(ticker, dateTs = null) {
+    let url = YF_BASE + ticker;
+    if (dateTs) url += '?date=' + dateTs;
+    const res = await fetch(proxyUrl(url), { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+}
+
+function pickExpirations(dates, nowSec) {
+    // weekly: 3-10 days out
+    // monthly: 20-45 days out
+    // quarterly: 70-110 days out
+    const ranges = [
+        { label: 'weekly',    min: 3,  max: 15  },
+        { label: 'monthly',   min: 18, max: 50  },
+        { label: 'quarterly', min: 65, max: 120 },
+    ];
+    const result = {};
+    for (const r of ranges) {
+        const match = dates.find(d => {
+            const days = (d - nowSec) / 86400;
+            return days >= r.min && days <= r.max;
+        });
+        if (match) result[r.label] = match;
+    }
+    return result;
+}
+
+function filterNTM(contracts, price, rangeAbs) {
+    if (!Array.isArray(contracts)) return [];
+    return contracts
+        .filter(c => {
+            const s = parseFloat(c.strike);
+            const hasBid = (parseFloat(c.bid) || 0) > 0 || (parseFloat(c.ask) || 0) > 0;
+            return hasBid && Math.abs(s - price) <= rangeAbs;
+        })
+        .sort((a, b) => ((b.volume || 0) - (a.volume || 0)))
+        .slice(0, 6);
+}
+
+async function gatherTickerData(ticker, logId) {
+    const now = Math.floor(Date.now() / 1000);
+
+    // First call: get quote + nearest expiration + all expiration dates
+    const data1 = await fetchOptions(ticker);
+    const result = data1?.optionChain?.result?.[0];
+    if (!result) throw new Error('No data returned');
+
+    const price   = result.quote?.regularMarketPrice;
+    const allDates = result.expirationDates || [];
+    if (!price || !allDates.length) throw new Error('Missing price or expirations');
+
+    const pickedExps = pickExpirations(allDates, now);
+    const range = price * 0.06; // 6% NTM window
+
+    // Fetch each expiration in parallel
+    const expLabels = Object.keys(pickedExps);
+    const expFetches = expLabels.map(async (label) => {
+        const ts = pickedExps[label];
+        try {
+            const d = await fetchOptions(ticker, ts);
+            const opts = d?.optionChain?.result?.[0]?.options?.[0];
+            return {
+                label,
+                ts,
+                calls: filterNTM(opts?.calls, price, range),
+                puts:  filterNTM(opts?.puts,  price, range),
+            };
+        } catch {
+            return { label, ts, calls: [], puts: [] };
+        }
+    });
+
+    const expirations = await Promise.all(expFetches);
+
+    return { ticker, price, expirations };
+}
+
+// ─── Prompt builder ───────────────────────────────────────────────────────────
+function buildPrompt(allData) {
+    const nowSec = Math.floor(Date.now() / 1000);
+
+    let dataSection = '';
+    for (const { ticker, price, expirations } of allData) {
+        dataSection += `\n═══ ${ticker} — Current Price: $${price.toFixed(2)} ═══\n`;
+
+        for (const exp of expirations) {
+            const daysOut = Math.round((exp.ts - nowSec) / 86400);
+            const dateStr = fmtDate(exp.ts);
+            dataSection += `\n${exp.label.toUpperCase()} EXPIRATION — ${dateStr} (~${daysOut} days)\n`;
+
+            dataSection += 'CALLS:\n';
+            if (exp.calls.length) {
+                for (const c of exp.calls) {
+                    const m = mid(c.bid, c.ask);
+                    const iv = c.impliedVolatility ? (c.impliedVolatility * 100).toFixed(1) + '%' : 'N/A';
+                    dataSection += `  Strike $${c.strike} | bid $${c.bid ?? '—'} ask $${c.ask ?? '—'} | mid $${m ?? '—'} | IV ${iv} | vol ${(c.volume||0).toLocaleString()} | OI ${(c.openInterest||0).toLocaleString()}\n`;
+                }
+            } else {
+                dataSection += '  (no liquid strikes found)\n';
+            }
+
+            dataSection += 'PUTS:\n';
+            if (exp.puts.length) {
+                for (const p of exp.puts) {
+                    const m = mid(p.bid, p.ask);
+                    const iv = p.impliedVolatility ? (p.impliedVolatility * 100).toFixed(1) + '%' : 'N/A';
+                    dataSection += `  Strike $${p.strike} | bid $${p.bid ?? '—'} ask $${p.ask ?? '—'} | mid $${m ?? '—'} | IV ${iv} | vol ${(p.volume||0).toLocaleString()} | OI ${(p.openInterest||0).toLocaleString()}\n`;
+                }
+            } else {
+                dataSection += '  (no liquid strikes found)\n';
+            }
+        }
+    }
+
+    return `You are an expert options income strategist. Analyze real options chain data and select the best covered call and cash-secured put plays for generating income.
+
+${dataSection}
+
+Select the top 2–3 best plays per ticker across all time periods. Prioritize:
+- Attractive annualized premium yield (bid/ask midpoint ÷ strike × 365/days)
+- Adequate liquidity (volume ≥ 100 ideally, OI ≥ 500)
+- Reasonable safety buffer (how far OTM)
+- Strike relationship to current price
+- Implied volatility context
+
+Return ONLY a valid JSON array. No prose, no markdown, no explanation outside the JSON. Each object must have exactly these fields:
+
+{
+  "ticker": string,
+  "strategy": "covered_call" | "cash_secured_put",
+  "period": "weekly" | "monthly" | "quarterly",
+  "strike": number,
+  "expiration": string (e.g. "Apr 19, 2025"),
+  "expirationTs": number (unix timestamp),
+  "premium": number (mid-price, 2 decimal places),
+  "daysToExp": number,
+  "annualizedYield": string (e.g. "18.4%"),
+  "risk": "Conservative" | "Moderate" | "Aggressive",
+  "explanation": string (2–3 plain-English sentences: what this play is, why it's attractive, and what the key risk is)
+}
+
+Return the array sorted: best plays first. Include all tickers that have adequate data.`;
+}
+
+// ─── Anthropic API call ───────────────────────────────────────────────────────
+async function callClaude(prompt, apiKey, model) {
+    const res = await fetch(ANTHRO, {
+        method: 'POST',
+        headers: {
+            'x-api-key':    apiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+            'anthropic-dangerous-direct-browser-calls': 'true',
+        },
+        body: JSON.stringify({
+            model,
+            max_tokens: 4096,
+            messages: [{ role: 'user', content: prompt }],
+        }),
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `Anthropic API error ${res.status}`);
+    }
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+
+    // Extract JSON array from response
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('Could not parse JSON from AI response. Raw: ' + text.slice(0, 300));
+
+    return JSON.parse(match[0]);
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function renderRisk(risk) {
+    const cls = (risk || '').toLowerCase();
+    return `<span class="risk-tag ${cls}">${risk || 'Unknown'}</span>`;
+}
+
+function renderCard(rec) {
+    const isCall  = rec.strategy === 'covered_call';
+    const badgeCls = isCall ? 'call' : 'put';
+    const label    = isCall ? 'Covered Call' : 'Cash-Secured Put';
+    const cap      = (parseFloat(rec.strike) * 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+    return `
+<div class="play-card">
+    <div>
+        <span class="period-badge">${(rec.period || '').toUpperCase()}</span>
+    </div>
+    <div class="card-top">
+        <span class="strategy-badge ${badgeCls}">${label}</span>
+        ${renderRisk(rec.risk)}
+    </div>
+    <div class="metrics">
+        <div class="metric">
+            <span class="metric-lbl">Strike</span>
+            <span class="metric-val">$${rec.strike}</span>
+        </div>
+        <div class="metric">
+            <span class="metric-lbl">Expiration</span>
+            <span class="metric-val">${rec.expiration}</span>
+        </div>
+        <div class="metric">
+            <span class="metric-lbl">Est. Premium</span>
+            <span class="metric-val highlight">$${parseFloat(rec.premium).toFixed(2)}</span>
+        </div>
+        <div class="metric">
+            <span class="metric-lbl">Annual Yield</span>
+            <span class="metric-val highlight">${rec.annualizedYield || '—'}</span>
+        </div>
+        <div class="metric" style="grid-column: span 2;">
+            <span class="metric-lbl">Capital Required (1 contract)</span>
+            <span class="metric-val">${cap}</span>
+        </div>
+    </div>
+    <div class="explanation">${rec.explanation}</div>
+</div>`;
+}
+
+function renderResults(allData, recs) {
+    const container = document.getElementById('results');
+
+    if (!recs.length) {
+        container.innerHTML = '<div class="state-msg"><p>No recommendations returned. Try selecting different tickers.</p></div>';
+        return;
+    }
+
+    // Group by ticker
+    const priceMap  = Object.fromEntries(allData.map(d => [d.ticker, d.price]));
+    const byTicker  = {};
+    for (const rec of recs) {
+        if (!byTicker[rec.ticker]) byTicker[rec.ticker] = [];
+        byTicker[rec.ticker].push(rec);
+    }
+
+    // Preserve order of allData tickers
+    const tickerOrder = allData.map(d => d.ticker).filter(t => byTicker[t]);
+    // Add any tickers Claude included that weren't in our data (edge case)
+    for (const t of Object.keys(byTicker)) {
+        if (!tickerOrder.includes(t)) tickerOrder.push(t);
+    }
+
+    let html = '';
+    for (const ticker of tickerOrder) {
+        const cards = byTicker[ticker];
+        const price = priceMap[ticker];
+        html += `
+<div class="ticker-block">
+    <div class="ticker-head">
+        <span class="ticker-name">${ticker}</span>
+        ${price ? `<span class="ticker-price-tag">$${price.toFixed(2)}</span>` : ''}
+    </div>
+    <div class="plays-grid">
+        ${cards.map(renderCard).join('')}
+    </div>
+</div>`;
+    }
+
+    container.innerHTML = html;
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+async function runAnalysis() {
+    const apiKey = localStorage.getItem(LS_KEY);
+    if (!apiKey) {
+        document.getElementById('apiKeyInput').focus();
+        return;
+    }
+
+    const tickers = selectedTickers();
+    if (!tickers.length) return;
+
+    const model  = document.getElementById('modelSelect').value;
+    const btn    = document.getElementById('runBtn');
+    const results = document.getElementById('results');
+
+    btn.disabled = true;
+    btn.textContent = 'Working…';
+    results.innerHTML = '';
+    clearLog();
+
+    // Gather options data
+    const tickerData = [];
+    const fetchIds   = {};
+
+    for (const t of tickers) {
+        fetchIds[t] = logLine(`Fetching ${t} options chain…`);
+    }
+
+    await Promise.all(tickers.map(async (ticker) => {
+        try {
+            const data = await gatherTickerData(ticker, fetchIds[ticker]);
+            tickerData.push(data);
+            updateLine(fetchIds[ticker], `${ticker} — ${data.price.toFixed(2)} · ${data.expirations.length} expirations loaded`, 'ok');
+        } catch (err) {
+            updateLine(fetchIds[ticker], `${ticker} — failed: ${err.message}`, 'err');
+        }
+    }));
+
+    if (!tickerData.length) {
+        results.innerHTML = '<div class="state-msg err"><p>Could not fetch options data. Yahoo Finance may be temporarily unavailable via the proxy.</p></div>';
+        btn.disabled = false;
+        btn.textContent = 'Analyze Options';
+        return;
+    }
+
+    // Claude analysis
+    const claudeId = logLine(`Sending data to ${model}…`);
+    try {
+        const prompt = buildPrompt(tickerData);
+        const recs   = await callClaude(prompt, apiKey, model);
+        updateLine(claudeId, `Claude returned ${recs.length} recommendations`, 'ok');
+        renderResults(tickerData, recs);
+    } catch (err) {
+        updateLine(claudeId, `Claude error: ${err.message}`, 'err');
+        results.innerHTML = `<div class="state-msg err"><p>${err.message}</p></div>`;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Analyze Options';
+}
+</script>
+</body>
+</html>
