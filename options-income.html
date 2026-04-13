@@ -512,19 +512,26 @@
     <header>
         <div class="wordmark">Options <em>Income</em></div>
         <div class="tagline">Covered Calls &amp; Cash-Secured Puts · AI-Ranked · Real Market Data</div>
-        <div class="header-rule">Powered by Yahoo Finance + Claude</div>
+        <div class="header-rule">Powered by Polygon.io + Claude</div>
     </header>
 
     <!-- Controls -->
     <div class="controls">
 
-        <!-- API key -->
+        <!-- API keys -->
         <div class="key-row">
             <span class="key-label">Anthropic API Key</span>
             <input class="key-input" type="password" id="apiKeyInput"
                    placeholder="sk-ant-…" autocomplete="off"
                    oninput="onKeyInput(this.value)" />
             <span class="key-status" id="keyStatus">not set</span>
+        </div>
+        <div class="key-row" style="border-top:none;">
+            <span class="key-label">Polygon.io Key</span>
+            <input class="key-input" type="password" id="polygonKeyInput"
+                   placeholder="free at polygon.io →" autocomplete="off"
+                   oninput="onPolygonInput(this.value)" />
+            <span class="key-status" id="polygonStatus">not set</span>
         </div>
 
         <!-- Model -->
@@ -562,11 +569,12 @@
     <div class="disclaimer">
         <p>
             <strong>NOT FINANCIAL ADVICE.</strong> This tool is for educational and informational purposes only.
-            Options trading involves significant risk of loss and is not appropriate for all investors. Premium
-            estimates are based on real-time bid/ask data but may not reflect actual fill prices. The AI-generated
-            analysis does not constitute investment advice, a recommendation, or a solicitation to buy or sell
-            any security. Always conduct your own due diligence and consult a licensed financial professional
-            before making investment decisions. Past performance does not guarantee future results.
+            Options data is sourced from Polygon.io (free tier — delayed up to 15 minutes). Premium estimates
+            are based on bid/ask data and may not reflect actual fill prices. The AI-generated analysis does not
+            constitute investment advice, a recommendation, or a solicitation to buy or sell any security.
+            Options trading involves significant risk of loss and is not appropriate for all investors.
+            Always conduct your own due diligence and consult a licensed financial professional before making
+            investment decisions. Past performance does not guarantee future results.
         </p>
     </div>
 
@@ -574,33 +582,33 @@
 
 <script>
 // ─── Constants ──────────────────────────────────────────────────────────────
-const PROXY    = 'https://corsproxy.io/?';
-const YF_BASE  = 'https://query1.finance.yahoo.com/v7/finance/options/';
-const ANTHRO   = 'https://api.anthropic.com/v1/messages';
-const LS_KEY   = 'beings_anthropic_key';
+const POLYGON_BASE = 'https://api.polygon.io';
+const ANTHRO       = 'https://api.anthropic.com/v1/messages';
+const LS_KEY       = 'beings_anthropic_key';
+const LS_POLYGON   = 'beings_polygon_key';
 
 // ─── API Key management ──────────────────────────────────────────────────────
 (function init() {
-    const saved = localStorage.getItem(LS_KEY);
-    if (saved) {
-        document.getElementById('apiKeyInput').value = saved;
-        setKeyStatus(true);
-    }
+    const antKey = localStorage.getItem(LS_KEY);
+    if (antKey) { document.getElementById('apiKeyInput').value = antKey; setKeyStatus('keyStatus', true); }
+    const polyKey = localStorage.getItem(LS_POLYGON);
+    if (polyKey) { document.getElementById('polygonKeyInput').value = polyKey; setKeyStatus('polygonStatus', true); }
 })();
 
 function onKeyInput(val) {
-    const trimmed = val.trim();
-    if (trimmed) {
-        localStorage.setItem(LS_KEY, trimmed);
-        setKeyStatus(true);
-    } else {
-        localStorage.removeItem(LS_KEY);
-        setKeyStatus(false);
-    }
+    const t = val.trim();
+    t ? localStorage.setItem(LS_KEY, t) : localStorage.removeItem(LS_KEY);
+    setKeyStatus('keyStatus', !!t);
 }
 
-function setKeyStatus(ok) {
-    const el = document.getElementById('keyStatus');
+function onPolygonInput(val) {
+    const t = val.trim();
+    t ? localStorage.setItem(LS_POLYGON, t) : localStorage.removeItem(LS_POLYGON);
+    setKeyStatus('polygonStatus', !!t);
+}
+
+function setKeyStatus(elId, ok) {
+    const el = document.getElementById(elId);
     el.textContent = ok ? '● set' : 'not set';
     el.className   = 'key-status' + (ok ? ' set' : '');
 }
@@ -631,15 +639,23 @@ function clearLog() {
     log.classList.remove('visible');
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-function proxyUrl(url) {
-    return PROXY + encodeURIComponent(url);
+// ─── Date helpers ─────────────────────────────────────────────────────────────
+function addDays(d, n) {
+    const r = new Date(d);
+    r.setDate(r.getDate() + n);
+    return r;
 }
 
-function fmtDate(ts) {
-    return new Date(ts * 1000).toLocaleDateString('en-US', {
-        month: 'short', day: 'numeric', year: 'numeric'
-    });
+function toYMD(d) { return d.toISOString().split('T')[0]; }
+
+function fmtYMD(dateStr) {
+    const [y, m, day] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function daysUntil(dateStr) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return Math.round((new Date(y, m - 1, d) - new Date()) / 86400000);
 }
 
 function mid(bid, ask) {
@@ -651,144 +667,139 @@ function mid(bid, ask) {
     return null;
 }
 
-function annualYield(premium, strike, daysToExp) {
-    if (!premium || !strike || !daysToExp || daysToExp <= 0) return null;
-    const pct = (parseFloat(premium) / parseFloat(strike)) * (365 / daysToExp) * 100;
-    return pct.toFixed(1) + '%';
-}
-
 function selectedTickers() {
     return Array.from(document.querySelectorAll('.chip input:checked')).map(c => c.value);
 }
 
-// ─── Yahoo Finance fetch ─────────────────────────────────────────────────────
-async function fetchOptions(ticker, dateTs = null) {
-    let url = YF_BASE + ticker;
-    if (dateTs) url += '?date=' + dateTs;
-    const res = await fetch(proxyUrl(url), { headers: { 'Accept': 'application/json' } });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+// ─── Polygon.io fetch helpers ─────────────────────────────────────────────────
+async function polyGet(path, polygonKey) {
+    const sep = path.includes('?') ? '&' : '?';
+    const res = await fetch(`${POLYGON_BASE}${path}${sep}apiKey=${polygonKey}`);
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(`Polygon ${res.status}: ${err?.error || err?.message || 'unknown'}`);
+    }
     return res.json();
 }
 
-function pickExpirations(dates, nowSec) {
-    // weekly: 3-10 days out
-    // monthly: 20-45 days out
-    // quarterly: 70-110 days out
-    const ranges = [
-        { label: 'weekly',    min: 3,  max: 15  },
-        { label: 'monthly',   min: 18, max: 50  },
-        { label: 'quarterly', min: 65, max: 120 },
-    ];
-    const result = {};
-    for (const r of ranges) {
-        const match = dates.find(d => {
-            const days = (d - nowSec) / 86400;
-            return days >= r.min && days <= r.max;
-        });
-        if (match) result[r.label] = match;
+// Batch stock prices — returns { TICKER: price }
+async function fetchStockPrices(tickers, polygonKey) {
+    const data = await polyGet(
+        `/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${tickers.join(',')}`,
+        polygonKey
+    );
+    const out = {};
+    for (const t of (data.tickers || [])) {
+        out[t.ticker] = t.lastTrade?.p || t.day?.c || t.prevDay?.c || null;
     }
-    return result;
+    return out;
 }
 
-function filterNTM(contracts, price, rangeAbs) {
-    if (!Array.isArray(contracts)) return [];
-    return contracts
-        .filter(c => {
-            const s = parseFloat(c.strike);
-            const hasBid = (parseFloat(c.bid) || 0) > 0 || (parseFloat(c.ask) || 0) > 0;
-            return hasBid && Math.abs(s - price) <= rangeAbs;
-        })
-        .sort((a, b) => ((b.volume || 0) - (a.volume || 0)))
-        .slice(0, 6);
+// Options snapshot for one ticker + one expiration date range
+async function fetchPolygonOptions(ticker, expGte, expLte, strikeMin, strikeMax, polygonKey) {
+    const params = [
+        `expiration_date.gte=${expGte}`,
+        `expiration_date.lte=${expLte}`,
+        `strike_price.gte=${strikeMin.toFixed(2)}`,
+        `strike_price.lte=${strikeMax.toFixed(2)}`,
+        `limit=50`,
+    ].join('&');
+    const data = await polyGet(`/v3/snapshot/options/${ticker}?${params}`, polygonKey);
+    return data.results || [];
 }
 
-async function gatherTickerData(ticker, logId) {
-    const now = Math.floor(Date.now() / 1000);
+// Parse Polygon results into normalised call/put arrays
+function parseContracts(results) {
+    const calls = [], puts = [];
+    for (const r of results) {
+        const type   = r.details?.contract_type;
+        const strike = r.details?.strike_price;
+        const exp    = r.details?.expiration_date;
+        const bid    = r.last_quote?.bid;
+        const ask    = r.last_quote?.ask;
+        const midpt  = r.last_quote?.midpoint ?? mid(bid, ask);
+        const iv     = r.implied_volatility;
+        const oi     = r.open_interest;
+        const vol    = r.day?.volume;
 
-    // First call: get quote + nearest expiration + all expiration dates
-    const data1 = await fetchOptions(ticker);
-    const result = data1?.optionChain?.result?.[0];
-    if (!result) throw new Error('No data returned');
+        if (!strike || !exp || (!bid && !ask)) continue;
+        const c = { strike, exp, bid, ask, midpt, iv, oi, vol };
+        if (type === 'call') calls.push(c);
+        else if (type === 'put') puts.push(c);
+    }
+    // Sort by volume desc, take top 6 each
+    const byVol = arr => arr.sort((a, b) => (b.vol || 0) - (a.vol || 0)).slice(0, 6);
+    return { calls: byVol(calls), puts: byVol(puts) };
+}
 
-    const price   = result.quote?.regularMarketPrice;
-    const allDates = result.expirationDates || [];
-    if (!price || !allDates.length) throw new Error('Missing price or expirations');
+// ─── Gather all data for one ticker ──────────────────────────────────────────
+async function gatherTickerData(ticker, price, polygonKey) {
+    const today  = new Date();
+    const range  = price * 0.07; // 7% NTM window
+    const lo     = price - range;
+    const hi     = price + range;
 
-    const pickedExps = pickExpirations(allDates, now);
-    const range = price * 0.06; // 6% NTM window
+    const expRanges = [
+        { label: 'weekly',    gte: toYMD(addDays(today, 4)),  lte: toYMD(addDays(today, 14)) },
+        { label: 'monthly',   gte: toYMD(addDays(today, 20)), lte: toYMD(addDays(today, 52)) },
+        { label: 'quarterly', gte: toYMD(addDays(today, 65)), lte: toYMD(addDays(today, 125)) },
+    ];
 
-    // Fetch each expiration in parallel
-    const expLabels = Object.keys(pickedExps);
-    const expFetches = expLabels.map(async (label) => {
-        const ts = pickedExps[label];
+    const expirations = await Promise.all(expRanges.map(async ({ label, gte, lte }) => {
         try {
-            const d = await fetchOptions(ticker, ts);
-            const opts = d?.optionChain?.result?.[0]?.options?.[0];
-            return {
-                label,
-                ts,
-                calls: filterNTM(opts?.calls, price, range),
-                puts:  filterNTM(opts?.puts,  price, range),
-            };
+            const results = await fetchPolygonOptions(ticker, gte, lte, lo, hi, polygonKey);
+            // Find first expiration date in results and use all contracts for that date only
+            const firstExp = results[0]?.details?.expiration_date;
+            const forFirstExp = firstExp
+                ? results.filter(r => r.details?.expiration_date === firstExp)
+                : results;
+            return { label, expDate: firstExp || null, ...parseContracts(forFirstExp) };
         } catch {
-            return { label, ts, calls: [], puts: [] };
+            return { label, expDate: null, calls: [], puts: [] };
         }
-    });
-
-    const expirations = await Promise.all(expFetches);
+    }));
 
     return { ticker, price, expirations };
 }
 
 // ─── Prompt builder ───────────────────────────────────────────────────────────
 function buildPrompt(allData) {
-    const nowSec = Math.floor(Date.now() / 1000);
-
     let dataSection = '';
     for (const { ticker, price, expirations } of allData) {
         dataSection += `\n═══ ${ticker} — Current Price: $${price.toFixed(2)} ═══\n`;
 
         for (const exp of expirations) {
-            const daysOut = Math.round((exp.ts - nowSec) / 86400);
-            const dateStr = fmtDate(exp.ts);
-            dataSection += `\n${exp.label.toUpperCase()} EXPIRATION — ${dateStr} (~${daysOut} days)\n`;
-
-            dataSection += 'CALLS:\n';
-            if (exp.calls.length) {
-                for (const c of exp.calls) {
-                    const m = mid(c.bid, c.ask);
-                    const iv = c.impliedVolatility ? (c.impliedVolatility * 100).toFixed(1) + '%' : 'N/A';
-                    dataSection += `  Strike $${c.strike} | bid $${c.bid ?? '—'} ask $${c.ask ?? '—'} | mid $${m ?? '—'} | IV ${iv} | vol ${(c.volume||0).toLocaleString()} | OI ${(c.openInterest||0).toLocaleString()}\n`;
-                }
-            } else {
-                dataSection += '  (no liquid strikes found)\n';
+            if (!exp.expDate) {
+                dataSection += `\n${exp.label.toUpperCase()} EXPIRATION — no data found\n`;
+                continue;
             }
+            const days = daysUntil(exp.expDate);
+            dataSection += `\n${exp.label.toUpperCase()} EXPIRATION — ${fmtYMD(exp.expDate)} (~${days} days)\n`;
 
-            dataSection += 'PUTS:\n';
-            if (exp.puts.length) {
-                for (const p of exp.puts) {
-                    const m = mid(p.bid, p.ask);
-                    const iv = p.impliedVolatility ? (p.impliedVolatility * 100).toFixed(1) + '%' : 'N/A';
-                    dataSection += `  Strike $${p.strike} | bid $${p.bid ?? '—'} ask $${p.ask ?? '—'} | mid $${m ?? '—'} | IV ${iv} | vol ${(p.volume||0).toLocaleString()} | OI ${(p.openInterest||0).toLocaleString()}\n`;
-                }
-            } else {
-                dataSection += '  (no liquid strikes found)\n';
-            }
+            const fmtContracts = (arr, type) => {
+                if (!arr.length) return `  (no liquid ${type}s)\n`;
+                return arr.map(c => {
+                    const iv = c.iv ? (c.iv * 100).toFixed(1) + '%' : 'N/A';
+                    return `  Strike $${c.strike} | bid $${c.bid ?? '—'} ask $${c.ask ?? '—'} | mid $${c.midpt ?? '—'} | IV ${iv} | vol ${(c.vol||0).toLocaleString()} | OI ${(c.oi||0).toLocaleString()}`;
+                }).join('\n') + '\n';
+            };
+
+            dataSection += `CALLS:\n${fmtContracts(exp.calls, 'call')}`;
+            dataSection += `PUTS:\n${fmtContracts(exp.puts, 'put')}`;
         }
     }
 
-    return `You are an expert options income strategist. Analyze real options chain data and select the best covered call and cash-secured put plays for generating income.
+    return `You are an expert options income strategist. Analyze this real options chain data (from Polygon.io) and select the best covered call and cash-secured put plays for generating income.
 
 ${dataSection}
 
 Select the top 2–3 best plays per ticker across all time periods. Prioritize:
-- Attractive annualized premium yield (bid/ask midpoint ÷ strike × 365/days)
-- Adequate liquidity (volume ≥ 100 ideally, OI ≥ 500)
-- Reasonable safety buffer (how far OTM)
-- Strike relationship to current price
-- Implied volatility context
+- Attractive annualized premium yield (midpoint ÷ strike × 365/days)
+- Adequate liquidity (volume ≥ 50, OI ≥ 200)
+- Reasonable safety buffer from current price
+- Implied volatility context (higher IV = richer premium)
 
-Return ONLY a valid JSON array. No prose, no markdown, no explanation outside the JSON. Each object must have exactly these fields:
+Return ONLY a valid JSON array. No prose, no markdown fences, nothing outside the array. Each object:
 
 {
   "ticker": string,
@@ -796,15 +807,14 @@ Return ONLY a valid JSON array. No prose, no markdown, no explanation outside th
   "period": "weekly" | "monthly" | "quarterly",
   "strike": number,
   "expiration": string (e.g. "Apr 19, 2025"),
-  "expirationTs": number (unix timestamp),
-  "premium": number (mid-price, 2 decimal places),
+  "premium": number (midpoint, 2 decimal places),
   "daysToExp": number,
   "annualizedYield": string (e.g. "18.4%"),
   "risk": "Conservative" | "Moderate" | "Aggressive",
-  "explanation": string (2–3 plain-English sentences: what this play is, why it's attractive, and what the key risk is)
+  "explanation": string (2–3 plain-English sentences covering: what the play is, why the premium is attractive, and what the main risk is)
 }
 
-Return the array sorted: best plays first. Include all tickers that have adequate data.`;
+Sorted best-first. Include all tickers with sufficient data.`;
 }
 
 // ─── Anthropic API call ───────────────────────────────────────────────────────
@@ -831,33 +841,26 @@ async function callClaude(prompt, apiKey, model) {
 
     const data = await res.json();
     const text = data.content?.[0]?.text || '';
-
-    // Extract JSON array from response
     const match = text.match(/\[[\s\S]*\]/);
     if (!match) throw new Error('Could not parse JSON from AI response. Raw: ' + text.slice(0, 300));
-
     return JSON.parse(match[0]);
 }
 
 // ─── Render ───────────────────────────────────────────────────────────────────
 function renderRisk(risk) {
-    const cls = (risk || '').toLowerCase();
-    return `<span class="risk-tag ${cls}">${risk || 'Unknown'}</span>`;
+    return `<span class="risk-tag ${(risk || '').toLowerCase()}">${risk || 'Unknown'}</span>`;
 }
 
 function renderCard(rec) {
     const isCall  = rec.strategy === 'covered_call';
-    const badgeCls = isCall ? 'call' : 'put';
-    const label    = isCall ? 'Covered Call' : 'Cash-Secured Put';
-    const cap      = (parseFloat(rec.strike) * 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    const label   = isCall ? 'Covered Call' : 'Cash-Secured Put';
+    const cap     = (parseFloat(rec.strike) * 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
     return `
 <div class="play-card">
-    <div>
-        <span class="period-badge">${(rec.period || '').toUpperCase()}</span>
-    </div>
+    <div><span class="period-badge">${(rec.period || '').toUpperCase()}</span></div>
     <div class="card-top">
-        <span class="strategy-badge ${badgeCls}">${label}</span>
+        <span class="strategy-badge ${isCall ? 'call' : 'put'}">${label}</span>
         ${renderRisk(rec.risk)}
     </div>
     <div class="metrics">
@@ -888,30 +891,25 @@ function renderCard(rec) {
 
 function renderResults(allData, recs) {
     const container = document.getElementById('results');
-
     if (!recs.length) {
-        container.innerHTML = '<div class="state-msg"><p>No recommendations returned. Try selecting different tickers.</p></div>';
+        container.innerHTML = '<div class="state-msg"><p>No recommendations returned. Try selecting different tickers or check your Polygon key.</p></div>';
         return;
     }
 
-    // Group by ticker
-    const priceMap  = Object.fromEntries(allData.map(d => [d.ticker, d.price]));
-    const byTicker  = {};
+    const priceMap = Object.fromEntries(allData.map(d => [d.ticker, d.price]));
+    const byTicker = {};
     for (const rec of recs) {
         if (!byTicker[rec.ticker]) byTicker[rec.ticker] = [];
         byTicker[rec.ticker].push(rec);
     }
 
-    // Preserve order of allData tickers
     const tickerOrder = allData.map(d => d.ticker).filter(t => byTicker[t]);
-    // Add any tickers Claude included that weren't in our data (edge case)
     for (const t of Object.keys(byTicker)) {
         if (!tickerOrder.includes(t)) tickerOrder.push(t);
     }
 
     let html = '';
     for (const ticker of tickerOrder) {
-        const cards = byTicker[ticker];
         const price = priceMap[ticker];
         html += `
 <div class="ticker-block">
@@ -920,7 +918,7 @@ function renderResults(allData, recs) {
         ${price ? `<span class="ticker-price-tag">$${price.toFixed(2)}</span>` : ''}
     </div>
     <div class="plays-grid">
-        ${cards.map(renderCard).join('')}
+        ${byTicker[ticker].map(renderCard).join('')}
     </div>
 </div>`;
     }
@@ -930,17 +928,17 @@ function renderResults(allData, recs) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 async function runAnalysis() {
-    const apiKey = localStorage.getItem(LS_KEY);
-    if (!apiKey) {
-        document.getElementById('apiKeyInput').focus();
-        return;
-    }
+    const apiKey     = localStorage.getItem(LS_KEY);
+    const polygonKey = localStorage.getItem(LS_POLYGON);
+
+    if (!apiKey) { document.getElementById('apiKeyInput').focus(); return; }
+    if (!polygonKey) { document.getElementById('polygonKeyInput').focus(); return; }
 
     const tickers = selectedTickers();
     if (!tickers.length) return;
 
-    const model  = document.getElementById('modelSelect').value;
-    const btn    = document.getElementById('runBtn');
+    const model   = document.getElementById('modelSelect').value;
+    const btn     = document.getElementById('runBtn');
     const results = document.getElementById('results');
 
     btn.disabled = true;
@@ -948,33 +946,49 @@ async function runAnalysis() {
     results.innerHTML = '';
     clearLog();
 
-    // Gather options data
-    const tickerData = [];
-    const fetchIds   = {};
-
-    for (const t of tickers) {
-        fetchIds[t] = logLine(`Fetching ${t} options chain…`);
+    // Step 1: batch stock prices (1 API call)
+    const priceId = logLine('Fetching stock prices…');
+    let prices = {};
+    try {
+        prices = await fetchStockPrices(tickers, polygonKey);
+        updateLine(priceId, `Prices loaded: ${tickers.map(t => `${t} $${(prices[t]||0).toFixed(2)}`).join(' · ')}`, 'ok');
+    } catch (err) {
+        updateLine(priceId, `Price fetch failed: ${err.message}`, 'err');
+        btn.disabled = false;
+        btn.textContent = 'Analyze Options';
+        return;
     }
 
+    // Step 2: options chains per ticker (3 calls each, parallel across tickers)
+    const fetchIds = {};
+    for (const t of tickers) fetchIds[t] = logLine(`Fetching ${t} options (weekly/monthly/quarterly)…`);
+
+    const tickerData = [];
     await Promise.all(tickers.map(async (ticker) => {
+        const price = prices[ticker];
+        if (!price) {
+            updateLine(fetchIds[ticker], `${ticker} — no price data`, 'err');
+            return;
+        }
         try {
-            const data = await gatherTickerData(ticker, fetchIds[ticker]);
+            const data = await gatherTickerData(ticker, price, polygonKey);
+            const loaded = data.expirations.filter(e => e.expDate).length;
             tickerData.push(data);
-            updateLine(fetchIds[ticker], `${ticker} — ${data.price.toFixed(2)} · ${data.expirations.length} expirations loaded`, 'ok');
+            updateLine(fetchIds[ticker], `${ticker} — ${loaded} expiration(s) loaded`, 'ok');
         } catch (err) {
             updateLine(fetchIds[ticker], `${ticker} — failed: ${err.message}`, 'err');
         }
     }));
 
     if (!tickerData.length) {
-        results.innerHTML = '<div class="state-msg err"><p>Could not fetch options data. Yahoo Finance may be temporarily unavailable via the proxy.</p></div>';
+        results.innerHTML = '<div class="state-msg err"><p>Could not fetch options data. Check your Polygon.io API key.</p></div>';
         btn.disabled = false;
         btn.textContent = 'Analyze Options';
         return;
     }
 
-    // Claude analysis
-    const claudeId = logLine(`Sending data to ${model}…`);
+    // Step 3: Claude analysis
+    const claudeId = logLine(`Sending ${tickerData.length} ticker(s) to ${model}…`);
     try {
         const prompt = buildPrompt(tickerData);
         const recs   = await callClaude(prompt, apiKey, model);
