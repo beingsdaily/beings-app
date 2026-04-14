@@ -577,6 +577,50 @@ canvas#perfChart {
   font-size: 0.95rem;
 }
 
+/* ── MACD row ── */
+.macd-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.macd-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.macd-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+}
+
+.macd-value.bull    { color: var(--sage); }
+.macd-value.bear    { color: var(--red); }
+.macd-value.neutral { color: var(--muted); }
+
+/* ── Volume row ── */
+.vol-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.vol-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.vol-value { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+.vol-value.above   { color: var(--sage); }
+.vol-value.below   { color: var(--red); }
+.vol-value.neutral { color: var(--muted); }
+
 /* ── Flash animation for new signals ── */
 @keyframes cardFlash {
   0%  { background: rgba(122,158,126,0.12); }
@@ -712,11 +756,18 @@ const RSI_BUY        = 30;
 const RSI_SELL       = 70;
 const EMA_SHORT      = 9;
 const EMA_LONG       = 21;
+const MACD_FAST      = 12;
+const MACD_SLOW      = 26;
+const MACD_SIG       = 9;
+const VOL_PERIOD     = 20;     // periods for volume moving average
+const STOP_PCT       = 0.03;   // 3% stop loss
+const TP_PCT         = 0.05;   // 5% take profit
+const BRK_PERIOD     = 20;     // breakout resistance lookback
 const HISTORY_MAX    = 150;    // prices to store per coin
 const PORT_HIST_MAX  = 300;    // portfolio snapshots
 const BUY_COOLDOWN   = 15 * 60 * 1000; // 15 min between buys per coin
 const UPDATE_MS      = 60000;
-const LS_KEY         = 'beings_crypto_bot_v2';
+const LS_KEY         = 'beings_crypto_bot_v3';
 const LS_QUEUE       = 'beings_crypto_queue';
 const CG             = 'https://api.coingecko.com/api/v3';
 
@@ -740,7 +791,8 @@ function defaultState() {
     lastRsi:         {},   // { BTC: number }
     lastEmaAbove:    {},   // { BTC: boolean|null }
     lastBuyTime:     {},   // { BTC: timestamp }
-    signals:         {},   // { BTC: { rsi, ema9, ema21, ema9Above, lastAction } }
+    volumeHistory:   {},   // { BTC: [number, ...] }
+    signals:         {},   // { BTC: { rsi, ema9, ema21, ema9Above, macd, macdSignal, macdAbove, lastAction } }
     trades:          [],
     portfolioHistory:[],
     totalRealizedPnl: 0,
@@ -802,6 +854,45 @@ function calcEMA(prices, period) {
   let ema = prices.slice(0, period).reduce((a, b) => a + b, 0) / period;
   for (let i = period; i < prices.length; i++) ema = prices[i] * k + ema * (1 - k);
   return ema;
+}
+
+function calcMACD(prices) {
+  if (prices.length < MACD_SLOW + MACD_SIG) return null;
+  // Build MACD line over time
+  const macdLine = [];
+  for (let i = MACD_SLOW; i <= prices.length; i++) {
+    const sub = prices.slice(0, i);
+    macdLine.push(calcEMA(sub, MACD_FAST) - calcEMA(sub, MACD_SLOW));
+  }
+  if (macdLine.length < MACD_SIG) return null;
+  const sigLine = calcEMA(macdLine, MACD_SIG);
+  const current = macdLine[macdLine.length - 1];
+  return { macd: current, signal: sigLine, hist: current - sigLine, above: current > sigLine };
+}
+
+function avgVolume(sym) {
+  const vols = (S.volumeHistory[sym] || []).slice(-VOL_PERIOD);
+  if (!vols.length) return 0;
+  return vols.reduce((a, b) => a + b, 0) / vols.length;
+}
+
+function isVolumeAboveAvg(sym) {
+  const vols = S.volumeHistory[sym] || [];
+  if (vols.length < 3) return true; // not enough data — allow trades
+  const avg = avgVolume(sym);
+  const cur = vols[vols.length - 1];
+  return avg > 0 && cur > avg;
+}
+
+function detectBreakout(sym) {
+  const prices = S.priceHistory[sym] || [];
+  if (prices.length < BRK_PERIOD + 2) return false;
+  // Resistance = max of the prior BRK_PERIOD prices (excluding current)
+  const prior = prices.slice(-(BRK_PERIOD + 2), -1);
+  const resistance = Math.max(...prior.slice(0, -1));
+  const prevPrice  = prior[prior.length - 1];
+  const curPrice   = prices[prices.length - 1];
+  return prevPrice <= resistance && curPrice > resistance && isVolumeAboveAvg(sym);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -866,16 +957,45 @@ function executeSell(sym, signal) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// EXIT CONDITIONS — stop loss & take profit
+// ═══════════════════════════════════════════════════════════════
+function checkExitConditions() {
+  for (const [sym, pos] of Object.entries(S.positions)) {
+    if (!pos || pos.qty <= 0) continue;
+    const price = S.prices[sym];
+    if (!price) continue;
+    const pct = (price - pos.entryPrice) / pos.entryPrice;
+    if (pct <= -STOP_PCT) {
+      const t = executeSell(sym, `Stop loss (${(pct * 100).toFixed(1)}%)`);
+      if (t) {
+        S.lastBuyTime[sym] = 0;
+        if (S.signals[sym]) S.signals[sym].lastAction = 'SELL';
+        flashCard(sym, 'sell');
+      }
+    } else if (pct >= TP_PCT) {
+      const t = executeSell(sym, `Take profit (${(pct * 100).toFixed(1)}%)`);
+      if (t) {
+        S.lastBuyTime[sym] = 0;
+        if (S.signals[sym]) S.signals[sym].lastAction = 'SELL';
+        flashCard(sym, 'sell');
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // SIGNAL DETECTION
 // ═══════════════════════════════════════════════════════════════
 function processSignals(sym, isInit) {
   const prices = S.priceHistory[sym] || [];
-  if (prices.length < EMA_LONG + 2) return;
+  // Need enough history for MACD (26 + 9 = 35 min)
+  if (prices.length < MACD_SLOW + MACD_SIG + 2) return;
 
-  const rsi      = calcRSI(prices);
-  const ema9     = calcEMA(prices, EMA_SHORT);
-  const ema21    = calcEMA(prices, EMA_LONG);
+  const rsi       = calcRSI(prices);
+  const ema9      = calcEMA(prices, EMA_SHORT);
+  const ema21     = calcEMA(prices, EMA_LONG);
   const ema9Above = ema9 > ema21;
+  const macdData  = calcMACD(prices);
 
   const prevRsi      = S.lastRsi[sym]      ?? 50;
   const prevEmaAbove = S.lastEmaAbove[sym] ?? ema9Above;
@@ -883,18 +1003,42 @@ function processSignals(sym, isInit) {
   S.lastRsi[sym]      = rsi;
   S.lastEmaAbove[sym] = ema9Above;
   if (!S.signals[sym]) S.signals[sym] = {};
-  S.signals[sym] = { rsi, ema9, ema21, ema9Above, lastAction: S.signals[sym].lastAction || 'HOLD' };
+  S.signals[sym] = {
+    rsi, ema9, ema21, ema9Above,
+    macd:       macdData?.macd   ?? null,
+    macdSignal: macdData?.signal ?? null,
+    macdHist:   macdData?.hist   ?? null,
+    macdAbove:  macdData?.above  ?? null,
+    lastAction: S.signals[sym].lastAction || 'HOLD',
+  };
 
   if (isInit || S.botPaused || !initialized) return;
 
+  // MACD direction filter (current state, not crossover)
+  const macdBull = macdData?.above === true;
+  const macdBear = macdData?.above === false;
+  // Volume filter — required for all buy signals
+  const volOk   = isVolumeAboveAvg(sym);
+
   const buys = [], sells = [];
 
-  if (prevRsi >= RSI_BUY  && rsi < RSI_BUY)  buys.push(`RSI < ${RSI_BUY} (oversold)`);
-  if (prevRsi <= RSI_SELL && rsi > RSI_SELL)  sells.push(`RSI > ${RSI_SELL} (overbought)`);
-  if (!prevEmaAbove && ema9Above)              buys.push('EMA9 ✕ EMA21 (golden cross)');
-  if (prevEmaAbove  && !ema9Above)             sells.push('EMA9 ✕ EMA21 (death cross)');
+  // RSI crossover — require MACD agreement + volume
+  if (prevRsi >= RSI_BUY  && rsi < RSI_BUY  && macdBull && volOk)
+    buys.push(`RSI < ${RSI_BUY} (oversold) + MACD bullish`);
+  if (prevRsi <= RSI_SELL && rsi > RSI_SELL  && macdBear)
+    sells.push(`RSI > ${RSI_SELL} (overbought) + MACD bearish`);
 
-  if (buys.length && sells.length) return; // conflicting signals — skip
+  // EMA crossover — require MACD agreement + volume
+  if (!prevEmaAbove && ema9Above && macdBull && volOk)
+    buys.push('EMA golden cross + MACD bullish');
+  if (prevEmaAbove  && !ema9Above && macdBear)
+    sells.push('EMA death cross + MACD bearish');
+
+  // Breakout signal (volume filter built into detectBreakout)
+  if (detectBreakout(sym) && macdBull)
+    buys.push('Breakout above resistance + high volume + MACD bullish');
+
+  if (buys.length && sells.length) return; // conflicting — skip
 
   if (buys.length) {
     const cooldownOk = Date.now() - (S.lastBuyTime[sym] || 0) > BUY_COOLDOWN;
@@ -931,7 +1075,7 @@ function flashCard(sym, type) {
 // ═══════════════════════════════════════════════════════════════
 async function fetchPrices() {
   const ids = COINS.map(c => c.id).join(',');
-  const url = `${CG}/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
+  const url = `${CG}/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
   const data = await res.json();
@@ -939,12 +1083,20 @@ async function fetchPrices() {
   for (const c of COINS) {
     const entry = data[c.id];
     if (!entry) continue;
-    S.prices[c.sym]   = entry.usd;
+    S.prices[c.sym]    = entry.usd;
     S.change24h[c.sym] = entry.usd_24h_change || 0;
     if (!S.priceHistory[c.sym]) S.priceHistory[c.sym] = [];
     S.priceHistory[c.sym].push(entry.usd);
     if (S.priceHistory[c.sym].length > HISTORY_MAX) {
       S.priceHistory[c.sym] = S.priceHistory[c.sym].slice(-HISTORY_MAX);
+    }
+    // Volume history
+    if (entry.usd_24h_vol) {
+      if (!S.volumeHistory[c.sym]) S.volumeHistory[c.sym] = [];
+      S.volumeHistory[c.sym].push(entry.usd_24h_vol);
+      if (S.volumeHistory[c.sym].length > HISTORY_MAX) {
+        S.volumeHistory[c.sym] = S.volumeHistory[c.sym].slice(-HISTORY_MAX);
+      }
     }
   }
 }
@@ -955,9 +1107,12 @@ async function fetchHistory(coinId, sym) {
   if (!res.ok) throw new Error(`History ${res.status}`);
   const data = await res.json();
   const prices = (data.prices || []).map(p => p[1]);
-  // Sample down to HISTORY_MAX if needed
   const step = Math.max(1, Math.floor(prices.length / HISTORY_MAX));
   S.priceHistory[sym] = prices.filter((_, i) => i % step === 0).slice(-HISTORY_MAX);
+  // Seed volume history from historical data
+  const vols = (data.total_volumes || []).map(v => v[1]);
+  const vstep = Math.max(1, Math.floor(vols.length / HISTORY_MAX));
+  S.volumeHistory[sym] = vols.filter((_, i) => i % vstep === 0).slice(-HISTORY_MAX);
 }
 
 async function initHistoricalData() {
@@ -965,7 +1120,7 @@ async function initHistoricalData() {
   for (const c of COINS) {
     try {
       await fetchHistory(c.id, c.sym);
-      // Seed lastRsi and lastEmaAbove from initial history
+      // Seed indicator state from initial history
       const prices = S.priceHistory[c.sym] || [];
       S.lastRsi[c.sym]      = calcRSI(prices);
       S.lastEmaAbove[c.sym] = calcEMA(prices, EMA_SHORT) > calcEMA(prices, EMA_LONG);
@@ -1056,6 +1211,7 @@ async function update(isInit = false) {
   try {
     await fetchPrices();
 
+    if (!isInit) checkExitConditions(); // SL/TP before new signals
     for (const c of COINS) processSignals(c.sym, isInit);
 
     // Record portfolio snapshot
@@ -1210,16 +1366,43 @@ function renderCoinCard(c) {
   const emaClass = above == null ? 'neutral' : above ? 'bull' : 'bear';
   const emaText  = above == null ? '—' : above ? '▲ EMA9 above' : '▼ EMA9 below';
 
+  // MACD display
+  const macd      = sig.macd     != null ? sig.macd     : null;
+  const macdSig   = sig.macdSignal != null ? sig.macdSignal : null;
+  const macdAbove = sig.macdAbove;
+  const macdHist  = sig.macdHist != null ? sig.macdHist : null;
+  const macdClass = macdAbove == null ? 'neutral' : macdAbove ? 'bull' : 'bear';
+  const macdText  = macd != null
+    ? `${macd >= 0 ? '+' : ''}${macd.toFixed(2)}`
+    : '—';
+  const macdHistText = macdHist != null
+    ? ` / hist ${macdHist >= 0 ? '+' : ''}${macdHist.toFixed(2)}`
+    : '';
+
+  // Volume display
+  const vols     = S.volumeHistory[sym] || [];
+  const curVol   = vols.length ? vols[vols.length - 1] : null;
+  const avgVol   = avgVolume(sym);
+  const volRatio = (curVol && avgVol) ? curVol / avgVol : null;
+  const volClass = volRatio == null ? 'neutral' : volRatio >= 1 ? 'above' : 'below';
+  const volText  = volRatio != null ? `${(volRatio * 100).toFixed(0)}% of avg` : '—';
+
   let posHtml = '';
   if (hasPos) {
-    const curVal = pos.qty * price;
-    const posP   = curVal - pos.cost;
-    const posPct = (posP / pos.cost) * 100;
+    const curVal  = pos.qty * price;
+    const posP    = curVal - pos.cost;
+    const posPct  = (posP / pos.cost) * 100;
+    const slPrice = pos.entryPrice * (1 - STOP_PCT);
+    const tpPrice = pos.entryPrice * (1 + TP_PCT);
     posHtml = `
       <div class="coin-position">
         <div>Position: <strong>${pos.qty.toFixed(5)} ${sym}</strong></div>
         <div>Entry ${fmtPrice(pos.entryPrice)}</div>
         <div class="pos-pnl ${posP >= 0 ? 'pos' : 'neg'}">${fmtPnl(posP)} (${fmtPct(posPct)})</div>
+        <div style="margin-top:0.3rem;display:flex;gap:0.75rem">
+          <span style="color:var(--red)">SL ${fmtPrice(slPrice)}</span>
+          <span style="color:var(--sage)">TP ${fmtPrice(tpPrice)}</span>
+        </div>
       </div>`;
   } else {
     posHtml = `<div class="coin-position" style="color:var(--muted)">No open position</div>`;
@@ -1263,6 +1446,16 @@ function renderCoinCard(c) {
     <span class="ema-signal ${emaClass}">${emaText}</span>
   </div>
 
+  <div class="macd-row">
+    <span class="macd-label">MACD (12,26,9)</span>
+    <span class="macd-value ${macdClass}">${macdText}${macdHistText}</span>
+  </div>
+
+  <div class="vol-row">
+    <span class="vol-label">Volume</span>
+    <span class="vol-value ${volClass}">${volText}</span>
+  </div>
+
   ${posHtml}
 
   <div>
@@ -1282,10 +1475,12 @@ function renderPositions() {
   }
 
   const rows = openPos.map(([sym, pos]) => {
-    const cur    = S.prices[sym] || pos.entryPrice;
-    const curVal = pos.qty * cur;
-    const pnl    = curVal - pos.cost;
-    const pct    = (pnl / pos.cost) * 100;
+    const cur     = S.prices[sym] || pos.entryPrice;
+    const curVal  = pos.qty * cur;
+    const pnl     = curVal - pos.cost;
+    const pct     = (pnl / pos.cost) * 100;
+    const slPrice = pos.entryPrice * (1 - STOP_PCT);
+    const tpPrice = pos.entryPrice * (1 + TP_PCT);
     return `<tr>
       <td>${sym}</td>
       <td>${pos.qty.toFixed(6)}</td>
@@ -1295,6 +1490,8 @@ function renderPositions() {
       <td>${fmt$(curVal)}</td>
       <td class="${pnl >= 0 ? 'pos' : 'neg'}">${fmtPnl(pnl)}</td>
       <td class="${pnl >= 0 ? 'pos' : 'neg'}">${fmtPct(pct)}</td>
+      <td class="neg">${fmtPrice(slPrice)}</td>
+      <td class="pos">${fmtPrice(tpPrice)}</td>
     </tr>`;
   }).join('');
 
@@ -1304,6 +1501,7 @@ function renderPositions() {
         <thead><tr>
           <th>Coin</th><th>Qty</th><th>Entry</th><th>Current</th>
           <th>Cost</th><th>Value</th><th>P&amp;L</th><th>P&amp;L%</th>
+          <th>Stop Loss</th><th>Take Profit</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -1493,7 +1691,7 @@ async function start() {
   // Render skeleton immediately
   renderAll();
 
-  const hasHistory = COINS.every(c => (S.priceHistory[c.sym] || []).length >= EMA_LONG + 2);
+  const hasHistory = COINS.every(c => (S.priceHistory[c.sym] || []).length >= MACD_SLOW + MACD_SIG + 2);
 
   if (!hasHistory) {
     await initHistoricalData();
