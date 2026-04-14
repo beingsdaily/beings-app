@@ -781,10 +781,193 @@
     .d4 { animation-delay: 0.26s; }
     .d5 { animation-delay: 0.34s; }
     .d6 { animation-delay: 0.42s; }
+
+    /* ════════════════════════════════════════════
+       SETTINGS BUTTON
+    ════════════════════════════════════════════ */
+    .settings-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--text-dim);
+      transition: border-color 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .settings-btn:hover {
+      border-color: var(--border-md);
+      color: var(--text);
+    }
+
+    .settings-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    /* ════════════════════════════════════════════
+       SETTINGS MODAL
+    ════════════════════════════════════════════ */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: 20px;
+      padding: 28px 28px 24px;
+      width: min(400px, calc(100vw - 40px));
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-size: 1.2rem;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.15s;
+    }
+
+    .modal-close:hover { color: var(--text); }
+
+    .modal-field-label {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .modal-input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border-md);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      transition: border-color 0.2s;
+    }
+
+    .modal-input-wrap:focus-within {
+      border-color: var(--accent-dim);
+    }
+
+    .modal-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', monospace;
+      font-size: 0.82rem;
+      padding: 11px 14px;
+      letter-spacing: 0.04em;
+    }
+
+    .modal-input::placeholder { color: var(--text-dim); }
+
+    .modal-eye {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-dim);
+      padding: 0 12px;
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+
+    .modal-eye:hover { color: var(--text); }
+
+    .modal-save {
+      width: 100%;
+      background: var(--cta);
+      color: var(--cta-text);
+      border: none;
+      border-radius: 10px;
+      padding: 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .modal-save:hover { opacity: 0.88; }
+
+    .modal-status {
+      margin-top: 10px;
+      font-size: 0.72rem;
+      text-align: center;
+      color: var(--accent2);
+      min-height: 1em;
+      letter-spacing: 0.04em;
+    }
   </style>
 </head>
 <body>
 <div class="page">
+
+  <!-- ── Settings Modal ── -->
+  <div class="modal-backdrop" id="settingsBackdrop" onclick="handleBackdropClick(event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">Settings</span>
+        <button class="modal-close" onclick="closeSettings()" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-field-label">Anthropic API Key</div>
+      <div class="modal-input-wrap">
+        <input class="modal-input" type="password" id="settingsKeyInput"
+               placeholder="sk-ant-…" autocomplete="off" />
+        <button class="modal-eye" id="eyeBtn" onclick="toggleKeyVisibility()" aria-label="Show/hide key">👁</button>
+      </div>
+      <button class="modal-save" onclick="saveSettingsKey()">Save Key</button>
+      <div class="modal-status" id="modalStatus"></div>
+    </div>
+  </div>
 
   <!-- ── Header ── -->
   <header class="fade d1">
@@ -796,6 +979,12 @@
           <span id="mode-label">Day</span>
         </button>
         <div class="date-pill" id="date-full"></div>
+        <button class="settings-btn" onclick="openSettings()" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="10" r="2.8"/>
+            <path d="M10 2v1.5M10 16.5V18M2 10h1.5M16.5 10H18M4.1 4.1l1.1 1.1M14.8 14.8l1.1 1.1M15.9 4.1l-1.1 1.1M5.2 14.8l-1.1 1.1"/>
+          </svg>
+        </button>
       </div>
     </div>
     <div class="greeting" id="greeting"></div>
@@ -1391,6 +1580,51 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
   function toggleMode() {
     applyMode((localStorage.getItem('beings_color_mode') || 'night') === 'day' ? 'night' : 'day');
   }
+
+  // ── Settings modal ────────────────────────────────────────
+  function openSettings() {
+    const key = localStorage.getItem('beings_key') || '';
+    const input = document.getElementById('settingsKeyInput');
+    input.value = key;
+    input.type  = 'password';
+    document.getElementById('eyeBtn').textContent = '👁';
+    document.getElementById('modalStatus').textContent = '';
+    document.getElementById('settingsBackdrop').classList.add('open');
+    input.focus();
+  }
+
+  function closeSettings() {
+    document.getElementById('settingsBackdrop').classList.remove('open');
+  }
+
+  function handleBackdropClick(e) {
+    if (e.target === document.getElementById('settingsBackdrop')) closeSettings();
+  }
+
+  function toggleKeyVisibility() {
+    const input = document.getElementById('settingsKeyInput');
+    const btn   = document.getElementById('eyeBtn');
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁';
+  }
+
+  function saveSettingsKey() {
+    const val = document.getElementById('settingsKeyInput').value.trim();
+    if (val) {
+      localStorage.setItem('beings_key', val);
+    } else {
+      localStorage.removeItem('beings_key');
+    }
+    const status = document.getElementById('modalStatus');
+    status.textContent = val ? 'Key saved.' : 'Key cleared.';
+    setTimeout(() => { status.textContent = ''; closeSettings(); }, 900);
+  }
+
+  document.getElementById('settingsKeyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveSettingsKey();
+    if (e.key === 'Escape') closeSettings();
+  });
 
   // ── Init ──────────────────────────────────────────────────
   applyMode(localStorage.getItem('beings_color_mode') || 'night');
