@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beings Crypto Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0e1a1a;
+  --bg2:     #0b1412;
+  --card:    rgba(255,255,255,0.032);
+  --card-hi: rgba(255,255,255,0.05);
+  --sage:    #7a9e7e;
+  --lav:     #b9a9cc;
+  --cream:   #e8e0d0;
+  --muted:   rgba(232,224,208,0.38);
+  --border:  rgba(122,158,126,0.15);
+  --border2: rgba(185,169,204,0.12);
+  --red:     #cc7878;
+  --green:   #7a9e7e;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+}
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.5rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: var(--cream);
+}
+
+h1 em { color: var(--sage); font-style: italic; }
+
+.status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+.status-dot.live   { background: var(--sage); box-shadow: 0 0 6px var(--sage); animation: pulse 2s infinite; }
+.status-dot.paused { background: var(--lav); }
+.status-dot.init   { background: #c4a24a; animation: pulse 1s infinite; }
+.status-dot.error  { background: var(--red); }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.countdown-box {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.9rem;
+  letter-spacing: 0.06em;
+}
+
+.btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.45rem 1.1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn:hover { border-color: var(--sage); color: var(--sage); }
+.btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* ── Stats Bar ── */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.stat-box {
+  background: var(--bg);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.stat-lbl {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stat-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--cream);
+  letter-spacing: 0.02em;
+}
+
+.stat-val.pos { color: var(--green); }
+.stat-val.neg { color: var(--red); }
+
+/* ── Section labels ── */
+.section-lbl {
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 0.9rem;
+}
+
+/* ── Coin Cards ── */
+.coins-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.coin-card {
+  background: var(--bg);
+  padding: 1.25rem;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.coin-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border);
+}
+
+.coin-card.signal-buy::before  { background: var(--sage); }
+.coin-card.signal-sell::before { background: var(--lav); }
+
+.coin-card:hover { background: var(--card-hi); }
+
+.coin-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.coin-sym {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  line-height: 1;
+}
+
+.coin-price-wrap { text-align: right; }
+
+.coin-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88rem;
+  color: var(--cream);
+}
+
+.coin-change {
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.coin-change.pos { color: var(--green); }
+.coin-change.neg { color: var(--red); }
+
+/* RSI bar */
+.rsi-wrap { margin-bottom: 0.85rem; }
+
+.rsi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.rsi-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rsi-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+}
+
+.rsi-value.oversold   { color: var(--sage); }
+.rsi-value.overbought { color: var(--red); }
+.rsi-value.neutral    { color: var(--muted); }
+
+.rsi-track {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  position: relative;
+  border-radius: 2px;
+}
+
+.rsi-zones {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.rsi-zone-low  { width: 30%; background: rgba(122,158,126,0.25); border-radius: 2px 0 0 2px; }
+.rsi-zone-mid  { width: 40%; background: transparent; }
+.rsi-zone-high { width: 30%; background: rgba(204,120,120,0.25); border-radius: 0 2px 2px 0; }
+
+.rsi-cursor {
+  position: absolute;
+  top: -1px;
+  width: 2px;
+  height: 5px;
+  background: var(--cream);
+  border-radius: 1px;
+  transform: translateX(-50%);
+  transition: left 0.5s ease;
+}
+
+/* EMA indicator */
+.ema-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.ema-labels { display: flex; flex-direction: column; gap: 0.15rem; }
+
+.ema-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.ema-signal {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid;
+  border-radius: 2px;
+}
+
+.ema-signal.bull { border-color: var(--sage); color: var(--sage); }
+.ema-signal.bear { border-color: var(--red); color: var(--red); }
+.ema-signal.neutral { border-color: var(--border); color: var(--muted); }
+
+/* Position mini */
+.coin-position {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.coin-position .pos-pnl { font-family: 'JetBrains Mono', monospace; }
+.coin-position .pos-pnl.pos { color: var(--green); }
+.coin-position .pos-pnl.neg { color: var(--red); }
+
+/* Signal flash */
+.signal-badge {
+  display: inline-block;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.55rem;
+  margin-top: 0.4rem;
+}
+
+.signal-badge.buy  { background: rgba(122,158,126,0.15); color: var(--sage); }
+.signal-badge.sell { background: rgba(185,169,204,0.15); color: var(--lav); }
+.signal-badge.hold { color: var(--muted); }
+
+/* ── Two column layout ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* ── Positions Table ── */
+.positions-wrap { margin-bottom: 2rem; }
+
+.table-wrap {
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+th {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.65rem 0.9rem;
+  text-align: right;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+th:first-child { text-align: left; }
+
+td {
+  padding: 0.65rem 0.9rem;
+  text-align: right;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--cream);
+  white-space: nowrap;
+}
+
+td:first-child {
+  text-align: left;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--cream);
+}
+
+td.pos { color: var(--green); }
+td.neg { color: var(--red); }
+
+tr:last-child td { border-bottom: none; }
+
+.empty-state {
+  padding: 2.5rem;
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* ── Chart ── */
+.chart-wrap {
+  border: 1px solid var(--border);
+  padding: 1rem;
+  background: var(--bg2);
+}
+
+canvas#perfChart {
+  display: block;
+  width: 100%;
+  height: 180px;
+}
+
+/* ── Trade Log ── */
+.trade-log-wrap {
+  border: 1px solid var(--border);
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.trade-log-wrap::-webkit-scrollbar { width: 4px; }
+.trade-log-wrap::-webkit-scrollbar-track { background: transparent; }
+.trade-log-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.trade-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem 1rem;
+  align-items: start;
+}
+
+.trade-item:last-child { border-bottom: none; }
+
+.trade-badge {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  margin-top: 0.1rem;
+}
+
+.trade-badge.buy  { background: rgba(122,158,126,0.15); color: var(--sage); }
+.trade-badge.sell { background: rgba(185,169,204,0.15); color: var(--lav); }
+
+.trade-details { min-width: 0; }
+
+.trade-coin {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--cream);
+  margin-bottom: 0.15rem;
+}
+
+.trade-signal {
+  font-size: 0.68rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trade-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.trade-meta { text-align: right; }
+
+.trade-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--cream);
+  margin-bottom: 0.15rem;
+}
+
+.trade-pnl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+}
+
+.trade-pnl.pos { color: var(--green); }
+.trade-pnl.neg { color: var(--red); }
+
+/* ── Daily Summary Queue ── */
+.queue-section {
+  border: 1px solid var(--border2);
+  background: rgba(185,169,204,0.02);
+  padding: 1.5rem;
+}
+
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.queue-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.queue-entry {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: start;
+}
+
+.queue-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--cream);
+}
+
+.queue-meta {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.btn-copy {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--lav);
+  padding: 0.35rem 0.8rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s;
+}
+
+.btn-copy:hover { border-color: var(--lav); }
+
+.queue-empty {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* ── Flash animation for new signals ── */
+@keyframes cardFlash {
+  0%  { background: rgba(122,158,126,0.12); }
+  100%{ background: var(--bg); }
+}
+
+@keyframes cardFlashSell {
+  0%  { background: rgba(185,169,204,0.12); }
+  100%{ background: var(--bg); }
+}
+
+.flash-buy  { animation: cardFlash 1.5s ease; }
+.flash-sell { animation: cardFlashSell 1.5s ease; }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .coins-grid { grid-template-columns: repeat(3, 1fr); }
+  .stats-bar  { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 800px) {
+  .main-grid  { grid-template-columns: 1fr; }
+  .coins-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-bar  { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .coins-grid { grid-template-columns: 1fr; }
+  .stats-bar  { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <h1>Beings <em>Crypto Bot</em></h1>
+      <div class="status-wrap">
+        <div class="status-dot init" id="statusDot"></div>
+        <span id="statusText">Initializing</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="countdown-box">Next update <span id="countdown">60</span>s</div>
+      <button class="btn" id="toggleBtn" onclick="toggleBot()">⏸ Pause</button>
+      <button class="btn danger" onclick="confirmReset()">↺ Reset</button>
+    </div>
+  </header>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-box">
+      <div class="stat-lbl">Cash Balance</div>
+      <div class="stat-val" id="statBalance">$10,000.00</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-lbl">Portfolio Value</div>
+      <div class="stat-val" id="statPortfolio">$10,000.00</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-lbl">Total P&amp;L</div>
+      <div class="stat-val" id="statPnl">$0.00</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-lbl">Open Positions</div>
+      <div class="stat-val" id="statPositions">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-lbl">Trades Executed</div>
+      <div class="stat-val" id="statTrades">0</div>
+    </div>
+  </div>
+
+  <!-- Coin Cards -->
+  <div class="section-lbl">Live Market · Updates every 60 seconds</div>
+  <div class="coins-grid" id="coinsGrid"></div>
+
+  <!-- Two-column main -->
+  <div class="main-grid">
+
+    <!-- Left: Positions + Chart -->
+    <div>
+      <div class="positions-wrap">
+        <div class="section-lbl">Open Positions</div>
+        <div id="positionsArea"></div>
+      </div>
+
+      <div>
+        <div class="section-lbl">Daily Performance</div>
+        <div class="chart-wrap">
+          <canvas id="perfChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Trade Log -->
+    <div>
+      <div class="section-lbl">Trade Log</div>
+      <div class="trade-log-wrap" id="tradeLog"></div>
+    </div>
+
+  </div>
+
+  <!-- Autopilot Queue -->
+  <div class="queue-section">
+    <div class="queue-header">
+      <div class="section-lbl" style="margin:0">Autopilot Queue — Daily Summaries</div>
+      <span style="font-size:0.68rem;color:var(--muted)">Paste JSON into beings-queue.json</span>
+    </div>
+    <div id="queueArea"><div class="queue-empty">No summaries yet — generated at end of each trading day.</div></div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const COINS = [
+  { id: 'bitcoin',     sym: 'BTC', name: 'Bitcoin'  },
+  { id: 'ethereum',    sym: 'ETH', name: 'Ethereum' },
+  { id: 'solana',      sym: 'SOL', name: 'Solana'   },
+  { id: 'ripple',      sym: 'XRP', name: 'XRP'      },
+  { id: 'binancecoin', sym: 'BNB', name: 'BNB'      },
+];
+
+const START_BALANCE  = 10000;
+const TRADE_PCT      = 0.10;   // 10% of balance per buy
+const RSI_PERIOD     = 14;
+const RSI_BUY        = 30;
+const RSI_SELL       = 70;
+const EMA_SHORT      = 9;
+const EMA_LONG       = 21;
+const HISTORY_MAX    = 150;    // prices to store per coin
+const PORT_HIST_MAX  = 300;    // portfolio snapshots
+const BUY_COOLDOWN   = 15 * 60 * 1000; // 15 min between buys per coin
+const UPDATE_MS      = 60000;
+const LS_KEY         = 'beings_crypto_bot_v2';
+const LS_QUEUE       = 'beings_crypto_queue';
+const CG             = 'https://api.coingecko.com/api/v3';
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let S = {};
+let updateTimer   = null;
+let countdownSecs = 60;
+let countdownInt  = null;
+let initialized   = false;
+
+function defaultState() {
+  return {
+    balance:         START_BALANCE,
+    startBalance:    START_BALANCE,
+    positions:       {},   // { BTC: { qty, entryPrice, cost } }
+    priceHistory:    {},   // { BTC: [number, ...] }
+    prices:          {},   // { BTC: number }
+    change24h:       {},   // { BTC: number }
+    lastRsi:         {},   // { BTC: number }
+    lastEmaAbove:    {},   // { BTC: boolean|null }
+    lastBuyTime:     {},   // { BTC: timestamp }
+    signals:         {},   // { BTC: { rsi, ema9, ema21, ema9Above, lastAction } }
+    trades:          [],
+    portfolioHistory:[],
+    totalRealizedPnl: 0,
+    botPaused:       false,
+    lastSummaryDate: null,
+  };
+}
+
+function saveState() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) return Object.assign(defaultState(), JSON.parse(raw));
+  } catch {}
+  return defaultState();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INDICATOR MATH
+// ═══════════════════════════════════════════════════════════════
+function calcRSI(prices) {
+  if (prices.length < RSI_PERIOD + 1) return 50;
+
+  const changes = [];
+  for (let i = 1; i < prices.length; i++) changes.push(prices[i] - prices[i - 1]);
+
+  // Use last (RSI_PERIOD * 3) changes for smoothed initial calculation
+  const window = changes.slice(-(RSI_PERIOD * 3));
+  if (window.length < RSI_PERIOD) return 50;
+
+  // Seed with simple average of first RSI_PERIOD changes
+  let avgG = 0, avgL = 0;
+  for (let i = 0; i < RSI_PERIOD; i++) {
+    const c = window[i] || 0;
+    if (c > 0) avgG += c; else avgL += Math.abs(c);
+  }
+  avgG /= RSI_PERIOD;
+  avgL /= RSI_PERIOD;
+
+  // Wilder's smoothing for remaining
+  for (let i = RSI_PERIOD; i < window.length; i++) {
+    const c    = window[i];
+    const gain = Math.max(c, 0);
+    const loss = Math.max(-c, 0);
+    avgG = (avgG * (RSI_PERIOD - 1) + gain) / RSI_PERIOD;
+    avgL = (avgL * (RSI_PERIOD - 1) + loss) / RSI_PERIOD;
+  }
+
+  if (avgL === 0) return 100;
+  return 100 - 100 / (1 + avgG / avgL);
+}
+
+function calcEMA(prices, period) {
+  if (prices.length < period) return prices[prices.length - 1] || 0;
+  const k = 2 / (period + 1);
+  let ema = prices.slice(0, period).reduce((a, b) => a + b, 0) / period;
+  for (let i = period; i < prices.length; i++) ema = prices[i] * k + ema * (1 - k);
+  return ema;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PORTFOLIO MATH
+// ═══════════════════════════════════════════════════════════════
+function totalPortfolioValue() {
+  let v = S.balance;
+  for (const [sym, pos] of Object.entries(S.positions)) {
+    if (pos.qty > 0 && S.prices[sym]) v += pos.qty * S.prices[sym];
+  }
+  return v;
+}
+
+function openPnL() {
+  let pnl = 0;
+  for (const [sym, pos] of Object.entries(S.positions)) {
+    if (pos.qty > 0 && S.prices[sym]) pnl += (S.prices[sym] - pos.entryPrice) * pos.qty;
+  }
+  return pnl;
+}
+
+function totalPnL() { return S.totalRealizedPnl + openPnL(); }
+
+// ═══════════════════════════════════════════════════════════════
+// TRADE EXECUTION
+// ═══════════════════════════════════════════════════════════════
+function executeBuy(sym, signal) {
+  const price = S.prices[sym];
+  if (!price || S.balance < 5) return null;
+
+  const spend = Math.floor(S.balance * TRADE_PCT * 100) / 100;
+  if (spend < 1) return null;
+  const qty = spend / price;
+
+  const existing = S.positions[sym] || { qty: 0, entryPrice: 0, cost: 0 };
+  const newCost  = existing.cost + spend;
+  const newQty   = existing.qty + qty;
+  S.positions[sym] = { qty: newQty, entryPrice: newCost / newQty, cost: newCost };
+  S.balance -= spend;
+
+  const trade = { id: `t${Date.now()}`, sym, action: 'BUY', qty, price, total: spend, signal, ts: Date.now(), pnl: null };
+  S.trades.unshift(trade);
+  if (S.trades.length > 200) S.trades.length = 200;
+  return trade;
+}
+
+function executeSell(sym, signal) {
+  const pos   = S.positions[sym];
+  const price = S.prices[sym];
+  if (!pos || pos.qty <= 0 || !price) return null;
+
+  const proceeds = pos.qty * price;
+  const pnl      = proceeds - pos.cost;
+  S.balance       += proceeds;
+  S.totalRealizedPnl += pnl;
+
+  const trade = { id: `t${Date.now()}`, sym, action: 'SELL', qty: pos.qty, price, total: proceeds, signal, ts: Date.now(), pnl };
+  S.trades.unshift(trade);
+  if (S.trades.length > 200) S.trades.length = 200;
+  delete S.positions[sym];
+  return trade;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SIGNAL DETECTION
+// ═══════════════════════════════════════════════════════════════
+function processSignals(sym, isInit) {
+  const prices = S.priceHistory[sym] || [];
+  if (prices.length < EMA_LONG + 2) return;
+
+  const rsi      = calcRSI(prices);
+  const ema9     = calcEMA(prices, EMA_SHORT);
+  const ema21    = calcEMA(prices, EMA_LONG);
+  const ema9Above = ema9 > ema21;
+
+  const prevRsi      = S.lastRsi[sym]      ?? 50;
+  const prevEmaAbove = S.lastEmaAbove[sym] ?? ema9Above;
+
+  S.lastRsi[sym]      = rsi;
+  S.lastEmaAbove[sym] = ema9Above;
+  if (!S.signals[sym]) S.signals[sym] = {};
+  S.signals[sym] = { rsi, ema9, ema21, ema9Above, lastAction: S.signals[sym].lastAction || 'HOLD' };
+
+  if (isInit || S.botPaused || !initialized) return;
+
+  const buys = [], sells = [];
+
+  if (prevRsi >= RSI_BUY  && rsi < RSI_BUY)  buys.push(`RSI < ${RSI_BUY} (oversold)`);
+  if (prevRsi <= RSI_SELL && rsi > RSI_SELL)  sells.push(`RSI > ${RSI_SELL} (overbought)`);
+  if (!prevEmaAbove && ema9Above)              buys.push('EMA9 ✕ EMA21 (golden cross)');
+  if (prevEmaAbove  && !ema9Above)             sells.push('EMA9 ✕ EMA21 (death cross)');
+
+  if (buys.length && sells.length) return; // conflicting signals — skip
+
+  if (buys.length) {
+    const cooldownOk = Date.now() - (S.lastBuyTime[sym] || 0) > BUY_COOLDOWN;
+    if (cooldownOk) {
+      const t = executeBuy(sym, buys.join(' + '));
+      if (t) {
+        S.lastBuyTime[sym] = Date.now();
+        S.signals[sym].lastAction = 'BUY';
+        flashCard(sym, 'buy');
+      }
+    }
+  }
+
+  if (sells.length) {
+    const t = executeSell(sym, sells.join(' + '));
+    if (t) {
+      S.lastBuyTime[sym] = 0;
+      S.signals[sym].lastAction = 'SELL';
+      flashCard(sym, 'sell');
+    }
+  }
+}
+
+function flashCard(sym, type) {
+  const el = document.getElementById(`card-${sym}`);
+  if (!el) return;
+  el.classList.remove('flash-buy', 'flash-sell', 'signal-buy', 'signal-sell');
+  void el.offsetWidth;
+  el.classList.add(`flash-${type}`, `signal-${type}`);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// COINGECKO API
+// ═══════════════════════════════════════════════════════════════
+async function fetchPrices() {
+  const ids = COINS.map(c => c.id).join(',');
+  const url = `${CG}/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
+  const data = await res.json();
+
+  for (const c of COINS) {
+    const entry = data[c.id];
+    if (!entry) continue;
+    S.prices[c.sym]   = entry.usd;
+    S.change24h[c.sym] = entry.usd_24h_change || 0;
+    if (!S.priceHistory[c.sym]) S.priceHistory[c.sym] = [];
+    S.priceHistory[c.sym].push(entry.usd);
+    if (S.priceHistory[c.sym].length > HISTORY_MAX) {
+      S.priceHistory[c.sym] = S.priceHistory[c.sym].slice(-HISTORY_MAX);
+    }
+  }
+}
+
+async function fetchHistory(coinId, sym) {
+  const url = `${CG}/coins/${coinId}/market_chart?vs_currency=usd&days=2`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`History ${res.status}`);
+  const data = await res.json();
+  const prices = (data.prices || []).map(p => p[1]);
+  // Sample down to HISTORY_MAX if needed
+  const step = Math.max(1, Math.floor(prices.length / HISTORY_MAX));
+  S.priceHistory[sym] = prices.filter((_, i) => i % step === 0).slice(-HISTORY_MAX);
+}
+
+async function initHistoricalData() {
+  setStatus('init', 'Loading history…');
+  for (const c of COINS) {
+    try {
+      await fetchHistory(c.id, c.sym);
+      // Seed lastRsi and lastEmaAbove from initial history
+      const prices = S.priceHistory[c.sym] || [];
+      S.lastRsi[c.sym]      = calcRSI(prices);
+      S.lastEmaAbove[c.sym] = calcEMA(prices, EMA_SHORT) > calcEMA(prices, EMA_LONG);
+    } catch (e) {
+      console.warn(`History failed for ${c.sym}:`, e.message);
+    }
+    await delay(400); // stay within CoinGecko rate limits
+  }
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ═══════════════════════════════════════════════════════════════
+// DAILY SUMMARY
+// ═══════════════════════════════════════════════════════════════
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function generateDailySummary(date) {
+  const portVal = totalPortfolioValue();
+  const pnl     = portVal - S.startBalance;
+  const pnlPct  = ((pnl / S.startBalance) * 100).toFixed(2);
+  const sign    = pnl >= 0 ? '+' : '';
+
+  const dayTrades = S.trades.filter(t => {
+    const d = new Date(t.ts).toISOString().slice(0, 10);
+    return d === date;
+  });
+
+  const sells    = dayTrades.filter(t => t.action === 'SELL');
+  const wins     = sells.filter(t => t.pnl > 0).length;
+  const losses   = sells.filter(t => t.pnl <= 0).length;
+  const winRate  = sells.length ? Math.round((wins / sells.length) * 100) : 0;
+
+  // Best and worst performers
+  let bestSym = '', bestPnl = -Infinity, worstSym = '', worstPnl = Infinity;
+  for (const t of sells) {
+    if (t.pnl > bestPnl)  { bestPnl  = t.pnl;  bestSym  = t.sym; }
+    if (t.pnl < worstPnl) { worstPnl = t.pnl;  worstSym = t.sym; }
+  }
+
+  const dateLabel = new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const text = `Crypto Bot — ${dateLabel}: Portfolio ${fmt$(portVal)} (${sign}${fmt$(pnl)}, ${sign}${pnlPct}%). ${dayTrades.length} trades executed. Win rate ${winRate}%${bestSym ? `. Best: ${bestSym} ${fmt$(bestPnl)}` : ''}${worstSym && worstSym !== bestSym ? `. Worst: ${worstSym} ${fmt$(worstPnl)}` : ''}.`;
+
+  const entry = {
+    id:           `crypto-bot-${date}`,
+    text,
+    generated_at: new Date().toISOString(),
+    source:       'crypto-bot',
+    status:       'pending',
+    meta:         {
+      date,
+      startBalance:   S.startBalance,
+      endBalance:     portVal,
+      pnl,
+      pnlPct: `${sign}${pnlPct}%`,
+      trades:         dayTrades.length,
+      wins,
+      losses,
+      winRate:        `${winRate}%`,
+    },
+  };
+
+  // Save to localStorage queue
+  try {
+    const queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
+    const exists = queue.findIndex(e => e.id === entry.id);
+    if (exists >= 0) queue[exists] = entry; else queue.push(entry);
+    localStorage.setItem(LS_QUEUE, JSON.stringify(queue));
+  } catch {}
+
+  return entry;
+}
+
+function checkDayChange() {
+  const today = todayStr();
+  if (S.lastSummaryDate && S.lastSummaryDate !== today) {
+    generateDailySummary(S.lastSummaryDate);
+  }
+  S.lastSummaryDate = today;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════════════════════
+async function update(isInit = false) {
+  if (S.botPaused && !isInit) return;
+
+  try {
+    await fetchPrices();
+
+    for (const c of COINS) processSignals(c.sym, isInit);
+
+    // Record portfolio snapshot
+    S.portfolioHistory.push({ t: Date.now(), v: totalPortfolioValue() });
+    if (S.portfolioHistory.length > PORT_HIST_MAX) {
+      S.portfolioHistory = S.portfolioHistory.slice(-PORT_HIST_MAX);
+    }
+
+    checkDayChange();
+    saveState();
+    renderAll();
+    setStatus('live', S.botPaused ? 'Paused' : 'Live');
+  } catch (e) {
+    console.error('Update failed:', e);
+    setStatus('error', 'API error — retrying');
+  }
+}
+
+function startTimer() {
+  clearInterval(updateTimer);
+  clearInterval(countdownInt);
+  countdownSecs = 60;
+
+  updateTimer = setInterval(async () => {
+    if (!S.botPaused) {
+      await update();
+    }
+    countdownSecs = 60;
+  }, UPDATE_MS);
+
+  countdownInt = setInterval(() => {
+    if (!S.botPaused) {
+      countdownSecs = Math.max(0, countdownSecs - 1);
+      const el = document.getElementById('countdown');
+      if (el) el.textContent = countdownSecs;
+    }
+  }, 1000);
+}
+
+function toggleBot() {
+  S.botPaused = !S.botPaused;
+  saveState();
+  const btn = document.getElementById('toggleBtn');
+  if (btn) btn.textContent = S.botPaused ? '▶ Resume' : '⏸ Pause';
+  setStatus(S.botPaused ? 'paused' : 'live', S.botPaused ? 'Paused' : 'Live');
+  if (!S.botPaused) update();
+}
+
+function confirmReset() {
+  if (!confirm('Reset portfolio to $10,000? All positions, trades, and history will be cleared.')) return;
+  S = defaultState();
+  saveState();
+  initialized = false;
+  start();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FORMATTING HELPERS
+// ═══════════════════════════════════════════════════════════════
+function fmt$(n, dec = 2) {
+  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+
+function fmtPnl(n) {
+  const sign = n >= 0 ? '+' : '-';
+  return `${sign}${fmt$(n)}`;
+}
+
+function fmtPct(n) {
+  const sign = n >= 0 ? '+' : '';
+  return `${sign}${n.toFixed(2)}%`;
+}
+
+function fmtPrice(p) {
+  if (!p) return '—';
+  if (p >= 1000) return '$' + p.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  if (p >= 1)    return '$' + p.toFixed(4);
+  return '$' + p.toFixed(6);
+}
+
+function fmtTime(ts) {
+  return new Date(ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
+function fmtDateShort(ts) {
+  return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════════════════════════════
+function setStatus(state, text) {
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  if (dot) { dot.className = 'status-dot ' + state; }
+  if (txt) txt.textContent = text;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDERING
+// ═══════════════════════════════════════════════════════════════
+function renderAll() {
+  renderStats();
+  renderCoins();
+  renderPositions();
+  renderTradeLog();
+  renderQueue();
+  drawChart();
+}
+
+function renderStats() {
+  const portVal = totalPortfolioValue();
+  const pnl     = totalPnL();
+  const nPos    = Object.values(S.positions).filter(p => p.qty > 0).length;
+
+  const set = (id, val, cls) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val;
+    el.className   = 'stat-val' + (cls ? ' ' + cls : '');
+  };
+
+  set('statBalance',   fmt$(S.balance));
+  set('statPortfolio', fmt$(portVal), portVal >= S.startBalance ? 'pos' : 'neg');
+  set('statPnl',       (pnl >= 0 ? '+' : '') + fmt$(pnl), pnl >= 0 ? 'pos' : 'neg');
+  set('statPositions', nPos);
+  set('statTrades',    S.trades.length);
+}
+
+function renderCoins() {
+  const grid = document.getElementById('coinsGrid');
+  if (!grid) return;
+  grid.innerHTML = COINS.map(renderCoinCard).join('');
+}
+
+function renderCoinCard(c) {
+  const sym     = c.sym;
+  const price   = S.prices[sym];
+  const chg     = S.change24h[sym] || 0;
+  const sig     = S.signals[sym] || {};
+  const rsi     = sig.rsi  != null ? parseFloat(sig.rsi.toFixed(1)) : null;
+  const ema9    = sig.ema9  || null;
+  const ema21   = sig.ema21 || null;
+  const above   = sig.ema9Above;
+  const pos     = S.positions[sym];
+  const hasPos  = pos && pos.qty > 0;
+  const lastAct = sig.lastAction || 'HOLD';
+
+  const rsiZone = rsi == null ? 'neutral' : rsi < RSI_BUY ? 'oversold' : rsi > RSI_SELL ? 'overbought' : 'neutral';
+  const rsiPct  = rsi != null ? Math.min(100, Math.max(0, rsi)) : 50;
+
+  const emaClass = above == null ? 'neutral' : above ? 'bull' : 'bear';
+  const emaText  = above == null ? '—' : above ? '▲ EMA9 above' : '▼ EMA9 below';
+
+  let posHtml = '';
+  if (hasPos) {
+    const curVal = pos.qty * price;
+    const posP   = curVal - pos.cost;
+    const posPct = (posP / pos.cost) * 100;
+    posHtml = `
+      <div class="coin-position">
+        <div>Position: <strong>${pos.qty.toFixed(5)} ${sym}</strong></div>
+        <div>Entry ${fmtPrice(pos.entryPrice)}</div>
+        <div class="pos-pnl ${posP >= 0 ? 'pos' : 'neg'}">${fmtPnl(posP)} (${fmtPct(posPct)})</div>
+      </div>`;
+  } else {
+    posHtml = `<div class="coin-position" style="color:var(--muted)">No open position</div>`;
+  }
+
+  const badgeClass = lastAct === 'BUY' ? 'buy' : lastAct === 'SELL' ? 'sell' : 'hold';
+
+  return `
+<div class="coin-card" id="card-${sym}">
+  <div class="coin-top">
+    <div>
+      <div class="coin-sym">${sym}</div>
+      <div style="font-size:0.65rem;color:var(--muted);margin-top:0.1rem">${c.name}</div>
+    </div>
+    <div class="coin-price-wrap">
+      <div class="coin-price">${price ? fmtPrice(price) : '—'}</div>
+      <div class="coin-change ${chg >= 0 ? 'pos' : 'neg'}">${fmtPct(chg)}</div>
+    </div>
+  </div>
+
+  <div class="rsi-wrap">
+    <div class="rsi-header">
+      <span class="rsi-label">RSI (14)</span>
+      <span class="rsi-value ${rsiZone}">${rsi != null ? rsi.toFixed(1) : '—'}</span>
+    </div>
+    <div class="rsi-track">
+      <div class="rsi-zones">
+        <div class="rsi-zone-low"></div>
+        <div class="rsi-zone-mid"></div>
+        <div class="rsi-zone-high"></div>
+      </div>
+      <div class="rsi-cursor" style="left:${rsiPct}%"></div>
+    </div>
+  </div>
+
+  <div class="ema-row">
+    <div class="ema-labels">
+      <div class="ema-line">EMA9 &nbsp;${ema9 ? fmtPrice(ema9) : '—'}</div>
+      <div class="ema-line">EMA21 ${ema21 ? fmtPrice(ema21) : '—'}</div>
+    </div>
+    <span class="ema-signal ${emaClass}">${emaText}</span>
+  </div>
+
+  ${posHtml}
+
+  <div>
+    <span class="signal-badge ${badgeClass}">${lastAct}</span>
+  </div>
+</div>`;
+}
+
+function renderPositions() {
+  const area = document.getElementById('positionsArea');
+  if (!area) return;
+  const openPos = Object.entries(S.positions).filter(([, p]) => p.qty > 0);
+
+  if (!openPos.length) {
+    area.innerHTML = '<div class="empty-state">No open positions — waiting for signals</div>';
+    return;
+  }
+
+  const rows = openPos.map(([sym, pos]) => {
+    const cur    = S.prices[sym] || pos.entryPrice;
+    const curVal = pos.qty * cur;
+    const pnl    = curVal - pos.cost;
+    const pct    = (pnl / pos.cost) * 100;
+    return `<tr>
+      <td>${sym}</td>
+      <td>${pos.qty.toFixed(6)}</td>
+      <td>${fmtPrice(pos.entryPrice)}</td>
+      <td>${fmtPrice(cur)}</td>
+      <td>${fmt$(pos.cost)}</td>
+      <td>${fmt$(curVal)}</td>
+      <td class="${pnl >= 0 ? 'pos' : 'neg'}">${fmtPnl(pnl)}</td>
+      <td class="${pnl >= 0 ? 'pos' : 'neg'}">${fmtPct(pct)}</td>
+    </tr>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Coin</th><th>Qty</th><th>Entry</th><th>Current</th>
+          <th>Cost</th><th>Value</th><th>P&amp;L</th><th>P&amp;L%</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderTradeLog() {
+  const log = document.getElementById('tradeLog');
+  if (!log) return;
+
+  if (!S.trades.length) {
+    log.innerHTML = '<div style="padding:2.5rem;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:var(--muted)">No trades yet</div>';
+    return;
+  }
+
+  log.innerHTML = S.trades.slice(0, 50).map(t => {
+    const pnlHtml = t.pnl != null
+      ? `<div class="trade-pnl ${t.pnl >= 0 ? 'pos' : 'neg'}">${fmtPnl(t.pnl)}</div>`
+      : '';
+    return `
+<div class="trade-item">
+  <div>
+    <div class="trade-badge ${t.action.toLowerCase()}">${t.action}</div>
+    <div class="trade-time">${fmtDateShort(t.ts)}<br>${fmtTime(t.ts)}</div>
+  </div>
+  <div class="trade-details">
+    <div class="trade-coin">${t.sym}</div>
+    <div class="trade-signal">${t.signal}</div>
+  </div>
+  <div class="trade-meta">
+    <div class="trade-price">${fmtPrice(t.price)}</div>
+    <div class="trade-price" style="color:var(--muted);font-size:0.68rem">${fmt$(t.total)}</div>
+    ${pnlHtml}
+  </div>
+</div>`;
+  }).join('');
+}
+
+function renderQueue() {
+  const area = document.getElementById('queueArea');
+  if (!area) return;
+  try {
+    const queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
+    if (!queue.length) {
+      area.innerHTML = '<div class="queue-empty">No summaries yet — generated at end of each trading day.</div>';
+      return;
+    }
+    area.innerHTML = '<div class="queue-entries">' +
+      queue.slice().reverse().map((entry, i) => `
+        <div class="queue-entry">
+          <div>
+            <div class="queue-text">${entry.text}</div>
+            <div class="queue-meta">${entry.generated_at} · source: ${entry.source} · status: ${entry.status}</div>
+          </div>
+          <button class="btn-copy" onclick="copyEntry(${i})">Copy JSON</button>
+        </div>`).join('') +
+      '</div>';
+  } catch {}
+}
+
+function copyEntry(reversedIndex) {
+  try {
+    const queue   = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
+    const entries = queue.slice().reverse();
+    const entry   = entries[reversedIndex];
+    if (!entry) return;
+    navigator.clipboard.writeText(JSON.stringify(entry, null, 2))
+      .then(() => alert('Copied! Paste this JSON into beings-queue.json'))
+      .catch(() => prompt('Copy this JSON:', JSON.stringify(entry, null, 2)));
+  } catch {}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════════════════════════
+function drawChart() {
+  const canvas = document.getElementById('perfChart');
+  if (!canvas) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const W   = canvas.clientWidth;
+  const H   = canvas.clientHeight || 180;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const data = S.portfolioHistory;
+
+  if (data.length < 2) {
+    ctx.fillStyle = 'rgba(122,158,126,0.3)';
+    ctx.font = `300 13px Inter`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Collecting data…', W / 2, H / 2);
+    return;
+  }
+
+  const PAD  = { top: 16, right: 16, bottom: 28, left: 72 };
+  const vals = data.map(d => d.v);
+  const ts   = data.map(d => d.t);
+  const minV = Math.min(...vals, S.startBalance) * 0.9995;
+  const maxV = Math.max(...vals, S.startBalance) * 1.0005;
+  const rangeV = maxV - minV || 1;
+
+  const toY = v  => PAD.top  + (H - PAD.top - PAD.bottom)  * (1 - (v - minV) / rangeV);
+  const toX = i  => PAD.left + (W - PAD.left - PAD.right)  * (i / (data.length - 1));
+
+  const lastVal   = vals[vals.length - 1];
+  const isProfit  = lastVal >= S.startBalance;
+  const lineColor = isProfit ? '#7a9e7e' : '#cc7878';
+
+  // Grid lines
+  const gridCount = 4;
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= gridCount; i++) {
+    const v = minV + rangeV * (i / gridCount);
+    const y = toY(v);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(W - PAD.right, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(232,224,208,0.35)';
+    ctx.font = '10px JetBrains Mono';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('$' + v.toLocaleString('en-US', { maximumFractionDigits: 0 }), PAD.left - 6, y);
+  }
+
+  // Baseline (starting balance)
+  const baseY = toY(S.startBalance);
+  ctx.save();
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = 'rgba(232,224,208,0.18)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD.left, baseY); ctx.lineTo(W - PAD.right, baseY); ctx.stroke();
+  ctx.restore();
+
+  // Area fill
+  const grad = ctx.createLinearGradient(0, PAD.top, 0, H - PAD.bottom);
+  grad.addColorStop(0, isProfit ? 'rgba(122,158,126,0.22)' : 'rgba(204,120,120,0.22)');
+  grad.addColorStop(1, 'rgba(14,26,26,0)');
+
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(vals[0]));
+  for (let i = 1; i < data.length; i++) ctx.lineTo(toX(i), toY(vals[i]));
+  ctx.lineTo(toX(data.length - 1), H - PAD.bottom);
+  ctx.lineTo(toX(0), H - PAD.bottom);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(vals[0]));
+  for (let i = 1; i < data.length; i++) ctx.lineTo(toX(i), toY(vals[i]));
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Endpoint dot
+  ctx.beginPath();
+  ctx.arc(toX(data.length - 1), toY(lastVal), 3.5, 0, Math.PI * 2);
+  ctx.fillStyle = lineColor;
+  ctx.fill();
+
+  // X-axis time labels
+  ctx.fillStyle = 'rgba(232,224,208,0.28)';
+  ctx.font = '9px JetBrains Mono';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  const labelIndices = [0, Math.floor(data.length * 0.25), Math.floor(data.length * 0.5), Math.floor(data.length * 0.75), data.length - 1];
+  for (const i of labelIndices) {
+    if (i < data.length) {
+      ctx.fillText(fmtTime(ts[i]), toX(i), H - PAD.bottom + 14);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+async function start() {
+  S = loadState();
+
+  // Render skeleton immediately
+  renderAll();
+
+  const hasHistory = COINS.every(c => (S.priceHistory[c.sym] || []).length >= EMA_LONG + 2);
+
+  if (!hasHistory) {
+    await initHistoricalData();
+  } else {
+    setStatus('init', 'Loading…');
+    // Seed signal state from stored history
+    for (const c of COINS) {
+      const prices = S.priceHistory[c.sym] || [];
+      if (S.lastRsi[c.sym] == null) S.lastRsi[c.sym] = calcRSI(prices);
+      if (S.lastEmaAbove[c.sym] == null) {
+        S.lastEmaAbove[c.sym] = calcEMA(prices, EMA_SHORT) > calcEMA(prices, EMA_LONG);
+      }
+    }
+  }
+
+  // First live update (isInit = true → no trades fire)
+  await update(true);
+  initialized = true;
+
+  // Start recurring loop
+  startTimer();
+
+  // Toggle button reflects state
+  const btn = document.getElementById('toggleBtn');
+  if (btn && S.botPaused) btn.textContent = '▶ Resume';
+
+  setStatus(S.botPaused ? 'paused' : 'live', S.botPaused ? 'Paused' : 'Live');
+  if (S.lastSummaryDate == null) S.lastSummaryDate = todayStr();
+}
+
+// Handle window resize for chart
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawChart, 150);
+});
+
+start();
+</script>
+</body>
+</html>
