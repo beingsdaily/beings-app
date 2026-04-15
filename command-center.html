@@ -1120,7 +1120,6 @@
 <script>
   // ── Storage keys ──────────────────────────────────────────
   const HABITS_KEY   = 'beings_habit_data';
-  const THOUGHTS_KEY = 'beings_thoughts';
   const PRIORITY_KEY = 'beings_priority';
   const EVENTS_KEY   = 'beings_calendar_events';
   const DUMP_KEY     = 'beings_brain_dump';
@@ -1296,39 +1295,6 @@
 
   document.getElementById('event-title').addEventListener('keydown', e => {
     if (e.key === 'Enter') addEvent();
-  });
-
-  // ── Quick capture ─────────────────────────────────────────
-  function saveThought() {
-    const input = document.getElementById('thought-input');
-    const text  = input.value.trim();
-    if (!text) return;
-    const all = load(THOUGHTS_KEY, []);
-    all.unshift({ date: new Date().toISOString(), text });
-    save(THOUGHTS_KEY, all.slice(0, 30));
-    input.value = '';
-    renderThoughts();
-    toast('Saved 💭');
-  }
-
-  function renderThoughts() {
-    const all  = load(THOUGHTS_KEY, []);
-    const list = document.getElementById('thoughts-list');
-    list.innerHTML = '';
-    all.slice(0, 3).forEach(t => {
-      const d  = new Date(t.date);
-      const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
-      const el = document.createElement('div');
-      el.className = 'thought-item';
-      el.innerHTML = `
-        <div class="thought-meta">${mo} ${d.getDate()} · ${pad(d.getHours())}:${pad(d.getMinutes())}</div>
-        <div class="thought-text">${escHtml(t.text)}</div>`;
-      list.appendChild(el);
-    });
-  }
-
-  document.getElementById('thought-input').addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') saveThought();
   });
 
   // ── Brain Dump ────────────────────────────────────────────
@@ -1633,7 +1599,6 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
   renderPriority();
   renderHabits();
   renderEvents();
-  renderThoughts();
   renderDump();
   initReflection();
 </script>
