@@ -358,6 +358,12 @@
 </head>
 <body>
 
+  <!-- Static form for Netlify build-time detection (never shown) -->
+  <form name="beings-waitlist" netlify netlify-honeypot="bot-field" hidden>
+    <input type="email" name="email" />
+    <input name="bot-field" />
+  </form>
+
   <div class="glow glow-1"></div>
   <div class="glow glow-2"></div>
 
@@ -391,7 +397,7 @@
       <p class="signup-sub fade-up delay-1">Gentle notes on reflection, presence, and becoming.</p>
       <form class="signup-form fade-up delay-2" name="beings-waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleSignup(event)">
         <input type="hidden" name="form-name" value="beings-waitlist" />
-        <input type="hidden" name="bot-field" />
+        <p style="display:none"><input name="bot-field" /></p>
         <input type="email" name="email" placeholder="your@email.com" autocomplete="email" required />
         <button type="submit">Join</button>
       </form>
