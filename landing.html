@@ -389,10 +389,13 @@
     <section class="signup">
       <h2 class="signup-label fade-up">Join the journey</h2>
       <p class="signup-sub fade-up delay-1">Gentle notes on reflection, presence, and becoming.</p>
-      <form class="signup-form fade-up delay-2" onsubmit="handleSignup(event)">
+      <form class="signup-form fade-up delay-2" name="beings-waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleSignup(event)">
+        <input type="hidden" name="form-name" value="beings-waitlist" />
+        <input type="hidden" name="bot-field" />
         <input type="email" name="email" placeholder="your@email.com" autocomplete="email" required />
         <button type="submit">Join</button>
       </form>
+      <p class="signup-sub fade-up delay-2" id="thank-you-msg" style="display:none;color:var(--sage)">You're on the list. See you on the journey.</p>
       <p class="privacy-note fade-up delay-3">No noise. Unsubscribe any time.</p>
     </section>
   </div>
@@ -424,14 +427,24 @@
     function handleSignup(e) {
       e.preventDefault();
       const form = e.target;
-      const email = form.email.value.trim();
-      if (!email) return;
-      const btn = form.querySelector('button');
-      btn.textContent = 'Thank you';
-      btn.style.background = '#4e6b52';
+      const btn  = form.querySelector('button');
+      btn.textContent = 'Joining…';
       btn.disabled = true;
-      form.email.value = '';
-      form.email.placeholder = 'See you on the journey';
+
+      const body = new URLSearchParams(new FormData(form)).toString();
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+      })
+        .then(() => {
+          form.style.display = 'none';
+          document.getElementById('thank-you-msg').style.display = 'block';
+        })
+        .catch(() => {
+          btn.textContent = 'Join';
+          btn.disabled = false;
+        });
     }
 
     // Intersection Observer for scroll-triggered fade-ins
