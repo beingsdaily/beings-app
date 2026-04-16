@@ -490,7 +490,10 @@
 
 <!-- ── Main Screen ── -->
 <div class="screen" id="screen-main">
-  <div class="wordmark">Beings</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;">
+    <div class="wordmark">Beings</div>
+    <div id="rank-badge-mount"></div>
+  </div>
 
   <div class="main-top">
     <div class="greeting" id="greeting"></div>
@@ -855,6 +858,7 @@ async function reflect() {
 
     // Save today's entry (include question for history view)
     localStorage.setItem(todayKey(), JSON.stringify({ question, entry, reflection: full }));
+    if (window.BeingsRanks) BeingsRanks.init('rank-badge-mount');
 
     const note = document.createElement('p');
     note.className = 'responded-note';
@@ -901,6 +905,13 @@ document.addEventListener('visibilitychange', () => {
 if (userName && apiKey) {
   initMain();
 }
+</script>
+<script src="ranks.js"></script>
+<script>
+  // Init rank badge once screen-main is visible
+  document.addEventListener('DOMContentLoaded', function () {
+    BeingsRanks.init('rank-badge-mount');
+  });
 </script>
 </body>
 </html>

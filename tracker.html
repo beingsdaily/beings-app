@@ -413,7 +413,10 @@
 
   <!-- Header -->
   <header class="fade-in">
-    <div class="wordmark">Beings</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+      <div class="wordmark">Beings</div>
+      <div id="rank-badge-mount"></div>
+    </div>
     <div class="date-display" id="date-display"></div>
     <div class="day-name" id="day-name"></div>
   </header>
@@ -570,6 +573,7 @@
         saveData(d);
         renderHabits();
         renderCalendar();
+        if (window.BeingsRanks) BeingsRanks.init('rank-badge-mount');
         if (d[td][h.id]) toast('Marked complete');
       };
 
@@ -694,5 +698,7 @@
   renderCalendar();
   renderThoughts();
 </script>
+<script src="ranks.js"></script>
+<script>BeingsRanks.init('rank-badge-mount');</script>
 </body>
 </html>
