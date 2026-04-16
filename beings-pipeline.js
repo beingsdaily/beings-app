@@ -12,11 +12,8 @@
  * Or set the key in beings-config.json (see README below).
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const { readFileSync, writeFileSync, existsSync } = require('fs');
+const { join } = require('path');
 const QUEUE_FILE  = join(__dirname, 'beings-queue.json');
 const CONFIG_FILE = join(__dirname, 'beings-config.json');
 const LOG_FILE    = join(__dirname, 'beings-pipeline.log');
