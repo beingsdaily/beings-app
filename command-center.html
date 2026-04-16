@@ -182,7 +182,47 @@
     /* ════════════════════════════════════════════
        PRIORITY BANNER
     ════════════════════════════════════════════ */
-    .priority-wrap { margin-bottom: 36px; }
+    .priority-wrap { margin-bottom: 48px; }
+
+    .reflect-btn-wrap {
+      margin-bottom: 48px;
+    }
+
+    .btn-reflect-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--accent2);
+      color: var(--bg);
+      border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85rem 2rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-reflect-hero:hover {
+      background: #8db492;
+      transform: translateY(-1px);
+    }
+
+    .habits-celebration {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      background: rgba(122,158,126,0.08);
+      border-left: 2px solid var(--accent2);
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--accent2);
+    }
 
     .priority-field {
       display: flex;
@@ -251,8 +291,8 @@
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 18px;
+      gap: 24px;
+      margin-bottom: 32px;
     }
 
     @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
@@ -990,8 +1030,13 @@
     <div class="greeting" id="greeting"></div>
   </header>
 
+  <!-- ── Begin Reflection CTA ── -->
+  <div class="reflect-btn-wrap fade d2">
+    <a href="index.html" class="btn-reflect-hero">🌿 Begin Your Reflection</a>
+  </div>
+
   <!-- ── One Priority ── -->
-  <section class="priority-wrap fade d2">
+  <section class="priority-wrap fade d3">
     <div class="section-label">🎯 What's the ONE thing that matters most today?</div>
     <div class="priority-field">
       <div class="priority-marker"></div>
@@ -1003,11 +1048,12 @@
   </section>
 
   <!-- ── Row 1: Habits + Links ── -->
-  <div class="grid fade d3">
+  <div class="grid fade d4">
 
     <div class="card">
       <div class="card-label">✅ Today's Habits</div>
       <div id="habits-list"></div>
+      <div class="habits-celebration" id="habits-celebration">You showed up for yourself today. 🌿</div>
     </div>
 
     <div class="card">
@@ -1228,7 +1274,7 @@
           </svg>
         </div>
         <span class="habit-name">${h.name}</span>
-        <span class="habit-streak">${streak > 0 ? streak + 'd' : ''}</span>`;
+        <span class="habit-streak">${streak > 0 ? streak + 'd' : (done ? '' : '🌱')}</span>`;
 
       const toggle = () => {
         const d  = load(HABITS_KEY, {});
@@ -1246,6 +1292,10 @@
       });
       list.appendChild(row);
     });
+
+    const allDone = HABITS.every(h => !!dayData[h.id]);
+    const cel = document.getElementById('habits-celebration');
+    if (cel) cel.style.display = allDone ? 'block' : 'none';
   }
 
   // ── Calendar events ───────────────────────────────────────

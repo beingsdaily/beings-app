@@ -422,6 +422,7 @@
   <section class="habits fade-in fd2">
     <div class="section-label">Today</div>
     <div id="habits-list"></div>
+    <div id="habits-celebration" style="display:none;margin-top:1.1rem;padding:0.9rem 1.1rem;background:rgba(122,158,126,0.08);border-left:2px solid var(--sage);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.05rem;line-height:1.7;color:var(--sage);">You showed up for yourself today. That matters. 🌿</div>
   </section>
 
   <hr class="divider fade-in fd3" />
@@ -557,7 +558,7 @@
           <div class="habit-streak">
             ${streak > 0
               ? `<span class="streak-num">${streak}</span> day${streak === 1 ? '' : 's'} in a row`
-              : 'Begin today'}
+              : done ? 'Starting fresh' : 'Come back when you\'re ready 🌱'}
           </div>
         </div>`;
 
@@ -576,6 +577,9 @@
       row.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }});
       list.appendChild(row);
     });
+
+    const allDone = HABITS.every(h => !!dayData[h.id]);
+    document.getElementById('habits-celebration').style.display = allDone ? 'block' : 'none';
   }
 
   // ── Calendar ──────────────────────────────────────────────

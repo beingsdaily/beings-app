@@ -154,7 +154,8 @@ header {
   font-size: 0.6rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  position: relative;
+  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .mood-btn:hover {
@@ -165,12 +166,25 @@ header {
 .mood-btn.selected {
   border-color: var(--sage);
   color: var(--sage);
-  background: rgba(122,158,126,0.06);
+  background: rgba(122,158,126,0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(122,158,126,0.12);
 }
 
 .mood-btn svg { transition: opacity 0.2s; opacity: 0.55; }
 .mood-btn:hover svg,
 .mood-btn.selected svg { opacity: 1; }
+
+.mood-btn.selected::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 20px; height: 2px;
+  background: var(--sage);
+  border-radius: 1px;
+}
 
 /* ── Journal canvas ── */
 #entry {
@@ -280,24 +294,28 @@ header {
 
 .follow-up-wrap {
   margin-top: 1.75rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
+  padding: 1.25rem 1.5rem 1.35rem;
+  background: rgba(185,169,204,0.07);
+  border: 1px solid rgba(185,169,204,0.22);
+  border-left: 3px solid var(--lav);
   display: none;
+  animation: fadeIn 0.4s ease;
 }
 .follow-up-wrap.visible { display: block; }
 
 .follow-up-label {
-  font-size: 0.57rem;
-  letter-spacing: 0.22em;
+  font-size: 0.55rem;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 0.75rem;
+  color: var(--lav);
+  margin-bottom: 0.7rem;
+  opacity: 0.8;
 }
 
 .follow-up-text {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 1.08rem;
+  font-size: 1.18rem;
   line-height: 1.8;
   color: var(--lav);
 }
@@ -739,7 +757,7 @@ header {
   <!-- Journal canvas -->
   <span class="section-label">What's here for you today?</span>
   <div class="journal-section">
-    <textarea id="entry" placeholder="Write freely. Nothing to fix, nothing to perform. Just what's true right now…" oninput="updateWordCount()"></textarea>
+    <textarea id="entry" placeholder="This space is yours. Nothing to perform, nothing to fix. Just write what's true right now…" oninput="updateWordCount()"></textarea>
     <div class="word-count"><span id="wordCount">0</span> words</div>
   </div>
 
@@ -749,6 +767,7 @@ header {
     <button class="btn-secondary" onclick="saveEntry(false)">Save quietly</button>
     <button class="btn-secondary" onclick="clearCanvas()">Clear</button>
   </div>
+  <p style="font-size:0.62rem;color:var(--muted);letter-spacing:0.12em;margin-top:-1rem;margin-bottom:2rem;">🔒 Your words stay with you — saved locally, never shared.</p>
 
   <!-- Claude response -->
   <div class="response-area" id="responseArea">
