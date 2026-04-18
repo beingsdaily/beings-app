@@ -1,918 +1,1197 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-skin="shadow">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beings — Command Center</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    /* ══════════════════════════════════════════════════════
+       SKIN VARIABLES
+    ══════════════════════════════════════════════════════ */
+    [data-skin="shadow"] {
+      --bg:          #0a0a0f;
+      --bg-card:     #111118;
+      --bg-card2:    #18181f;
+      --bg-input:    #0d0d14;
+      --border:      rgba(255,255,255,0.06);
+      --border-md:   rgba(255,255,255,0.10);
+      --text:        #f0f0f5;
+      --text-dim:    rgba(240,240,245,0.38);
+      --text-faint:  rgba(240,240,245,0.18);
+      --accent:      #a78bfa;
+      --accent2:     #34d399;
+      --accent-glow: rgba(167,139,250,0.25);
+      --accent2-glow:rgba(52,211,153,0.20);
+      --cta:         #a78bfa;
+      --cta-text:    #0a0a0f;
+      --streak-bg:   rgba(167,139,250,0.14);
+      --done-bg:     rgba(167,139,250,0.10);
+      --done-border: rgba(167,139,250,0.30);
+      --note-tint:   rgba(167,139,250,0.06);
+      --timeline-dot:#a78bfa;
+    }
+    [data-skin="earth"] {
+      --bg:          #141210;
+      --bg-card:     #1c1915;
+      --bg-card2:    #221f1a;
+      --bg-input:    #100f0d;
+      --border:      rgba(240,220,180,0.07);
+      --border-md:   rgba(240,220,180,0.12);
+      --text:        #f0e6d0;
+      --text-dim:    rgba(240,230,208,0.40);
+      --text-faint:  rgba(240,230,208,0.18);
+      --accent:      #a3785a;
+      --accent2:     #7a9e7e;
+      --accent-glow: rgba(163,120,90,0.28);
+      --accent2-glow:rgba(122,158,126,0.22);
+      --cta:         #a3785a;
+      --cta-text:    #f0e6d0;
+      --streak-bg:   rgba(163,120,90,0.16);
+      --done-bg:     rgba(163,120,90,0.10);
+      --done-border: rgba(163,120,90,0.32);
+      --note-tint:   rgba(163,120,90,0.07);
+      --timeline-dot:#a3785a;
+    }
+    [data-skin="ocean"] {
+      --bg:          #060c18;
+      --bg-card:     #0b1424;
+      --bg-card2:    #101d30;
+      --bg-input:    #08111f;
+      --border:      rgba(45,212,191,0.08);
+      --border-md:   rgba(45,212,191,0.15);
+      --text:        #d8f0f0;
+      --text-dim:    rgba(216,240,240,0.38);
+      --text-faint:  rgba(216,240,240,0.16);
+      --accent:      #2dd4bf;
+      --accent2:     #38bdf8;
+      --accent-glow: rgba(45,212,191,0.25);
+      --accent2-glow:rgba(56,189,248,0.22);
+      --cta:         #2dd4bf;
+      --cta-text:    #06141a;
+      --streak-bg:   rgba(45,212,191,0.12);
+      --done-bg:     rgba(45,212,191,0.08);
+      --done-border: rgba(45,212,191,0.30);
+      --note-tint:   rgba(45,212,191,0.06);
+      --timeline-dot:#2dd4bf;
+    }
+    [data-skin="bloom"] {
+      --bg:          #140f14;
+      --bg-card:     #1e1520;
+      --bg-card2:    #251b28;
+      --bg-input:    #100d12;
+      --border:      rgba(224,125,184,0.08);
+      --border-md:   rgba(224,125,184,0.15);
+      --text:        #f5e8f2;
+      --text-dim:    rgba(245,232,242,0.38);
+      --text-faint:  rgba(245,232,242,0.16);
+      --accent:      #e07db8;
+      --accent2:     #f4a96e;
+      --accent-glow: rgba(224,125,184,0.28);
+      --accent2-glow:rgba(244,169,110,0.22);
+      --cta:         #e07db8;
+      --cta-text:    #140f14;
+      --streak-bg:   rgba(224,125,184,0.14);
+      --done-bg:     rgba(224,125,184,0.09);
+      --done-border: rgba(224,125,184,0.30);
+      --note-tint:   rgba(224,125,184,0.07);
+      --timeline-dot:#e07db8;
+    }
+    [data-skin="gold"] {
+      --bg:          #0d0c08;
+      --bg-card:     #181510;
+      --bg-card2:    #1e1b12;
+      --bg-input:    #0a0906;
+      --border:      rgba(196,162,74,0.09);
+      --border-md:   rgba(196,162,74,0.18);
+      --text:        #f5e9c0;
+      --text-dim:    rgba(245,233,192,0.38);
+      --text-faint:  rgba(245,233,192,0.16);
+      --accent:      #c4a24a;
+      --accent2:     #e8845a;
+      --accent-glow: rgba(196,162,74,0.28);
+      --accent2-glow:rgba(232,132,90,0.22);
+      --cta:         #c4a24a;
+      --cta-text:    #0d0c08;
+      --streak-bg:   rgba(196,162,74,0.14);
+      --done-bg:     rgba(196,162,74,0.09);
+      --done-border: rgba(196,162,74,0.32);
+      --note-tint:   rgba(196,162,74,0.07);
+      --timeline-dot:#c4a24a;
+    }
+    [data-skin="ascended"] {
+      --bg:          #07051a;
+      --bg-card:     #0f0c2a;
+      --bg-card2:    #151234;
+      --bg-input:    #050416;
+      --border:      rgba(168,85,247,0.09);
+      --border-md:   rgba(168,85,247,0.18);
+      --text:        #ede8ff;
+      --text-dim:    rgba(237,232,255,0.38);
+      --text-faint:  rgba(237,232,255,0.16);
+      --accent:      #a855f7;
+      --accent2:     #fb923c;
+      --accent-glow: rgba(168,85,247,0.30);
+      --accent2-glow:rgba(251,146,60,0.22);
+      --cta:         #a855f7;
+      --cta-text:    #07051a;
+      --streak-bg:   rgba(168,85,247,0.14);
+      --done-bg:     rgba(168,85,247,0.10);
+      --done-border: rgba(168,85,247,0.32);
+      --note-tint:   rgba(168,85,247,0.07);
+      --timeline-dot:#a855f7;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       RESET & BASE
+    ══════════════════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ════════════════════════════════════════════
-       NIGHT MODE — default
-    ════════════════════════════════════════════ */
-    :root {
-      --bg:           #0e1a1a;
-      --bg-card:      #132424;
-      --bg-raised:    #192e2e;
-      --bg-input:     #162828;
-      --accent:       #b39ddb;
-      --accent-dim:   rgba(179,157,219,0.5);
-      --accent-glow:  rgba(179,157,219,0.12);
-      --accent2:      #7aaa8a;
-      --accent2-dim:  #4d7a5c;
-      --border:       rgba(179,157,219,0.12);
-      --border-md:    rgba(179,157,219,0.28);
-      --text:         #e8e4dc;
-      --text-dim:     #7a8a85;
-      --text-faint:   rgba(232,228,220,0.06);
-      --cta:          #b39ddb;
-      --cta-text:     #0e1a1a;
-      --noise:        0.022;
-      --shadow:       rgba(0,0,0,0.35);
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
     }
-
-    /* ════════════════════════════════════════════
-       DAY MODE
-    ════════════════════════════════════════════ */
-    body.day {
-      --bg:           #f5ede0;
-      --bg-card:      #fdf8f0;
-      --bg-raised:    #ede3d4;
-      --bg-input:     #e8dece;
-      --accent:       #c4622d;
-      --accent-dim:   rgba(196,98,45,0.55);
-      --accent-glow:  rgba(196,98,45,0.1);
-      --accent2:      #7a8c5e;
-      --accent2-dim:  #9aac7e;
-      --border:       rgba(196,98,45,0.15);
-      --border-md:    rgba(196,98,45,0.32);
-      --text:         #2d2218;
-      --text-dim:     #8c7a68;
-      --text-faint:   rgba(45,34,24,0.05);
-      --cta:          #c4622d;
-      --cta-text:     #fdf8f0;
-      --noise:        0.016;
-      --shadow:       rgba(100,60,20,0.12);
-    }
-
-    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 300;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
       min-height: 100vh;
-      overflow-x: hidden;
-      transition: background 0.45s ease, color 0.35s ease;
+      transition: background 0.5s ease, color 0.3s ease;
     }
 
-    /* Texture */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: var(--noise);
-      pointer-events: none;
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; }
+
+    ::selection {
+      background: var(--accent);
+      color: var(--bg);
     }
 
+    /* ══════════════════════════════════════════════════════
+       LAYOUT
+    ══════════════════════════════════════════════════════ */
     .page {
-      position: relative; z-index: 1;
-      max-width: 960px;
+      max-width: 880px;
       margin: 0 auto;
-      padding: 0 24px 96px;
+      padding: 0 20px 80px;
     }
 
-    /* ════════════════════════════════════════════
+    /* ══════════════════════════════════════════════════════
        HEADER
-    ════════════════════════════════════════════ */
-    header {
-      padding: 40px 0 36px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 40px;
+    ══════════════════════════════════════════════════════ */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 0;
+      margin-bottom: 32px;
     }
 
-    .header-top {
+    .wordmark {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      transition: color 0.3s;
+    }
+
+    .wordmark:hover { color: var(--accent); }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--done-bg);
+    }
+
+    .icon-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    #rank-badge-mount {
+      display: flex;
+      align-items: center;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       HERO — GREETING + XP
+    ══════════════════════════════════════════════════════ */
+    .hero {
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-greeting {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 7vw, 3.6rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .hero-greeting .accent-word {
+      color: var(--accent);
+    }
+
+    .xp-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .xp-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      white-space: nowrap;
+      letter-spacing: 0.06em;
+      min-width: 120px;
+    }
+
+    .xp-bar-track {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--accent-glow);
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .xp-pct {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      min-width: 32px;
+      text-align: right;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       SECTION LABELS
+    ══════════════════════════════════════════════════════ */
+    .section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-tag::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       PRIORITY
+    ══════════════════════════════════════════════════════ */
+    .priority-section {
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .priority-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: 16px;
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .priority-card:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-glow);
+    }
+
+    .priority-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .priority-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .priority-input::placeholder { color: var(--text-faint); }
+
+    .priority-save {
+      background: none;
+      border: 1px solid var(--border-md);
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      padding: 7px 14px;
+      transition: border-color 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+
+    .priority-save:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       HABIT CARDS
+    ══════════════════════════════════════════════════════ */
+    .habits-section {
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s 0.15s ease both;
+    }
+
+    .habits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 540px) {
+      .habits-grid { grid-template-columns: 1fr; }
+    }
+
+    .habit-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, background 0.25s, transform 0.12s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 130px;
+    }
+
+    .habit-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .habit-card.done {
+      border-color: var(--done-border);
+      background: var(--done-bg);
+    }
+
+    .habit-card.done::before { opacity: 0.06; }
+
+    .habit-card:active { transform: scale(0.96); }
+
+    .habit-card:hover:not(.done) {
+      border-color: var(--border-md);
+    }
+
+    .habit-emoji {
+      font-size: 2rem;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .habit-card.done .habit-emoji {
+      transform: scale(1.15);
+    }
+
+    .habit-info {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .habit-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .habit-card.done .habit-name { color: var(--accent); }
+
+    .habit-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.60rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+
+    .habit-card.done .habit-status { color: var(--accent); opacity: 0.7; }
+
+    .habit-streak-chip {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: var(--streak-bg);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.60rem;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 99px;
+      z-index: 1;
+    }
+
+    .habit-check-mark {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .habit-card.done .habit-check-mark {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .habit-check-svg {
+      opacity: 0;
+      transition: opacity 0.2s 0.1s;
+    }
+
+    .habit-card.done .habit-check-svg { opacity: 1; }
+
+    .habits-celebration {
+      margin-top: 14px;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      color: var(--accent2);
+      padding: 12px;
+      background: var(--accent2-glow);
+      border-radius: 10px;
+      display: none;
+      letter-spacing: 0.01em;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       TWO-COL ROW: SCHEDULE + APPS
+    ══════════════════════════════════════════════════════ */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    @media (max-width: 620px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 20px;
+    }
+
+    /* ── Schedule timeline ── */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      padding-left: 14px;
+      border-left: 1px solid var(--border);
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -18px;
+      top: 13px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--timeline-dot);
+      box-shadow: 0 0 6px var(--accent-glow);
+    }
+
+    .timeline-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.64rem;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      min-width: 40px;
+      padding-top: 1px;
+    }
+
+    .timeline-title {
+      font-size: 0.84rem;
+      color: var(--text);
+      line-height: 1.35;
+      flex: 1;
+    }
+
+    .timeline-del {
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      font-size: 0.75rem;
+      padding: 2px 4px;
+      transition: color 0.15s;
+      line-height: 1;
+    }
+
+    .timeline-del:hover { color: var(--text-dim); }
+
+    .timeline-empty {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      font-style: italic;
+      padding: 6px 0;
+    }
+
+    .add-event-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .input-sm {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-sm:focus { border-color: var(--accent); }
+    .input-sm::placeholder { color: var(--text-faint); }
+    .input-time { width: 62px; }
+    .input-title { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; }
+
+    .btn-add {
+      background: var(--accent);
+      color: var(--cta-text);
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 500;
+      padding: 8px 14px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-add:hover { opacity: 0.85; }
+
+    /* ── Apps grid ── */
+    .apps-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .app-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition: background 0.18s, border-color 0.18s;
+    }
+
+    .app-link:hover {
+      background: var(--done-bg);
+      border-color: var(--done-border);
+    }
+
+    .app-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      box-shadow: 0 0 5px var(--accent-glow);
+    }
+
+    .app-name {
+      flex: 1;
+      font-size: 0.84rem;
+      color: var(--text-dim);
+      transition: color 0.18s;
+    }
+
+    .app-link:hover .app-name { color: var(--text); }
+
+    .app-arrow {
+      font-size: 0.7rem;
+      color: var(--text-faint);
+      transition: color 0.18s, transform 0.18s;
+    }
+
+    .app-link:hover .app-arrow { color: var(--accent); transform: translateX(2px); }
+
+    /* ══════════════════════════════════════════════════════
+       DAILY REFLECTION
+    ══════════════════════════════════════════════════════ */
+    .reflection-section {
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s 0.25s ease both;
+    }
+
+    .reflection-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 26px 24px;
+    }
+
+    .rc-question {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1.35;
+      margin-bottom: 20px;
+    }
+
+    .rc-api-row {
+      display: none;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .rc-key-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border-md);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem;
+      padding: 10px 14px;
+      outline: none;
+      min-width: 0;
+    }
+
+    .rc-key-input:focus { border-color: var(--accent); }
+    .rc-key-input::placeholder { color: var(--text-faint); }
+
+    .btn-soft {
+      background: var(--bg-card2);
+      border: 1px solid var(--border-md);
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      padding: 10px 18px;
+      transition: border-color 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-soft:hover { border-color: var(--accent); color: var(--accent); }
+
+    .rc-textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 300;
+      line-height: 1.7;
+      padding: 16px 18px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+      min-height: 110px;
+    }
+
+    .rc-textarea:focus { border-color: var(--accent); }
+    .rc-textarea::placeholder { color: var(--text-faint); font-style: italic; }
+    .rc-textarea:disabled { opacity: 0.6; }
+
+    .save-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .btn-reflect {
+      background: var(--cta);
+      color: var(--cta-text);
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 500;
+      padding: 11px 24px;
+      transition: opacity 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-reflect:hover { opacity: 0.88; box-shadow: 0 4px 16px var(--accent-glow); }
+    .btn-reflect:disabled { opacity: 0.5; cursor: default; }
+
+    .rc-err {
+      font-size: 0.75rem;
+      color: #f87171;
+      margin-top: 8px;
+      min-height: 1em;
+    }
+
+    .rc-response {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .rc-response.visible { display: block; }
+
+    .rc-divider {
+      text-align: center;
+      color: var(--accent);
+      font-size: 0.8rem;
+      margin: 4px 0 16px;
+      opacity: 0.5;
+    }
+
+    .rc-response-text {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .rc-done-note {
+      margin-top: 14px;
+      font-size: 0.74rem;
+      color: var(--text-faint);
+      letter-spacing: 0.02em;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       BRAIN DUMP — STICKY NOTES
+    ══════════════════════════════════════════════════════ */
+    .dump-section {
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .dump-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .dump-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-faint);
+      letter-spacing: 0.06em;
+    }
+
+    .btn-clear-dump {
+      background: none;
+      border: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.60rem;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      transition: color 0.2s;
+      padding: 0;
+    }
+
+    .btn-clear-dump:hover { color: #f87171; }
+
+    .dump-input-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .dump-input-wrap:focus-within { border-color: var(--accent); }
+
+    .dump-emoji {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .dump-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 300;
+    }
+
+    .dump-input::placeholder { color: var(--text-faint); font-style: italic; }
+
+    .dump-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--text-faint);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .dump-notes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .dump-note {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px 4px 6px 6px;
+      padding: 14px 12px 10px;
+      position: relative;
+      min-height: 70px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: noteIn 0.25s ease both;
+    }
+
+    .dump-note:nth-child(3n+1) { transform: rotate(-0.8deg); }
+    .dump-note:nth-child(3n+2) { transform: rotate(0.6deg); }
+    .dump-note:nth-child(3n+3) { transform: rotate(-0.4deg); }
+
+    .dump-note:hover {
+      transform: rotate(0deg) translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    @keyframes noteIn {
+      from { opacity: 0; transform: scale(0.9) rotate(-1deg); }
+      to   { opacity: 1; }
+    }
+
+    .dump-note-text {
+      font-size: 0.80rem;
+      line-height: 1.55;
+      color: var(--text-dim);
+      word-break: break-word;
+      padding-right: 14px;
+    }
+
+    .dump-note-del {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      font-size: 0.7rem;
+      line-height: 1;
+      padding: 2px;
+      transition: color 0.15s;
+    }
+
+    .dump-note-del:hover { color: #f87171; }
+
+    .dump-note-time {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--text-faint);
+      letter-spacing: 0.06em;
+      margin-top: 8px;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       REFLECT CTA
+    ══════════════════════════════════════════════════════ */
+    .reflect-cta {
+      display: block;
+      text-align: center;
+      background: var(--accent);
+      color: var(--cta-text);
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 16px 32px;
+      border-radius: 14px;
+      margin-bottom: 40px;
+      transition: opacity 0.2s, box-shadow 0.2s, transform 0.15s;
+      animation: fadeUp 0.6s 0.08s ease both;
+    }
+
+    .reflect-cta:hover {
+      opacity: 0.9;
+      box-shadow: 0 8px 30px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════════════════ */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg-card2);
+      border: 1px solid var(--border-md);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      padding: 10px 20px;
+      border-radius: 99px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 500;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       SKINS MODAL
+    ══════════════════════════════════════════════════════ */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: 22px;
+      padding: 30px;
+      width: min(560px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalIn 0.25s ease both;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
     }
 
-    .wordmark {
-      font-family: 'Fraunces', serif;
-      font-weight: 600;
-      font-size: 1rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .date-pill {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 400;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      background: var(--bg-raised);
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 7px 16px;
-    }
-
-    /* Mode toggle */
-    .mode-toggle {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--bg-raised);
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 7px 16px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      color: var(--text-dim);
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
-      white-space: nowrap;
-    }
-
-    .mode-toggle:hover {
-      border-color: var(--border-md);
-      color: var(--text);
-    }
-
-    /* Greeting */
-    .greeting {
-      font-family: 'Fraunces', serif;
-      font-style: italic;
-      font-weight: 300;
-      font-size: clamp(1.9rem, 4.5vw, 2.8rem);
-      color: var(--text);
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-    }
-
-    /* ════════════════════════════════════════════
-       SECTION LABELS
-    ════════════════════════════════════════════ */
-    .section-label {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 16px;
-    }
-
-    /* ════════════════════════════════════════════
-       PRIORITY BANNER
-    ════════════════════════════════════════════ */
-    .priority-wrap { margin-bottom: 48px; }
-
-    .reflect-btn-wrap {
-      margin-bottom: 48px;
-    }
-
-    .btn-reflect-hero {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: var(--accent2);
-      color: var(--bg);
-      border: none;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0.85rem 2rem;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.15s;
-    }
-
-    .btn-reflect-hero:hover {
-      background: #8db492;
-      transform: translateY(-1px);
-    }
-
-    .habits-celebration {
-      display: none;
-      margin-top: 1rem;
-      padding: 0.85rem 1rem;
-      background: rgba(122,158,126,0.08);
-      border-left: 2px solid var(--accent2);
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
-      font-size: 1rem;
-      line-height: 1.65;
-      color: var(--accent2);
-    }
-
-    .priority-field {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--bg-card);
-      border: 1.5px solid var(--border);
-      border-radius: 16px;
-      padding: 20px 22px;
-      transition: border-color 0.25s, box-shadow 0.25s;
-      box-shadow: 0 2px 12px var(--shadow);
-    }
-
-    .priority-field:focus-within {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px var(--accent-glow), 0 2px 12px var(--shadow);
-    }
-
-    .priority-marker {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-      box-shadow: 0 0 10px var(--accent-dim);
-    }
-
-    .priority-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-family: 'Fraunces', serif;
-      font-size: 1.15rem;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--text);
-      letter-spacing: 0.01em;
-    }
-
-    .priority-input::placeholder {
-      color: var(--text-dim);
-      opacity: 0.55;
-    }
-
-    .priority-save {
-      background: var(--accent);
-      border: none;
-      border-radius: 8px;
-      padding: 9px 20px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--cta-text);
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-      white-space: nowrap;
-    }
-
-    .priority-save:hover { opacity: 0.88; transform: translateY(-1px); }
-
-    /* ════════════════════════════════════════════
-       GRID
-    ════════════════════════════════════════════ */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 32px;
-    }
-
-    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
-
-    /* ════════════════════════════════════════════
-       CARDS
-    ════════════════════════════════════════════ */
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px 26px;
-      box-shadow: 0 2px 16px var(--shadow);
-      transition: background 0.35s, border-color 0.35s;
-    }
-
-    .card-label {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 18px;
-    }
-
-    /* ════════════════════════════════════════════
-       HABITS
-    ════════════════════════════════════════════ */
-    .habit-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 13px 0;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .habit-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .habit-row:first-child { padding-top: 0; }
-
-    .habit-circle {
-      flex-shrink: 0;
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      border: 1.5px solid var(--accent2-dim);
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-      position: relative; overflow: hidden;
-    }
-
-    .habit-circle::before {
-      content: '';
-      position: absolute; inset: 0; border-radius: 50%;
-      background: var(--accent2);
-      transform: scale(0);
-      transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
-    }
-
-    .habit-row.done .habit-circle {
-      border-color: var(--accent2);
-      transform: scale(1.1);
-    }
-
-    .habit-row.done .habit-circle::before { transform: scale(1); }
-
-    .check-svg {
-      position: relative; z-index: 1;
-      opacity: 0; transform: scale(0.3);
-      transition: opacity 0.2s 0.08s, transform 0.25s 0.08s cubic-bezier(0.34,1.56,0.64,1);
-    }
-
-    .habit-row.done .check-svg { opacity: 1; transform: scale(1); }
-
-    .habit-name {
-      flex: 1;
-      font-size: 0.9rem;
-      color: var(--text-dim);
-      font-weight: 400;
-      transition: color 0.2s;
-    }
-
-    .habit-row.done .habit-name {
-      color: var(--accent2);
-      text-decoration: line-through;
-      text-decoration-color: var(--accent2-dim);
-    }
-
-    .habit-streak {
-      font-family: 'Fraunces', serif;
-      font-style: italic;
-      font-size: 0.9rem;
-      color: var(--accent-dim);
-      font-weight: 300;
-    }
-
-    /* ════════════════════════════════════════════
-       APP LINKS
-    ════════════════════════════════════════════ */
-    .links-grid { display: flex; flex-direction: column; gap: 7px; }
-
-    .app-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 14px;
-      background: var(--bg-raised);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      text-decoration: none;
-      transition: border-color 0.2s, background 0.2s, transform 0.15s;
-    }
-
-    .app-link:hover {
-      border-color: var(--accent);
-      background: var(--accent-glow);
-      transform: translateX(3px);
-    }
-
-    .app-link-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-      opacity: 0.7;
-    }
-
-    .app-link-name {
-      flex: 1;
-      font-size: 0.83rem;
-      color: var(--text-dim);
-      font-weight: 400;
-    }
-
-    .app-link:hover .app-link-name { color: var(--text); }
-    .app-link-arrow { font-size: 0.75rem; color: var(--accent); opacity: 0.7; }
-
-    /* ════════════════════════════════════════════
-       CALENDAR / EVENTS
-    ════════════════════════════════════════════ */
-    .events-list { margin-bottom: 16px; min-height: 28px; }
-
-    .event-item {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .event-item:last-child { border-bottom: none; }
-
-    .event-time {
-      font-size: 0.7rem;
-      letter-spacing: 0.08em;
-      color: var(--accent);
-      flex-shrink: 0;
-      min-width: 44px;
-      font-weight: 500;
-    }
-
-    .event-title { font-size: 0.88rem; color: var(--text-dim); }
-
-    .event-del {
-      margin-left: auto;
-      background: none; border: none;
-      color: var(--text-dim);
-      cursor: pointer; font-size: 0.7rem;
-      opacity: 0; transition: opacity 0.2s;
-      padding: 0 4px;
-    }
-
-    .event-item:hover .event-del { opacity: 0.6; }
-
-    .event-empty {
-      font-family: 'Fraunces', serif;
-      font-style: italic;
-      font-size: 0.88rem;
-      color: var(--text-dim);
-      opacity: 0.45;
-      padding: 6px 0;
-    }
-
-    .add-event-row { display: flex; gap: 8px; align-items: center; }
-
-    .input-sm {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 9px 13px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 300;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .input-sm:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .input-sm::placeholder { color: var(--text-dim); opacity: 0.45; }
-    .input-time { width: 76px; }
-    .input-title { flex: 1; }
-
-    .btn-add {
-      background: var(--accent);
-      border: none;
-      border-radius: 10px;
-      padding: 9px 18px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--cta-text);
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-      white-space: nowrap;
-    }
-
-    .btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
-
-    /* ════════════════════════════════════════════
-       TEXTAREAS + SHARED INPUTS
-    ════════════════════════════════════════════ */
-    textarea {
-      width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 300;
-      color: var(--text);
-      line-height: 1.65;
-      resize: none;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      display: block;
-    }
-
-    textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    textarea::placeholder { color: var(--text-dim); opacity: 0.4; }
-
-    .save-row {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 10px;
-    }
-
-    .btn-soft {
-      background: transparent;
-      border: 1.5px solid var(--border-md);
-      border-radius: 10px;
-      padding: 9px 22px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    }
-
-    .btn-soft:hover {
-      background: var(--accent-glow);
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-
-    .btn-soft:disabled { opacity: 0.35; cursor: default; transform: none; }
-
-    /* ════════════════════════════════════════════
-       THOUGHTS LIST
-    ════════════════════════════════════════════ */
-    .thought-item {
-      padding: 11px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .thought-item:last-child { border-bottom: none; }
-
-    .thought-meta {
-      font-size: 0.62rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0.7;
-      margin-bottom: 4px;
-      font-weight: 500;
-    }
-
-    .thought-text {
-      font-size: 0.86rem;
-      color: var(--text-dim);
-      line-height: 1.6;
-    }
-
-    /* ════════════════════════════════════════════
-       REFLECTION CARD
-    ════════════════════════════════════════════ */
-    .rc-question {
-      font-family: 'Fraunces', serif;
-      font-style: italic;
-      font-weight: 300;
-      font-size: 1.3rem;
-      color: var(--text);
-      line-height: 1.5;
-      margin-bottom: 20px;
-      letter-spacing: -0.01em;
-    }
-
-    .rc-api-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .rc-key-input {
-      flex: 1;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 9px 14px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 300;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .rc-key-input:focus { border-color: var(--accent); }
-    .rc-key-input::placeholder { color: var(--text-dim); opacity: 0.4; }
-
-    .rc-response {
-      margin-top: 22px;
-      padding-top: 22px;
-      border-top: 1px solid var(--border);
-      opacity: 0;
-      transition: opacity 0.7s ease;
-    }
-
-    .rc-response.visible { opacity: 1; }
-
-    .rc-divider {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-
-    .rc-divider::before, .rc-divider::after {
-      content: ''; flex: 1; height: 1px;
-      background: var(--border);
-    }
-
-    .rc-divider-mark { color: var(--accent); font-size: 0.85rem; opacity: 0.7; }
-
-    .rc-response-text {
-      font-family: 'Fraunces', serif;
-      font-size: 1.05rem;
-      font-weight: 300;
-      line-height: 1.8;
-      color: var(--text);
-    }
-
-    .rc-done-note {
-      margin-top: 14px;
-      font-family: 'Fraunces', serif;
-      font-style: italic;
-      font-size: 0.82rem;
-      color: var(--accent2);
-      opacity: 0.8;
-    }
-
-    .rc-err {
-      margin-top: 10px;
-      font-size: 0.76rem;
-      color: #e07070;
-      min-height: 16px;
-    }
-
-    /* ════════════════════════════════════════════
-       BRAIN DUMP
-    ════════════════════════════════════════════ */
-    .brain-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .brain-count {
-      font-size: 0.7rem;
-      color: var(--accent-dim);
-      letter-spacing: 0.1em;
-      font-weight: 400;
-    }
-
-    .clear-dump {
-      background: none; border: none;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.65rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      cursor: pointer;
-      opacity: 0.55;
-      transition: opacity 0.2s, color 0.2s;
-    }
-
-    .clear-dump:hover { opacity: 1; color: var(--accent); }
-
-    .dump-input-wrap { margin-bottom: 14px; }
-
-    .dump-input {
-      width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 13px 16px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 300;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .dump-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .dump-input::placeholder { color: var(--text-dim); opacity: 0.38; }
-
-    .dump-list { display: flex; flex-direction: column; }
-
-    .dump-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 11px 0;
-      border-bottom: 1px solid var(--border);
-      animation: slideIn 0.25s ease forwards;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-8px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    .dump-item:last-child { border-bottom: none; }
-
-    .dump-bullet {
-      color: var(--accent);
-      font-size: 1rem;
-      margin-top: 0;
-      flex-shrink: 0;
-      line-height: 1.5;
-    }
-
-    .dump-text {
-      flex: 1;
-      font-size: 0.88rem;
-      color: var(--text-dim);
-      line-height: 1.55;
-    }
-
-    .dump-del {
-      background: none; border: none;
-      color: var(--text-dim);
-      cursor: pointer; font-size: 0.7rem;
-      opacity: 0; transition: opacity 0.2s;
-      padding: 0 2px; flex-shrink: 0;
-      margin-top: 3px;
-    }
-
-    .dump-item:hover .dump-del { opacity: 0.5; }
-
-    /* ════════════════════════════════════════════
-       TOAST
-    ════════════════════════════════════════════ */
-    .toast {
-      position: fixed;
-      bottom: 28px; left: 50%;
-      transform: translateX(-50%) translateY(14px);
-      background: var(--accent);
-      color: var(--cta-text);
-      border-radius: 40px;
-      padding: 10px 24px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      opacity: 0;
-      transition: opacity 0.3s, transform 0.3s;
-      pointer-events: none;
-      z-index: 100;
-      white-space: nowrap;
-      box-shadow: 0 4px 20px var(--shadow);
-    }
-
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* ════════════════════════════════════════════
-       ANIMATIONS
-    ════════════════════════════════════════════ */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .fade { opacity: 0; animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
-    .d1 { animation-delay: 0.04s; }
-    .d2 { animation-delay: 0.11s; }
-    .d3 { animation-delay: 0.18s; }
-    .d4 { animation-delay: 0.26s; }
-    .d5 { animation-delay: 0.34s; }
-    .d6 { animation-delay: 0.42s; }
-
-    /* ════════════════════════════════════════════
-       SETTINGS BUTTON
-    ════════════════════════════════════════════ */
-    .settings-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      background: var(--bg-raised);
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      cursor: pointer;
-      color: var(--text-dim);
-      transition: border-color 0.2s, color 0.2s;
-      flex-shrink: 0;
-    }
-
-    .settings-btn:hover {
-      border-color: var(--border-md);
-      color: var(--text);
-    }
-
-    .settings-btn svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    /* ════════════════════════════════════════════
-       SETTINGS MODAL
-    ════════════════════════════════════════════ */
-    .modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(4px);
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-backdrop.open {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--bg-card);
-      border: 1px solid var(--border-md);
-      border-radius: 20px;
-      padding: 28px 28px 24px;
-      width: min(400px, calc(100vw - 40px));
-      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
-      animation: modalIn 0.2s ease;
-    }
-
-    @keyframes modalIn {
-      from { opacity: 0; transform: translateY(8px) scale(0.98); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
     .modal-title {
-      font-family: 'Fraunces', serif;
-      font-weight: 600;
-      font-size: 1rem;
-      letter-spacing: 0.04em;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
       color: var(--text);
     }
 
     .modal-close {
       background: none;
       border: none;
-      cursor: pointer;
       color: var(--text-dim);
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       line-height: 1;
-      padding: 4px;
-      transition: color 0.15s;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
     }
 
-    .modal-close:hover { color: var(--text); }
+    .modal-close:hover { color: var(--text); background: var(--border); }
 
+    .skins-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .skins-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .skin-card {
+      border-radius: 14px;
+      padding: 16px 14px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.2s;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .skin-card:hover:not(.locked) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .skin-card.active {
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    .skin-card.locked {
+      cursor: default;
+      opacity: 0.55;
+    }
+
+    .skin-card-emoji {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .skin-card-bottom {}
+
+    .skin-card-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .skin-card-req {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.06em;
+    }
+
+    .skin-lock-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .skin-lock-icon {
+      font-size: 1.4rem;
+    }
+
+    /* Settings modal fields */
     .modal-field-label {
-      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.60rem;
       font-weight: 500;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -931,9 +1210,7 @@
       transition: border-color 0.2s;
     }
 
-    .modal-input-wrap:focus-within {
-      border-color: var(--accent-dim);
-    }
+    .modal-input-wrap:focus-within { border-color: var(--accent); }
 
     .modal-input {
       flex: 1;
@@ -941,13 +1218,13 @@
       border: none;
       outline: none;
       color: var(--text);
-      font-family: 'Plus Jakarta Sans', monospace;
-      font-size: 0.82rem;
-      padding: 11px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      padding: 12px 14px;
       letter-spacing: 0.04em;
     }
 
-    .modal-input::placeholder { color: var(--text-dim); }
+    .modal-input::placeholder { color: var(--text-faint); }
 
     .modal-eye {
       background: none;
@@ -967,12 +1244,11 @@
       color: var(--cta-text);
       border: none;
       border-radius: 10px;
-      padding: 11px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.82rem;
+      padding: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.84rem;
       font-weight: 500;
-      letter-spacing: 0.06em;
-      cursor: pointer;
+      letter-spacing: 0.04em;
       transition: opacity 0.2s;
     }
 
@@ -985,195 +1261,263 @@
       color: var(--accent2);
       min-height: 1em;
       letter-spacing: 0.04em;
+      font-family: 'JetBrains Mono', monospace;
     }
+
+    /* ══════════════════════════════════════════════════════
+       ANIMATIONS
+    ══════════════════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       SCROLLBAR
+    ══════════════════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 2px; }
   </style>
+  <!-- Apply saved skin before paint to prevent flash -->
+  <script>
+    (function(){
+      var s = localStorage.getItem('beings_skin') || 'shadow';
+      document.documentElement.setAttribute('data-skin', s);
+    })();
+  </script>
 </head>
 <body>
+
+<!-- ── Settings Modal ── -->
+<div class="modal-backdrop" id="settingsBackdrop" onclick="handleBackdropClick(event,'settingsBackdrop')">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-head">
+      <span class="modal-title" id="settingsTitle">Settings</span>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-field-label">Anthropic API Key</div>
+    <div class="modal-input-wrap">
+      <input class="modal-input" type="password" id="settingsKeyInput"
+             placeholder="sk-ant-…" autocomplete="off" />
+      <button class="modal-eye" id="eyeBtn" onclick="toggleKeyVisibility()">👁</button>
+    </div>
+    <button class="modal-save" onclick="saveSettingsKey()">Save Key</button>
+    <div class="modal-status" id="modalStatus"></div>
+  </div>
+</div>
+
+<!-- ── Skins Modal ── -->
+<div class="modal-backdrop" id="skinsBackdrop" onclick="handleBackdropClick(event,'skinsBackdrop')">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="skinsTitle">
+    <div class="modal-head">
+      <span class="modal-title" id="skinsTitle">Choose Your Skin ✦</span>
+      <button class="modal-close" onclick="closeSkinsModal()">✕</button>
+    </div>
+    <div class="skins-grid" id="skinsGrid"></div>
+  </div>
+</div>
+
 <div class="page">
 
-  <!-- ── Settings Modal ── -->
-  <div class="modal-backdrop" id="settingsBackdrop" onclick="handleBackdropClick(event)">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-header">
-        <span class="modal-title" id="modalTitle">Settings</span>
-        <button class="modal-close" onclick="closeSettings()" aria-label="Close">✕</button>
-      </div>
-      <div class="modal-field-label">Anthropic API Key</div>
-      <div class="modal-input-wrap">
-        <input class="modal-input" type="password" id="settingsKeyInput"
-               placeholder="sk-ant-…" autocomplete="off" />
-        <button class="modal-eye" id="eyeBtn" onclick="toggleKeyVisibility()" aria-label="Show/hide key">👁</button>
-      </div>
-      <button class="modal-save" onclick="saveSettingsKey()">Save Key</button>
-      <div class="modal-status" id="modalStatus"></div>
-    </div>
-  </div>
-
   <!-- ── Header ── -->
-  <header class="fade d1">
-    <div class="header-top">
-      <a href="index.html" class="wordmark">Beings</a>
-      <div class="header-right">
-        <button class="mode-toggle" id="mode-toggle" onclick="toggleMode()">
-          <span id="mode-icon">☀️</span>
-          <span id="mode-label">Day</span>
-        </button>
-        <div class="date-pill" id="date-full"></div>
-        <button class="settings-btn" onclick="openSettings()" title="Settings" aria-label="Settings">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="10" cy="10" r="2.8"/>
-            <path d="M10 2v1.5M10 16.5V18M2 10h1.5M16.5 10H18M4.1 4.1l1.1 1.1M14.8 14.8l1.1 1.1M15.9 4.1l-1.1 1.1M5.2 14.8l-1.1 1.1"/>
-          </svg>
-        </button>
-      </div>
+  <header class="site-header">
+    <a href="index.html" class="wordmark">Beings</a>
+    <div class="header-right">
+      <div id="rank-badge-mount"></div>
+      <button class="icon-btn" onclick="openSkinsModal()" title="Skins">
+        <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 3v14M3 10h14"/></svg>
+        Skins
+      </button>
+      <button class="icon-btn" onclick="openSettings()" title="Settings">
+        <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.8"/><path d="M10 2v1.5M10 16.5V18M2 10h1.5M16.5 10H18M4.1 4.1l1.1 1.1M14.8 14.8l1.1 1.1M15.9 4.1l-1.1 1.1M5.2 14.8l-1.1 1.1"/></svg>
+      </button>
     </div>
-    <div class="greeting" id="greeting"></div>
   </header>
 
-  <!-- ── Begin Reflection CTA ── -->
-  <div class="reflect-btn-wrap fade d2">
-    <a href="index.html" class="btn-reflect-hero">🌿 Begin Your Reflection</a>
-  </div>
-
-  <!-- ── One Priority ── -->
-  <section class="priority-wrap fade d3">
-    <div class="section-label">🎯 What's the ONE thing that matters most today?</div>
-    <div class="priority-field">
-      <div class="priority-marker"></div>
-      <input class="priority-input" id="priority-input"
-             type="text" placeholder="Name it. Let everything else breathe."
-             maxlength="120" />
-      <button class="priority-save" onclick="savePriority()">Lock it in</button>
+  <!-- ── Hero: Greeting + XP ── -->
+  <section class="hero">
+    <div class="hero-greeting" id="greeting"></div>
+    <div class="xp-section">
+      <div class="xp-label" id="xp-label">E — Awakening</div>
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill" id="xp-bar-fill" style="width:0%"></div>
+      </div>
+      <div class="xp-pct" id="xp-pct">0%</div>
     </div>
   </section>
 
-  <!-- ── Row 1: Habits + Links ── -->
-  <div class="grid fade d4">
+  <!-- ── Begin Reflection CTA ── -->
+  <a href="index.html" class="reflect-cta" id="reflect-cta-btn">Begin Your Reflection →</a>
 
-    <div class="card">
-      <div class="card-label">✅ Today's Habits</div>
-      <div id="habits-list"></div>
-      <div class="habits-celebration" id="habits-celebration">You showed up for yourself today. 🌿</div>
+  <!-- ── Priority ── -->
+  <section class="priority-section">
+    <div class="section-tag">One Thing</div>
+    <div class="priority-card">
+      <div class="priority-icon" id="priority-icon">🎯</div>
+      <input class="priority-input" id="priority-input"
+             type="text" placeholder="What's the one thing that matters most today?"
+             maxlength="120" />
+      <button class="priority-save" onclick="savePriority()">lock it in</button>
     </div>
+  </section>
 
-    <div class="card">
-      <div class="card-label">🔗 Beings Apps</div>
-      <div class="links-grid">
-        <a href="index.html" class="app-link">
-          <div class="app-link-dot"></div>
-          <span class="app-link-name">Beings</span>
-          <span class="app-link-arrow">→</span>
-        </a>
-
-        <a href="autopilot.html" class="app-link">
-          <div class="app-link-dot"></div>
-          <span class="app-link-name">Autopilot</span>
-          <span class="app-link-arrow">→</span>
-        </a>
-        <a href="niche-listener.html" class="app-link">
-          <div class="app-link-dot"></div>
-          <span class="app-link-name">Niche Listener</span>
-          <span class="app-link-arrow">→</span>
-        </a>
-        <a href="tracker.html" class="app-link">
-          <div class="app-link-dot"></div>
-          <span class="app-link-name">Habit Tracker</span>
-          <span class="app-link-arrow">→</span>
-        </a>
-        <a href="journal.html" class="app-link">
-          <div class="app-link-dot"></div>
-          <span class="app-link-name">Journal Pro</span>
-          <span class="app-link-arrow">→</span>
-        </a>
-        <a href="landing.html" class="app-link">
-          <div class="app-link-dot"></div>
-          <span class="app-link-name">Landing Page</span>
-          <span class="app-link-arrow">→</span>
-        </a>
-
-        <a href="crypto-bot.html" class="app-link">
-          <div class="app-link-dot"></div>
-          <span class="app-link-name">Crypto Bot</span>
-          <span class="app-link-arrow">→</span>
-        </a>
-      </div>
+  <!-- ── Habits ── -->
+  <section class="habits-section">
+    <div class="section-tag">Today's Habits</div>
+    <div class="habits-grid" id="habits-grid"></div>
+    <div class="habits-celebration" id="habits-celebration">
+      All three. You actually did it. This is what becoming looks like. 🌿
     </div>
+  </section>
 
-  </div>
+  <!-- ── Schedule + Apps ── -->
+  <div class="two-col">
 
-  <!-- ── Row 2: Schedule + Capture ── -->
-  <div class="grid fade d4">
-
+    <!-- Schedule timeline -->
     <div class="card">
-      <div class="card-label">📅 Today's Schedule</div>
-      <div class="events-list" id="events-list"></div>
+      <div class="section-tag">Schedule</div>
+      <div class="timeline" id="timeline"></div>
       <div class="add-event-row">
         <input class="input-sm input-time" id="event-time" type="text" placeholder="9:00" maxlength="8" />
         <input class="input-sm input-title" id="event-title" type="text" placeholder="Add an event…" maxlength="80" />
-        <button class="btn-add" onclick="addEvent()">Add</button>
+        <button class="btn-add" onclick="addEvent()">+</button>
+      </div>
+    </div>
+
+    <!-- Apps -->
+    <div class="card">
+      <div class="section-tag">Apps</div>
+      <div class="apps-grid">
+        <a href="index.html" class="app-link">
+          <div class="app-dot"></div>
+          <span class="app-name">Beings</span>
+          <span class="app-arrow">→</span>
+        </a>
+        <a href="journal.html" class="app-link">
+          <div class="app-dot"></div>
+          <span class="app-name">Journal Pro</span>
+          <span class="app-arrow">→</span>
+        </a>
+        <a href="tracker.html" class="app-link">
+          <div class="app-dot"></div>
+          <span class="app-name">Habit Tracker</span>
+          <span class="app-arrow">→</span>
+        </a>
+        <a href="autopilot.html" class="app-link">
+          <div class="app-dot"></div>
+          <span class="app-name">Autopilot</span>
+          <span class="app-arrow">→</span>
+        </a>
+        <a href="niche-listener.html" class="app-link">
+          <div class="app-dot"></div>
+          <span class="app-name">Niche Listener</span>
+          <span class="app-arrow">→</span>
+        </a>
+        <a href="crypto-bot.html" class="app-link">
+          <div class="app-dot"></div>
+          <span class="app-name">Crypto Bot</span>
+          <span class="app-arrow">→</span>
+        </a>
+        <a href="landing.html" class="app-link">
+          <div class="app-dot"></div>
+          <span class="app-name">Landing Page</span>
+          <span class="app-arrow">→</span>
+        </a>
       </div>
     </div>
 
   </div>
 
-  <!-- ── Daily Reflection — full width ── -->
-  <div class="card fade d5" style="margin-bottom:18px;" id="rc-card">
-    <div class="card-label">🌿 Daily Reflection</div>
-    <div class="rc-question" id="rc-question"></div>
+  <!-- ── Daily Reflection ── -->
+  <section class="reflection-section">
+    <div class="section-tag">Daily Reflection</div>
+    <div class="reflection-card">
+      <div class="rc-question" id="rc-question"></div>
 
-    <div class="rc-api-row" id="rc-api-row" style="display:none;">
-      <input class="rc-key-input" id="rc-key-input" type="password"
-             placeholder="Anthropic API key (sk-ant-…)" autocomplete="off" />
-      <button class="btn-soft" onclick="rcSaveKey()">Save key</button>
+      <div class="rc-api-row" id="rc-api-row">
+        <input class="rc-key-input" id="rc-key-input" type="password"
+               placeholder="Anthropic API key (sk-ant-…)" autocomplete="off" />
+        <button class="btn-soft" onclick="rcSaveKey()">Save key</button>
+      </div>
+
+      <textarea class="rc-textarea" id="rc-input" rows="4"
+                placeholder="Write as little or as much as feels true…"></textarea>
+      <div class="save-row">
+        <button class="btn-reflect" id="rc-btn" onclick="rcReflect()">Reflect →</button>
+      </div>
+      <p class="rc-err" id="rc-err"></p>
+
+      <div class="rc-response" id="rc-response">
+        <div class="rc-divider"><span>✦</span></div>
+        <div class="rc-response-text" id="rc-response-text"></div>
+      </div>
     </div>
+  </section>
 
-    <textarea id="rc-input" rows="4"
-              placeholder="Write as little or as much as feels true…"></textarea>
-    <div class="save-row">
-      <button class="btn-soft" id="rc-btn" onclick="rcReflect()">Reflect →</button>
-    </div>
-    <p class="rc-err" id="rc-err"></p>
-
-    <div class="rc-response" id="rc-response">
-      <div class="rc-divider"><span class="rc-divider-mark">✦</span></div>
-      <div class="rc-response-text" id="rc-response-text"></div>
-    </div>
-  </div>
-
-  <!-- ── Brain Dump — full width ── -->
-  <div class="card fade d6" style="margin-bottom:0;">
-    <div class="brain-header">
-      <div class="card-label" style="margin-bottom:0;">🧠 Brain Dump</div>
-      <div style="display:flex;align-items:center;gap:16px;">
-        <span class="brain-count" id="dump-count"></span>
-        <button class="clear-dump" onclick="clearDump()">Clear all</button>
+  <!-- ── Brain Dump ── -->
+  <section class="dump-section">
+    <div class="dump-header">
+      <div class="section-tag" style="margin-bottom:0;flex:1;">Brain Dump</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-left:12px;">
+        <span class="dump-count" id="dump-count"></span>
+        <button class="btn-clear-dump" onclick="clearDump()">clear all</button>
       </div>
     </div>
     <div class="dump-input-wrap">
+      <span class="dump-emoji">🧠</span>
       <input class="dump-input" id="dump-input" type="text"
-             placeholder="Drop it here. No judgment, no filter. Just let it out." />
+             placeholder="Drop anything here. No judgment." />
+      <span class="dump-hint">↵ enter</span>
     </div>
-    <div class="dump-list" id="dump-list"></div>
-  </div>
+    <div class="dump-notes" id="dump-notes"></div>
+  </section>
 
-</div>
+</div><!-- /page -->
 
 <div class="toast" id="toast"></div>
 
+<script src="ranks.js"></script>
 <script>
-  // ── Storage keys ──────────────────────────────────────────
+  // ── Storage keys ──────────────────────────────────────────────
   const HABITS_KEY   = 'beings_habit_data';
   const PRIORITY_KEY = 'beings_priority';
   const EVENTS_KEY   = 'beings_calendar_events';
   const DUMP_KEY     = 'beings_brain_dump';
+  const SKIN_KEY     = 'beings_skin';
 
   const HABITS = [
-    { id: 'reflection', name: 'Daily Reflection' },
-    { id: 'xpost',      name: 'X Post'           },
-    { id: 'obsidian',   name: 'Brain Dump'       },
+    { id: 'reflection', name: 'Daily Reflection', emoji: '📖' },
+    { id: 'xpost',      name: 'X Post',           emoji: '𝕏'  },
+    { id: 'obsidian',   name: 'Brain Dump',        emoji: '🧠' },
   ];
 
-  // ── Helpers ───────────────────────────────────────────────
+  // ── Skin definitions ──────────────────────────────────────────
+  const SKINS = [
+    { id: 'shadow',   name: 'Shadow',   emoji: '🌑', rankReq: 0, desc: 'default',
+      bg: ['#0a0a0f','#9b9bff','#34d399'] },
+    { id: 'earth',    name: 'Earth',    emoji: '🌿', rankReq: 1, desc: 'D rank',
+      bg: ['#141210','#a3785a','#7a9e7e'] },
+    { id: 'ocean',    name: 'Ocean',    emoji: '🌊', rankReq: 2, desc: 'C rank',
+      bg: ['#060c18','#2dd4bf','#38bdf8'] },
+    { id: 'bloom',    name: 'Bloom',    emoji: '🌸', rankReq: 3, desc: 'B rank',
+      bg: ['#140f14','#e07db8','#f4a96e'] },
+    { id: 'gold',     name: 'Gold',     emoji: '✨', rankReq: 4, desc: 'A rank',
+      bg: ['#0d0c08','#c4a24a','#e8845a'] },
+    { id: 'ascended', name: 'Ascended', emoji: '🔮', rankReq: 5, desc: 'S rank',
+      bg: ['#07051a','#a855f7','#fb923c'] },
+  ];
+
+  const SKIN_GREETINGS = {
+    shadow:   { morning: 'gm. the void awaits 🌑', afternoon: 'still here. still building 🌑', evening: 'the night is yours 🌑' },
+    earth:    { morning: "rooted and ready 🌿", afternoon: "grounded in the middle of it 🌿", evening: "coming back to earth 🌿" },
+    ocean:    { morning: "tidal energy activated 🌊", afternoon: "deep in the current 🌊", evening: "the ocean never stops 🌊" },
+    bloom:    { morning: "you're in bloom 🌸", afternoon: "still soft, still strong 🌸", evening: "rest is part of the bloom 🌸" },
+    gold:     { morning: "eyes on the prize ✨", afternoon: "every hour is an asset ✨", evening: "closing out in gold ✨" },
+    ascended: { morning: "you transcend the ordinary 🔮", afternoon: "above the noise 🔮", evening: "beyond time 🔮" },
+  };
+
+  // ── Helpers ───────────────────────────────────────────────────
   function todayKey() {
     const d = new Date();
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -1189,7 +1533,7 @@
   function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
   function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   function calcStreak(habitId) {
@@ -1206,34 +1550,93 @@
     return streak;
   }
 
-  // ── Header ────────────────────────────────────────────────
-  function renderHeader() {
-    const now    = new Date();
-    const months = ['January','February','March','April','May','June',
-                    'July','August','September','October','November','December'];
-    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const h      = now.getHours();
-
-    document.getElementById('date-full').textContent =
-      `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
-
-    const phrases = h < 12
-      ? [ 'Good morning. The day is yours. 🌅',
-          'Morning! One breath, one step. You\'ve got this. 🌿',
-          'Good morning — ready to show up for yourself today? ☀️' ]
-      : h < 17
-      ? [ 'Hey, good afternoon. How are you actually doing? 🍃',
-          'Afternoon check-in. Still whole. Still here. ✨',
-          'Good afternoon. Pause for a second — what do you need? 🌤️' ]
-      : [ 'Good evening. You made it through another day. 🌙',
-          'Evening — time to come back to yourself. 🕯️',
-          'Good evening. Rest is not laziness — it\'s wisdom. 🌙' ];
-
-    const idx = (now.getDate() + h) % phrases.length;
-    document.getElementById('greeting').textContent = phrases[idx];
+  // ── Skin system ───────────────────────────────────────────────
+  function getCurrentSkinId() {
+    return localStorage.getItem(SKIN_KEY) || 'shadow';
   }
 
-  // ── Priority ──────────────────────────────────────────────
+  function applySkin(skinId) {
+    document.documentElement.setAttribute('data-skin', skinId);
+    document.body.setAttribute('data-skin', skinId);
+    localStorage.setItem(SKIN_KEY, skinId);
+    renderGreeting();
+    renderXP();
+  }
+
+  function getCurrentRankOrder() {
+    if (window.BeingsRanks) {
+      return BeingsRanks.getProgress().current.order;
+    }
+    return 0;
+  }
+
+  function openSkinsModal() {
+    renderSkinsGrid();
+    document.getElementById('skinsBackdrop').classList.add('open');
+  }
+
+  function closeSkinsModal() {
+    document.getElementById('skinsBackdrop').classList.remove('open');
+  }
+
+  function renderSkinsGrid() {
+    const rankOrder = getCurrentRankOrder();
+    const current   = getCurrentSkinId();
+    const grid      = document.getElementById('skinsGrid');
+
+    grid.innerHTML = SKINS.map(skin => {
+      const unlocked = rankOrder >= skin.rankReq;
+      const active   = skin.id === current;
+      const rankNames = ['E','D','C','B','A','S'];
+
+      const grad = `linear-gradient(135deg, ${skin.bg[0]} 0%, ${skin.bg[1]}44 100%)`;
+      const activeClass = active ? ' active' : '';
+      const lockedClass = !unlocked ? ' locked' : '';
+
+      return `
+        <div class="skin-card${activeClass}${lockedClass}"
+             style="background:${grad};border-color:${active ? 'rgba(255,255,255,0.5)' : 'transparent'};"
+             ${unlocked ? `onclick="selectSkin('${skin.id}')"` : ''}>
+          <div class="skin-card-emoji">${skin.emoji}</div>
+          <div class="skin-card-bottom">
+            <div class="skin-card-name">${skin.name}</div>
+            <div class="skin-card-req">${skin.rankReq === 0 ? 'always unlocked' : skin.desc + ' required'}</div>
+          </div>
+          ${!unlocked ? `<div class="skin-lock-overlay"><div class="skin-lock-icon">🔒</div></div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  function selectSkin(skinId) {
+    applySkin(skinId);
+    closeSkinsModal();
+    toast(`${SKINS.find(s => s.id === skinId)?.name} skin activated`);
+    if (window.BeingsRanks) BeingsRanks.renderBadge('rank-badge-mount');
+  }
+
+  // ── Greeting ──────────────────────────────────────────────────
+  function renderGreeting() {
+    const h    = new Date().getHours();
+    const skin = getCurrentSkinId();
+    const msgs = SKIN_GREETINGS[skin] || SKIN_GREETINGS.shadow;
+    const key  = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+    document.getElementById('greeting').textContent = msgs[key];
+  }
+
+  // ── XP bar ────────────────────────────────────────────────────
+  function renderXP() {
+    if (!window.BeingsRanks) return;
+    const prog = BeingsRanks.getProgress();
+    const lbl  = document.getElementById('xp-label');
+    const fill = document.getElementById('xp-bar-fill');
+    const pct  = document.getElementById('xp-pct');
+
+    lbl.textContent  = `${prog.current.id} — ${prog.current.name}`;
+    pct.textContent  = prog.pct + '%';
+    setTimeout(() => { fill.style.width = prog.pct + '%'; }, 100);
+  }
+
+  // ── Priority ──────────────────────────────────────────────────
   function renderPriority() {
     const data = load(PRIORITY_KEY, {});
     if (data.date === todayKey() && data.text) {
@@ -1251,30 +1654,36 @@
     if (e.key === 'Enter') savePriority();
   });
 
-  // ── Habits ────────────────────────────────────────────────
+  // ── Habits ────────────────────────────────────────────────────
   function renderHabits() {
     const data    = load(HABITS_KEY, {});
     const today   = todayKey();
     const dayData = data[today] || {};
-    const list    = document.getElementById('habits-list');
-    list.innerHTML = '';
+    const grid    = document.getElementById('habits-grid');
+    grid.innerHTML = '';
 
     HABITS.forEach(h => {
       const done   = !!dayData[h.id];
       const streak = calcStreak(h.id);
-      const row    = document.createElement('div');
-      row.className = `habit-row${done ? ' done' : ''}`;
-      row.setAttribute('role', 'checkbox');
-      row.setAttribute('aria-checked', String(done));
-      row.setAttribute('tabindex', '0');
-      row.innerHTML = `
-        <div class="habit-circle">
-          <svg class="check-svg" width="11" height="8" viewBox="0 0 11 8" fill="none">
-            <path d="M1 4L4 7L10 1" stroke="var(--bg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+
+      const card = document.createElement('div');
+      card.className = `habit-card${done ? ' done' : ''}`;
+      card.setAttribute('role', 'checkbox');
+      card.setAttribute('aria-checked', String(done));
+      card.setAttribute('tabindex', '0');
+
+      card.innerHTML = `
+        ${streak > 0 ? `<div class="habit-streak-chip">${streak}d 🔥</div>` : ''}
+        <div class="habit-emoji">${h.emoji}</div>
+        <div class="habit-info">
+          <div class="habit-name">${h.name}</div>
+          <div class="habit-status">${done ? 'done ✓' : 'tap to complete'}</div>
         </div>
-        <span class="habit-name">${h.name}</span>
-        <span class="habit-streak">${streak > 0 ? streak + 'd' : (done ? '' : '🌱')}</span>`;
+        <div class="habit-check-mark">
+          <svg class="habit-check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" style="stroke:var(--bg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>`;
 
       const toggle = () => {
         const d  = load(HABITS_KEY, {});
@@ -1283,14 +1692,16 @@
         d[td][h.id] = !d[td][h.id];
         save(HABITS_KEY, d);
         renderHabits();
-        if (d[td][h.id]) toast(`${h.name} done ✓`);
+        if (d[td][h.id]) toast(`${h.emoji} ${h.name} done!`);
+        if (window.BeingsRanks) BeingsRanks.init('rank-badge-mount');
+        renderXP();
       };
 
-      row.addEventListener('click', toggle);
-      row.addEventListener('keydown', e => {
+      card.addEventListener('click', toggle);
+      card.addEventListener('keydown', e => {
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
       });
-      list.appendChild(row);
+      grid.appendChild(card);
     });
 
     const allDone = HABITS.every(h => !!dayData[h.id]);
@@ -1298,26 +1709,29 @@
     if (cel) cel.style.display = allDone ? 'block' : 'none';
   }
 
-  // ── Calendar events ───────────────────────────────────────
-  function renderEvents() {
+  // ── Calendar events ───────────────────────────────────────────
+  function renderTimeline() {
     const all   = load(EVENTS_KEY, []);
     const today = todayKey();
-    const list  = document.getElementById('events-list');
+    const line  = document.getElementById('timeline');
     const items = all.filter(e => e.date === today)
                      .sort((a,b) => a.time.localeCompare(b.time));
 
     if (!items.length) {
-      list.innerHTML = `<div class="event-empty">Wide open. Add something.</div>`;
+      line.innerHTML = `<div class="timeline-empty">Wide open day. Add something.</div>`;
       return;
     }
 
-    list.innerHTML = items.map((e,i) => `
-      <div class="event-item">
-        <span class="event-time">${escHtml(e.time)}</span>
-        <span class="event-title">${escHtml(e.title)}</span>
-        <button class="event-del" onclick="deleteEvent(${i})" title="Remove">✕</button>
+    line.innerHTML = items.map((e,i) => `
+      <div class="timeline-item">
+        <span class="timeline-time">${escHtml(e.time)}</span>
+        <span class="timeline-title">${escHtml(e.title)}</span>
+        <button class="timeline-del" onclick="deleteEvent(${i})" title="Remove">✕</button>
       </div>`).join('');
   }
+
+  // Keep renderEvents as alias for compatibility
+  function renderEvents() { renderTimeline(); }
 
   function addEvent() {
     const time  = document.getElementById('event-time').value.trim();
@@ -1328,7 +1742,7 @@
     save(EVENTS_KEY, all);
     document.getElementById('event-time').value  = '';
     document.getElementById('event-title').value = '';
-    renderEvents();
+    renderTimeline();
   }
 
   function deleteEvent(index) {
@@ -1337,28 +1751,31 @@
     const items = all.filter(e => e.date === today);
     items.splice(index, 1);
     save(EVENTS_KEY, [...all.filter(e => e.date !== today), ...items]);
-    renderEvents();
+    renderTimeline();
   }
 
   document.getElementById('event-title').addEventListener('keydown', e => {
     if (e.key === 'Enter') addEvent();
   });
 
-  // ── Brain Dump ────────────────────────────────────────────
+  // ── Brain Dump ────────────────────────────────────────────────
   function renderDump() {
     const items = load(DUMP_KEY, []);
-    const list  = document.getElementById('dump-list');
+    const notes = document.getElementById('dump-notes');
     const count = document.getElementById('dump-count');
-    count.textContent = items.length ? `${items.length} idea${items.length === 1 ? '' : 's'}` : '';
-    list.innerHTML = '';
-    items.forEach((text, i) => {
+
+    count.textContent = items.length ? `${items.length} thought${items.length === 1 ? '' : 's'}` : '';
+    notes.innerHTML   = '';
+
+    items.forEach((item, i) => {
       const el = document.createElement('div');
-      el.className = 'dump-item';
+      el.className = 'dump-note';
+      const timeStr = item.time ? new Date(item.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
       el.innerHTML = `
-        <span class="dump-bullet">·</span>
-        <span class="dump-text">${escHtml(text)}</span>
-        <button class="dump-del" onclick="deleteDump(${i})" title="Remove">✕</button>`;
-      list.appendChild(el);
+        <button class="dump-note-del" onclick="deleteDump(${i})" title="Remove">✕</button>
+        <div class="dump-note-text">${escHtml(typeof item === 'string' ? item : item.text)}</div>
+        ${timeStr ? `<span class="dump-note-time">${timeStr}</span>` : ''}`;
+      notes.appendChild(el);
     });
   }
 
@@ -1367,7 +1784,8 @@
     const text  = input.value.trim();
     if (!text) return;
     const items = load(DUMP_KEY, []);
-    items.unshift(text);
+    // Support both old string format and new object format
+    items.unshift({ text, time: new Date().toISOString() });
     save(DUMP_KEY, items.slice(0, 100));
     input.value = '';
     renderDump();
@@ -1391,16 +1809,16 @@
     if (e.key === 'Enter') addDump();
   });
 
-  // ── Toast ─────────────────────────────────────────────────
+  // ── Toast ─────────────────────────────────────────────────────
   function toast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => t.classList.remove('show'), 2000);
+    toast._t = setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  // ── Daily Reflection ──────────────────────────────────────
+  // ── Daily Reflection ──────────────────────────────────────────
   const RC_QUESTIONS = [
     "What are you carrying today that deserves a little gentleness?",
     "What small moment brought you back to yourself recently?",
@@ -1465,13 +1883,13 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
         input.value    = entry;
         input.disabled = true;
         const btn = document.getElementById('rc-btn');
-        btn.disabled   = true;
+        btn.disabled    = true;
         btn.textContent = 'Reflected ✓';
         document.getElementById('rc-response-text').textContent = reflection;
         document.getElementById('rc-response').classList.add('visible');
         const note = document.createElement('p');
         note.className   = 'rc-done-note';
-        note.textContent = 'You\'ve already reflected today. Come back tomorrow. 🌱';
+        note.textContent = "You've already reflected today. Come back tomorrow. 🌱";
         document.getElementById('rc-response').appendChild(note);
       }
     } catch {}
@@ -1563,8 +1981,11 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
       btn.textContent = 'Reflected ✓';
       const note = document.createElement('p');
       note.className   = 'rc-done-note';
-      note.textContent = 'You\'ve already reflected today. Come back tomorrow. 🌱';
+      note.textContent = "You've already reflected today. Come back tomorrow. 🌱";
       respWrap.appendChild(note);
+
+      if (window.BeingsRanks) BeingsRanks.init('rank-badge-mount');
+      renderXP();
 
     } catch (err) {
       respWrap.classList.remove('visible');
@@ -1582,27 +2003,14 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
     if (e.key === 'Enter') rcSaveKey();
   });
 
-  // ── Day / Night mode ──────────────────────────────────────
-  function applyMode(mode) {
-    const isDay = mode === 'day';
-    document.body.classList.toggle('day', isDay);
-    document.getElementById('mode-icon').textContent  = isDay ? '🌙' : '☀️';
-    document.getElementById('mode-label').textContent = isDay ? 'Night' : 'Day';
-    localStorage.setItem('beings_color_mode', mode);
-  }
-
-  function toggleMode() {
-    applyMode((localStorage.getItem('beings_color_mode') || 'night') === 'day' ? 'night' : 'day');
-  }
-
-  // ── Settings modal ────────────────────────────────────────
+  // ── Settings modal ────────────────────────────────────────────
   function openSettings() {
-    const key = localStorage.getItem('beings_key') || '';
+    const key   = localStorage.getItem('beings_key') || '';
     const input = document.getElementById('settingsKeyInput');
     input.value = key;
     input.type  = 'password';
-    document.getElementById('eyeBtn').textContent = '👁';
-    document.getElementById('modalStatus').textContent = '';
+    document.getElementById('eyeBtn').textContent        = '👁';
+    document.getElementById('modalStatus').textContent   = '';
     document.getElementById('settingsBackdrop').classList.add('open');
     input.focus();
   }
@@ -1611,25 +2019,24 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
     document.getElementById('settingsBackdrop').classList.remove('open');
   }
 
-  function handleBackdropClick(e) {
-    if (e.target === document.getElementById('settingsBackdrop')) closeSettings();
+  function handleBackdropClick(e, id) {
+    if (e.target === document.getElementById(id)) {
+      document.getElementById(id).classList.remove('open');
+    }
   }
 
   function toggleKeyVisibility() {
     const input = document.getElementById('settingsKeyInput');
     const btn   = document.getElementById('eyeBtn');
     const show  = input.type === 'password';
-    input.type  = show ? 'text' : 'password';
+    input.type      = show ? 'text' : 'password';
     btn.textContent = show ? '🙈' : '👁';
   }
 
   function saveSettingsKey() {
     const val = document.getElementById('settingsKeyInput').value.trim();
-    if (val) {
-      localStorage.setItem('beings_key', val);
-    } else {
-      localStorage.removeItem('beings_key');
-    }
+    if (val) { localStorage.setItem('beings_key', val); }
+    else { localStorage.removeItem('beings_key'); }
     const status = document.getElementById('modalStatus');
     status.textContent = val ? 'Key saved.' : 'Key cleared.';
     setTimeout(() => { status.textContent = ''; closeSettings(); }, 900);
@@ -1640,14 +2047,23 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
     if (e.key === 'Escape') closeSettings();
   });
 
-  // ── Init ──────────────────────────────────────────────────
-  applyMode(localStorage.getItem('beings_color_mode') || 'night');
-  renderHeader();
+  // ── Init ──────────────────────────────────────────────────────
+  // Apply saved skin
+  applySkin(localStorage.getItem(SKIN_KEY) || 'shadow');
+
+  // Render everything
+  renderGreeting();
   renderPriority();
   renderHabits();
-  renderEvents();
+  renderTimeline();
   renderDump();
   initReflection();
+
+  // Ranks
+  if (window.BeingsRanks) {
+    BeingsRanks.init('rank-badge-mount');
+    renderXP();
+  }
 </script>
 </body>
 </html>
