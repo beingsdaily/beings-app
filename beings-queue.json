@@ -268,5 +268,59 @@
       "post_count": 20
     },
     "status": "pending"
+  },
+  {
+    "id": "1776430810676-0",
+    "text": "The people who hurt you were often just passing on pain they never got to put down. That doesn't make it okay. It just means the wound didn't start with you — and it doesn't have to end with you either.",
+    "generated_at": "2026-04-17T13:00:10.676Z",
+    "source": "beings-pipeline",
+    "reddit_context": {
+      "query": "emotional healing wholeness self-compassion presence",
+      "top_subreddits": [
+        "BestofRedditorUpdates",
+        "OneOrangeBraincell",
+        "TopCharacterTropes",
+        "AIO",
+        "thanksimcured"
+      ],
+      "post_count": 20
+    },
+    "status": "pending"
+  },
+  {
+    "id": "1776430810677-1",
+    "text": "What if the version of you that still hasn't forgiven yourself is the one that needs the most gentleness, not the most discipline.",
+    "generated_at": "2026-04-17T13:00:10.677Z",
+    "source": "beings-pipeline",
+    "reddit_context": {
+      "query": "emotional healing wholeness self-compassion presence",
+      "top_subreddits": [
+        "BestofRedditorUpdates",
+        "OneOrangeBraincell",
+        "TopCharacterTropes",
+        "AIO",
+        "thanksimcured"
+      ],
+      "post_count": 20
+    },
+    "status": "pending"
+  },
+  {
+    "id": "1776430810677-2",
+    "text": "Sometimes loving someone means watching them choose a hard lesson. You're not failing them by not fixing it. You were never meant to carry that.",
+    "generated_at": "2026-04-17T13:00:10.677Z",
+    "source": "beings-pipeline",
+    "reddit_context": {
+      "query": "emotional healing wholeness self-compassion presence",
+      "top_subreddits": [
+        "BestofRedditorUpdates",
+        "OneOrangeBraincell",
+        "TopCharacterTropes",
+        "AIO",
+        "thanksimcured"
+      ],
+      "post_count": 20
+    },
+    "status": "pending"
   }
 ]
