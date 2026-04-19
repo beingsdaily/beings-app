@@ -1808,9 +1808,128 @@
     renderTimeline();
   }
 
-  document.getElementById('event-title').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addEvent();
-  });
+  // ── Google Calendar integration ───────────────────────────────
+  const GCAL_CLIENT_ID = '210732232777-kr357a7pr4s3eb8i7l4k4rtd0fui4hqm.apps.googleusercontent.com';
+  const GCAL_API_KEY   = 'AIzaSyAZ0xUx_v7NtV7sYf1y6T1nPIhA0sf8fdQ';
+  const GCAL_SCOPE     = 'https://www.googleapis.com/auth/calendar.readonly';
+
+  let gcalTokenClient = null;
+
+  function gcalIsTokenValid() {
+    const token  = localStorage.getItem(GCAL_TOKEN_KEY);
+    const expiry = parseInt(localStorage.getItem(GCAL_EXPIRY_KEY) || '0', 10);
+    return token && Date.now() < expiry;
+  }
+
+  function gcalShowConnected() {
+    document.getElementById('gcal-connect-row').style.display   = 'none';
+    document.getElementById('gcal-connected-row').style.display = 'flex';
+  }
+
+  function gcalShowDisconnected() {
+    document.getElementById('gcal-connect-row').style.display   = 'flex';
+    document.getElementById('gcal-connected-row').style.display = 'none';
+  }
+
+  function gcalInit() {
+    if (typeof google === 'undefined' || !google.accounts) {
+      setTimeout(gcalInit, 500);
+      return;
+    }
+    gcalTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GCAL_CLIENT_ID,
+      scope: GCAL_SCOPE,
+      callback: (resp) => {
+        if (resp.error) { console.error('GCal auth error:', resp); return; }
+        const expiry = Date.now() + (resp.expires_in - 60) * 1000;
+        localStorage.setItem(GCAL_TOKEN_KEY, resp.access_token);
+        localStorage.setItem(GCAL_EXPIRY_KEY, String(expiry));
+        gcalShowConnected();
+        gcalFetchToday();
+      },
+    });
+    if (gcalIsTokenValid()) {
+      gcalShowConnected();
+      gcalFetchToday();
+    }
+  }
+
+  function gcalConnect() {
+    if (!gcalTokenClient) { gcalInit(); setTimeout(gcalConnect, 600); return; }
+    gcalTokenClient.requestAccessToken({ prompt: '' });
+  }
+
+  function gcalRefresh() {
+    if (!gcalTokenClient) { gcalInit(); setTimeout(gcalRefresh, 600); return; }
+    gcalTokenClient.requestAccessToken({ prompt: '' });
+  }
+
+  function gcalDisconnect() {
+    const token = localStorage.getItem(GCAL_TOKEN_KEY);
+    if (token && typeof google !== 'undefined') {
+      google.accounts.oauth2.revoke(token, () => {});
+    }
+    localStorage.removeItem(GCAL_TOKEN_KEY);
+    localStorage.removeItem(GCAL_EXPIRY_KEY);
+    gcalShowDisconnected();
+    renderTimeline();
+  }
+
+  async function gcalFetchToday() {
+    const token = localStorage.getItem(GCAL_TOKEN_KEY);
+    if (!token) return;
+
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const url   = 'https://www.googleapis.com/calendar/v3/calendars/primary/events'
+      + '?key=' + GCAL_API_KEY
+      + '&timeMin=' + encodeURIComponent(start.toISOString())
+      + '&timeMax=' + encodeURIComponent(end.toISOString())
+      + '&singleEvents=true'
+      + '&orderBy=startTime'
+      + '&maxResults=20';
+
+    try {
+      const resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+      if (resp.status === 401) {
+        localStorage.removeItem(GCAL_TOKEN_KEY);
+        localStorage.removeItem(GCAL_EXPIRY_KEY);
+        gcalShowDisconnected();
+        return;
+      }
+      const data   = await resp.json();
+      const events = (data.items || []).map(item => {
+        const s    = item.start.dateTime || item.start.date;
+        const d    = new Date(s);
+        const time = item.start.dateTime
+          ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          : 'All day';
+        return { time, title: item.summary || '(no title)', gcal: true };
+      });
+      renderTimelineWithGcal(events);
+    } catch (err) {
+      console.error('GCal fetch error:', err);
+    }
+  }
+
+  function renderTimelineWithGcal(gcalEvents) {
+    const today = todayKey();
+    const local = load(EVENTS_KEY, []).filter(e => e.date === today);
+    const all   = [...local, ...gcalEvents].sort((a, b) => a.time.localeCompare(b.time));
+    const line  = document.getElementById('timeline');
+
+    if (!all.length) {
+      line.innerHTML = '<div class="timeline-empty">Wide open day.</div>';
+      return;
+    }
+    line.innerHTML = all.map((e, i) => `
+      <div class="timeline-item${e.gcal ? ' gcal-event' : ''}">
+        <span class="timeline-time">${escHtml(e.time)}</span>
+        <span class="timeline-title">${escHtml(e.title)}</span>
+        ${e.gcal ? '' : `<button class="timeline-del" onclick="deleteEvent(${i})" title="Remove">✕</button>`}
+      </div>`).join('');
+  }
 
   // ── Brain Dump ────────────────────────────────────────────────
   function renderDump() {
