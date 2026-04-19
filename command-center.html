@@ -673,6 +673,54 @@
 
     .btn-add:hover { opacity: 0.85; }
 
+    /* ── GCal connect row ── */
+    .gcal-connect-row,
+    .gcal-connected-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0 2px;
+    }
+    .btn-gcal-connect {
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border-md);
+      background: var(--bg-card2);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      width: 100%;
+    }
+    .btn-gcal-connect:hover {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+    }
+    .gcal-connected-label {
+      font-size: 0.72rem;
+      color: var(--accent2);
+      letter-spacing: 0.06em;
+      flex: 1;
+    }
+    .btn-gcal-refresh,
+    .btn-gcal-disconnect {
+      font-family: inherit;
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-gcal-refresh:hover { color: var(--accent); border-color: var(--accent); }
+    .btn-gcal-disconnect:hover { color: #f87171; border-color: rgba(248,113,113,0.4); }
+    .gcal-event .timeline-time { color: var(--accent2); }
+
     /* ── Apps grid ── */
     .apps-grid {
       display: flex;
