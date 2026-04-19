@@ -1379,10 +1379,13 @@
     <div class="card">
       <div class="section-tag">Schedule</div>
       <div class="timeline" id="timeline"></div>
-      <div class="add-event-row">
-        <input class="input-sm input-time" id="event-time" type="text" placeholder="9:00" maxlength="8" />
-        <input class="input-sm input-title" id="event-title" type="text" placeholder="Add an event…" maxlength="80" />
-        <button class="btn-add" onclick="addEvent()">+</button>
+      <div class="gcal-connect-row" id="gcal-connect-row">
+        <button class="btn-gcal-connect" id="gcal-connect-btn" onclick="gcalConnect()">Connect Google Calendar</button>
+      </div>
+      <div class="gcal-connected-row" id="gcal-connected-row" style="display:none;">
+        <span class="gcal-connected-label">● Connected</span>
+        <button class="btn-gcal-refresh" onclick="gcalRefresh()">↺ Refresh</button>
+        <button class="btn-gcal-disconnect" onclick="gcalDisconnect()">Disconnect</button>
       </div>
     </div>
 
