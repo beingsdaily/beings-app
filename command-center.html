@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     /* ══════════════════════════════════════════════════════
        SKIN VARIABLES
@@ -1482,8 +1483,10 @@
   // ── Storage keys ──────────────────────────────────────────────
   const HABITS_KEY   = 'beings_habit_data';
   const PRIORITY_KEY = 'beings_priority';
-  const EVENTS_KEY   = 'beings_calendar_events';
-  const DUMP_KEY     = 'beings_brain_dump';
+  const EVENTS_KEY      = 'beings_calendar_events';
+  const DUMP_KEY        = 'beings_brain_dump';
+  const GCAL_TOKEN_KEY  = 'beings_gcal_token';
+  const GCAL_EXPIRY_KEY = 'beings_gcal_expiry';
   const SKIN_KEY     = 'beings_skin';
 
   const HABITS = [
