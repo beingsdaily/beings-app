@@ -15,9 +15,9 @@ This book is not here to fix you.
 
 You are not broken.
 
-It is here to say what someone should have said to you a long time ago — that you have always had everything you need. That nothing is missing. That the strength, the wisdom, and the love were inside you the whole time.
+It is here to say what somebody should have told you a long time ago — that you have always had everything you need. That nothing is missing. That the strength, the wisdom, and the love were inside you the whole time.
 
-Read slowly. Sit with each chapter. Let it land where it needs to land.
+Read slow. Sit with each chapter. Let it land where it needs to land.
 
 You don't have to have any answers. You just have to show up.
 
@@ -31,25 +31,25 @@ They taught you how to be good.
 They taught you how to be quiet.
 They taught you how to not take up too much space.
 
-But no one said — *you are enough right now, just like you are.*
+But not one person said — *you are enough right now, just like you are.*
 
-You watched who got praise and who got ignored.
-You started to rank yourself.
-You decided maybe you were not enough.
+You watched who got praised and who got ignored.
+You started ranking yourself.
+You decided maybe you weren't enough.
 
-But that was not the truth.
+But that wasn't the truth.
 
 It was just something you were taught.
 
-You learned to place yourself on a ladder — above some people, below others. You kept track of where you stood. You kept adjusting. Trying to climb. Trying not to fall.
+You put yourself on a ladder — above some people, below others. You kept track of where you stood. You kept adjusting. Trying to climb. Trying not to fall.
 
-And all that climbing made you tired.
+And all that climbing wore you out.
 
-The ranking was never real. It was just the thing people passed down because it was passed down to them. Wounded people pass on what they never healed. Not because they were evil. Because they were human.
+The ranking was never real. It was just something people passed down because it was passed down to them. Hurt people hurt people. Not because they were evil. Because they were human.
 
 But you can stop climbing now.
 
-The ladder was never yours to carry.
+That ladder was never yours to carry.
 
 ---
 
@@ -73,7 +73,7 @@ That's it.
 Not a big thing.
 Not complicated.
 
-Just someone to say — *I see you. You matter. You don't have to do anything to earn that.*
+Just somebody to say — *I see you. You matter. You don't have to do anything to earn that.*
 
 Nobody said it.
 
@@ -83,7 +83,7 @@ In other people's approval.
 In what I could achieve.
 In being good enough, quiet enough, strong enough.
 
-I was looking for something on the outside
+I was out here looking for something on the outside
 that could only ever come from the inside.
 
 ---
@@ -109,7 +109,7 @@ Not because of what you do.
 Not because of how you perform.
 Just because you're here.
 
-Being imperfect is not a problem to fix.
+Being imperfect ain't a problem to fix.
 Being imperfect is the whole point.
 
 You were never supposed to be perfect.
@@ -143,7 +143,7 @@ The people closest to me left marks I didn't understand for years. Not because t
 
 Wounded people pass on what they never healed.
 That's not an excuse.
-It's just true.
+That's just real.
 
 ---
 
@@ -151,7 +151,7 @@ After my mother died, something slowly opened in me.
 
 Like a door I didn't know was there.
 
-I started to see things clearly. Really clearly.
+I started to see things clearly. Real clearly.
 
 I started reading. Watching. Listening.
 
@@ -163,10 +163,10 @@ Even the hard teachers leave something useful behind.
 
 I learned from books. From documentaries. From quiet moments with God.
 
-I learned that most of my life, I was looking outside myself for someone to tell me I was enough.
+I learned that most of my life, I was looking outside myself for somebody to tell me I was enough.
 
 I was performing.
-Trying to be enough for everyone else.
+Trying to be enough for everybody else.
 And it wore me out.
 
 ---
@@ -207,7 +207,7 @@ You're a seed. Not a failure.
 
 The Virginia spiderwort blooms every single day. Then closes at night. Then opens again.
 
-That's not weakness.
+That ain't weakness.
 That's faithfulness.
 
 Show up.
@@ -237,11 +237,11 @@ beings-app.netlify.app
 
 ## Chapter 4: Get Out of Your Own Way
 
-Leading yourself doesn't look like hustling.
+Leading yourself don't look like hustling.
 
-It doesn't look like grinding.
+It don't look like grinding.
 
-It doesn't look like checking boxes or proving anything to anyone.
+It don't look like checking boxes or proving anything to anybody.
 
 It looks like this:
 
@@ -263,7 +263,7 @@ Right now.
 
 Maybe that means sitting with your kids.
 Maybe it means a quiet cup of coffee.
-Maybe it means a walk, or just sitting with your spouse in the silence and letting that be enough.
+Maybe it means a walk, or just sitting with your person in the silence and letting that be enough.
 
 Presence is the baseline.
 Everything else grows from there.
@@ -283,7 +283,7 @@ By doing it now.
 
 The ego wants to drive.
 
-It wants to calculate. Control. Manage outcomes. Protect you from things that haven't happened yet.
+It wants to calculate. Control. Manage outcomes. Protect you from things that haven't even happened yet.
 
 And when the ego drives — your emotions go with it.
 
@@ -300,9 +300,9 @@ The one that was always there underneath all the noise.
 
 ---
 
-Stop being so hard on yourself.
+Stop being so hard on yourself. For real.
 
-That critical voice in your head is not the truth about you.
+That voice in your head talking down to you? That ain't the truth about you.
 
 It's just old programming running on a loop.
 
@@ -350,14 +350,14 @@ beings-app.netlify.app
 
 Real confidence is quiet.
 
-It doesn't announce itself.
-It doesn't need to.
+It don't announce itself.
+It don't need to.
 
 It's just knowing.
 
 Knowing that you can do the thing in front of you.
 
-Not because someone told you.
+Not because somebody told you.
 Not because you've done it before.
 
 Just because you know.
@@ -366,7 +366,7 @@ Just because you know.
 
 Think about stepping on the court.
 
-The player who's truly confident doesn't walk out there hoping.
+The player who's truly confident don't walk out there hoping.
 
 They walk out there knowing.
 
@@ -381,13 +381,13 @@ That's what it looks like.
 
 ---
 
-Real confidence doesn't mean nothing hard will happen.
+Real confidence don't mean nothing hard will happen.
 
 It means when hard things happen, you don't stop.
 
 You keep stepping.
 
-You let the obstacles be what they are — just things in between you and your goal — and you keep moving.
+You let the obstacles be what they are — just things between you and where you're going — and you keep moving.
 
 ---
 
@@ -396,23 +396,23 @@ Here's what kills confidence:
 Thinking about what people want.
 Performing instead of being.
 Letting fear speak louder than faith.
-Doubting the thing you already know.
+Doubting what you already know.
 
 Here's what builds it:
 
 Staying present.
-Focusing on the outcome.
+Focusing on where you're going.
 Putting everything you have into the work.
-Not letting the noise paralyze you.
+Not letting the noise stop you.
 
 ---
 
 And this is important:
 
-Real confidence includes taking care of yourself first.
+Real confidence means taking care of yourself first.
 
-That's not selfishness.
-That's wisdom.
+That ain't selfishness.
+That's wisdom. Don't let nobody tell you different.
 
 You can't pour from empty.
 You can't lead from depletion.
@@ -424,7 +424,7 @@ Be in service. Always.
 
 But start with yourself.
 
-That's not a contradiction.
+That ain't a contradiction.
 That's the whole point.
 
 ---
@@ -443,7 +443,7 @@ beings-app.netlify.app
 
 ## Chapter 6: Already Enough
 
-You made it to the last page.
+You made it to the last page. Look at you.
 
 Take a breath.
 
@@ -456,7 +456,7 @@ Not pressure to change.
 
 Just relief.
 
-The kind that comes when someone finally says what you've been waiting to hear.
+The kind that comes when somebody finally says what you been waiting to hear.
 
 ---
 
@@ -484,7 +484,7 @@ That's where it is.
 
 ---
 
-Heaven isn't somewhere else.
+Heaven ain't somewhere else.
 
 It's available right here when you stop sitting in the suffering you were never meant to carry.
 
@@ -502,7 +502,7 @@ The version of you that you keep getting in the way of — that person is real.
 They're not a fantasy.
 They're not too much to ask for.
 
-They're just waiting for you to get out of the way and let them breathe.
+They're just waiting for you to get out the way and let them breathe.
 
 ---
 
@@ -510,7 +510,7 @@ This book was never about fixing you.
 
 You were never broken.
 
-It was about helping you see what was always true — that you have everything you need already inside you.
+It was about helping you see what was always true — that you got everything you need already inside you.
 
 The strength is there.
 The wisdom is there.
@@ -536,14 +536,14 @@ And that knowing will change your life.
 Start today.
 
 Not tomorrow.
-Not when things are better.
+Not when things get better.
 Not when you feel ready.
 
 Today.
 
 Wake up.
 Look at your own life.
-Reflect on what's actually happening inside you.
+Sit with what's actually happening inside you.
 
 One moment.
 One breath.
@@ -553,7 +553,7 @@ That's how it begins.
 
 ---
 
-You already have what it takes.
+You already got what it takes.
 
 You always did.
 
