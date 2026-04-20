@@ -1787,18 +1787,6 @@
   // Keep renderEvents as alias for compatibility
   function renderEvents() { renderTimeline(); }
 
-  function addEvent() {
-    const time  = document.getElementById('event-time').value.trim();
-    const title = document.getElementById('event-title').value.trim();
-    if (!title) return;
-    const all = load(EVENTS_KEY, []);
-    all.push({ date: todayKey(), time: time || '—', title });
-    save(EVENTS_KEY, all);
-    document.getElementById('event-time').value  = '';
-    document.getElementById('event-title').value = '';
-    renderTimeline();
-  }
-
   function deleteEvent(index) {
     const all   = load(EVENTS_KEY, []);
     const today = todayKey();
