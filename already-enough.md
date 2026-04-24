@@ -589,6 +589,6 @@ Just you, showing up honestly, one day at a time.
 
 Open your journal today:
 
-**[beings-app.netlify.app/journal.html](https://beings-app.netlify.app/journal.html)**
+**[beings-app.netlify.app/landing.html](https://beings-app.netlify.app/landing.html)**
 
 *You are already enough. Now go live like it.*
