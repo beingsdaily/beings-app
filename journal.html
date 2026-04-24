@@ -906,6 +906,277 @@ body::after {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 2px; }
+
+/* ══════════════════════════════════════════════════════
+   STREAK BADGE
+══════════════════════════════════════════════════════ */
+.streak-badge {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 300;
+  letter-spacing: 0.10em;
+  color: var(--text-dim);
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  transition: border-color 0.3s, color 0.3s;
+}
+.streak-badge.active {
+  color: var(--pro);
+  border-color: rgba(196,162,74,0.40);
+}
+.streak-num { font-size: 0.72rem; font-weight: 400; }
+
+/* ══════════════════════════════════════════════════════
+   BRAIN DUMP
+══════════════════════════════════════════════════════ */
+.brain-dump-section {
+  margin-bottom: 40px;
+  animation: fadeUp 0.7s 0.10s ease both;
+}
+.dump-input-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0 18px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.dump-input-wrap:focus-within {
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 3px var(--accent-pale);
+}
+#dumpInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  padding: 15px 0;
+  min-width: 0;
+}
+#dumpInput::placeholder { color: var(--text-faint); font-style: italic; }
+.dump-enter-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+.dump-list { display: flex; flex-direction: column; gap: 6px; }
+.dump-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  animation: fadeUp 0.25s ease both;
+}
+.dump-item-text {
+  flex: 1;
+  font-family: 'Lora', serif;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.dump-item-ts {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.dump-item-del {
+  color: var(--text-faint);
+  font-size: 0.65rem;
+  flex-shrink: 0;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.dump-item-del:hover { color: var(--text); }
+
+/* ══════════════════════════════════════════════════════
+   DAILY INTENTIONS
+══════════════════════════════════════════════════════ */
+.intentions-section {
+  margin-bottom: 40px;
+  animation: fadeUp 0.7s 0.12s ease both;
+}
+.intentions-list { display: flex; flex-direction: column; gap: 8px; }
+.intention-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+.intention-row:focus-within { border-color: var(--border-accent); }
+.intention-row.done { opacity: 0.52; }
+.intention-check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border-md);
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+.intention-check:not(:disabled):hover { border-color: var(--accent); }
+.intention-check:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.intention-check:checked::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 3px;
+  width: 9px; height: 5px;
+  border-left: 1.5px solid var(--bg);
+  border-bottom: 1.5px solid var(--bg);
+  transform: rotate(-45deg);
+}
+.intention-check:disabled { opacity: 0.3; cursor: default; }
+.intention-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  min-width: 0;
+}
+.intention-input::placeholder { color: var(--text-faint); font-style: italic; }
+.intention-row.done .intention-input {
+  text-decoration: line-through;
+  color: var(--text-faint);
+}
+.intentions-completion {
+  margin-top: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+  text-align: right;
+  min-height: 1em;
+  transition: color 0.3s;
+}
+.intentions-completion.all-done { color: var(--accent); }
+
+/* ══════════════════════════════════════════════════════
+   GRATITUDE LOG
+══════════════════════════════════════════════════════ */
+.gratitude-section {
+  margin-bottom: 40px;
+  animation: fadeUp 0.7s 0.32s ease both;
+}
+.gratitude-fields { display: flex; flex-direction: column; gap: 8px; }
+.gratitude-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.gratitude-row:focus-within {
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 2px var(--accent-pale);
+}
+.gratitude-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+.gratitude-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  min-width: 0;
+}
+.gratitude-input::placeholder { color: var(--text-faint); font-style: italic; }
+.gratitude-input:disabled { color: var(--text-dim); cursor: default; }
+.gratitude-save-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+.gratitude-saved-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+}
+
+/* ══════════════════════════════════════════════════════
+   MOOD HISTORY CHART
+══════════════════════════════════════════════════════ */
+.mood-chart-section {
+  margin-bottom: 44px;
+  animation: fadeUp 0.7s 0.05s ease both;
+}
+.mood-chart-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px 24px 18px;
+}
+#moodHistoryCanvas {
+  width: 100%;
+  height: 80px;
+  display: block;
+}
+.mood-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.legend-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 </style>
 </head>
 <body>
@@ -940,6 +1211,7 @@ body::after {
       <span class="pro-badge">PRO</span>
     </div>
     <div class="header-right">
+      <div id="streakBadge" class="streak-badge" aria-label="Journaling streak"></div>
       <div id="rank-badge-mount"></div>
       <button class="icon-btn" onclick="openModal()" title="API Key Settings" aria-label="Settings">
         <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -952,6 +1224,26 @@ body::after {
 
   <!-- ── Date ───────────────────────────────────────────── -->
   <div class="date-line" id="dateLine"></div>
+
+  <!-- ── Brain Dump ────────────────────────────────────── -->
+  <section class="brain-dump-section">
+    <span class="section-tag">Brain dump</span>
+    <div class="dump-input-wrap">
+      <input type="text" id="dumpInput"
+        placeholder="A thought… press Enter to capture"
+        aria-label="Brain dump input"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();addDumpItem();}" />
+      <span class="dump-enter-hint">↵ enter</span>
+    </div>
+    <div class="dump-list" id="dumpList"></div>
+  </section>
+
+  <!-- ── Daily Intentions ──────────────────────────────── -->
+  <section class="intentions-section">
+    <span class="section-tag">Today's intentions</span>
+    <div class="intentions-list" id="intentionsList"></div>
+    <div class="intentions-completion" id="intentionsCompletion"></div>
+  </section>
 
   <!-- ── Mood picker ────────────────────────────────────── -->
   <span class="section-tag">How are you arriving today?</span>
@@ -1001,6 +1293,12 @@ body::after {
   </div>
   <p class="privacy-note">🔒 Your words stay with you — saved locally, never shared.</p>
 
+  <!-- ── Gratitude Log ─────────────────────────────────── -->
+  <section class="gratitude-section">
+    <span class="section-tag">Three things I'm grateful for</span>
+    <div id="gratitudeFields"></div>
+  </section>
+
   <!-- ── Claude response ────────────────────────────────── -->
   <div class="response-area" id="responseArea">
     <div class="response-divider" aria-hidden="true">
@@ -1017,6 +1315,15 @@ body::after {
   </div>
 
   <hr class="section-divider" />
+
+  <!-- ── Mood History Chart ────────────────────────────── -->
+  <section class="mood-chart-section">
+    <span class="section-tag">Mood — last 30 days</span>
+    <div class="mood-chart-wrap">
+      <canvas id="moodHistoryCanvas" aria-label="Mood history chart over the last 30 days"></canvas>
+      <div class="mood-chart-legend" id="moodChartLegend"></div>
+    </div>
+  </section>
 
   <!-- ── History ────────────────────────────────────────── -->
   <div class="history-header">
@@ -1291,6 +1598,8 @@ function saveEntry(withInsights = false, insights = '', followUp = '') {
   }
 
   renderHistory();
+  renderStreak();
+  setTimeout(renderMoodChart, 0);
 
   if (window.BeingsRanks) {
     BeingsRanks.init('rank-badge-mount');
@@ -1484,13 +1793,284 @@ function showToast(msg) {
 }
 
 // ═══════════════════════════════════════════════════
+// NEW FEATURE CONSTANTS
+// ═══════════════════════════════════════════════════
+const LS_BRAINDUMP  = 'beings_braindump_v1';
+const LS_INTENTIONS = 'beings_intentions_v1';
+const LS_GRATITUDE  = 'beings_gratitude_v1';
+
+// ═══════════════════════════════════════════════════
+// STREAK
+// ═══════════════════════════════════════════════════
+function calcStreak() {
+  const entries = loadEntries();
+  if (!entries.length) return 0;
+  const today = todayKey();
+  const dateSet = [...new Set(entries.map(e => e.dateKey).filter(Boolean))].sort().reverse();
+  if (!dateSet.length) return 0;
+  const d = new Date(); d.setDate(d.getDate() - 1);
+  const yest = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  if (dateSet[0] !== today && dateSet[0] !== yest) return 0;
+  let streak = 1;
+  for (let i = 1; i < dateSet.length; i++) {
+    const [y1,m1,d1] = dateSet[i-1].split('-').map(Number);
+    const [y2,m2,d2] = dateSet[i].split('-').map(Number);
+    const diff = (new Date(y1,m1-1,d1) - new Date(y2,m2-1,d2)) / 86400000;
+    if (diff === 1) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function renderStreak() {
+  const el = document.getElementById('streakBadge');
+  if (!el) return;
+  const n = calcStreak();
+  if (!n) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  el.classList.toggle('active', n >= 3);
+  el.innerHTML = `<span>${n >= 3 ? '🔥' : '✦'}</span><span class="streak-num">${n}</span><span>${n === 1 ? 'day' : 'days'}</span>`;
+}
+
+// ═══════════════════════════════════════════════════
+// BRAIN DUMP
+// ═══════════════════════════════════════════════════
+function loadDump() {
+  try { return JSON.parse(localStorage.getItem(LS_BRAINDUMP) || '[]'); } catch { return []; }
+}
+function saveDump(items) {
+  try { localStorage.setItem(LS_BRAINDUMP, JSON.stringify(items)); } catch {}
+}
+function addDumpItem() {
+  const inp = document.getElementById('dumpInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  const items = loadDump();
+  items.unshift({ id: Date.now().toString(), text: txt, ts: new Date().toISOString() });
+  if (items.length > 100) items.length = 100;
+  saveDump(items);
+  inp.value = '';
+  renderDump();
+}
+function deleteDumpItem(id) {
+  saveDump(loadDump().filter(i => i.id !== id));
+  renderDump();
+}
+function renderDump() {
+  const list = document.getElementById('dumpList');
+  if (!list) return;
+  const items = loadDump();
+  list.innerHTML = items.map(item => {
+    const d = new Date(item.ts);
+    const ts = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="dump-item">
+  <span class="dump-item-text">${escHtml(item.text)}</span>
+  <span class="dump-item-ts">${ts}</span>
+  <button class="dump-item-del" onclick="deleteDumpItem('${item.id}')" aria-label="Delete">✕</button>
+</div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// DAILY INTENTIONS
+// ═══════════════════════════════════════════════════
+function loadIntentionsRaw() {
+  try { return JSON.parse(localStorage.getItem(LS_INTENTIONS)); } catch { return null; }
+}
+function saveIntentions(data) {
+  try { localStorage.setItem(LS_INTENTIONS, JSON.stringify(data)); } catch {}
+}
+function getTodayIntentions() {
+  const data = loadIntentionsRaw();
+  if (data && data.date === todayKey()) return data;
+  return { date: todayKey(), items: [
+    { text: '', checked: false },
+    { text: '', checked: false },
+    { text: '', checked: false },
+  ]};
+}
+function toggleIntention(i) {
+  const data = getTodayIntentions();
+  if (!data.items[i].text.trim()) return;
+  data.items[i].checked = !data.items[i].checked;
+  saveIntentions(data);
+  renderIntentions();
+}
+function updateIntentionText(i, val) {
+  const data = getTodayIntentions();
+  data.items[i].text = val;
+  saveIntentions(data);
+  const checks = document.querySelectorAll('.intention-check');
+  if (checks[i]) checks[i].disabled = !val.trim();
+  updateIntentionsStatus(data);
+}
+function updateIntentionsStatus(data) {
+  const el = document.getElementById('intentionsCompletion');
+  if (!el) return;
+  const filled = data.items.filter(it => it.text.trim()).length;
+  const done   = data.items.filter(it => it.checked && it.text.trim()).length;
+  if (!filled) { el.textContent = ''; el.classList.remove('all-done'); return; }
+  el.classList.toggle('all-done', done === filled);
+  el.textContent = done === filled ? 'all intentions met ✦' : `${done} of ${filled} complete`;
+}
+function renderIntentions() {
+  const data = getTodayIntentions();
+  const list = document.getElementById('intentionsList');
+  if (!list) return;
+  list.innerHTML = data.items.map((item, i) => `
+<div class="intention-row${item.checked && item.text.trim() ? ' done' : ''}">
+  <input type="checkbox" class="intention-check" ${item.checked ? 'checked' : ''} ${!item.text.trim() ? 'disabled' : ''}
+    onchange="toggleIntention(${i})" />
+  <input type="text" class="intention-input" value="${escHtml(item.text)}"
+    placeholder="Set an intention…"
+    oninput="updateIntentionText(${i}, this.value)" maxlength="120" />
+</div>`).join('');
+  updateIntentionsStatus(data);
+}
+
+// ═══════════════════════════════════════════════════
+// GRATITUDE LOG
+// ═══════════════════════════════════════════════════
+function loadGratitudeList() {
+  try { return JSON.parse(localStorage.getItem(LS_GRATITUDE) || '[]'); } catch { return []; }
+}
+function saveGratitudeList(list) {
+  try { localStorage.setItem(LS_GRATITUDE, JSON.stringify(list)); } catch {}
+}
+function getTodayGratitude() {
+  return loadGratitudeList().find(g => g.date === todayKey()) || null;
+}
+function saveGratitudeEntry() {
+  const inputs = document.querySelectorAll('.gratitude-input');
+  const items  = [...inputs].map(inp => inp.value.trim());
+  if (!items.some(Boolean)) { showToast('Add at least one thing you\'re grateful for'); return; }
+  const list  = loadGratitudeList();
+  const today = todayKey();
+  const idx   = list.findIndex(g => g.date === today);
+  const entry = { date: today, items, ts: new Date().toISOString() };
+  if (idx > -1) list[idx] = entry;
+  else list.unshift(entry);
+  if (list.length > 365) list.length = 365;
+  saveGratitudeList(list);
+  renderGratitude();
+  showToast('Gratitude saved ✦');
+}
+function editGratitude() {
+  const inputs = document.querySelectorAll('.gratitude-input');
+  inputs.forEach(inp => { inp.disabled = false; });
+  if (inputs[0]) inputs[0].focus();
+  const saveRow = document.querySelector('.gratitude-save-row');
+  if (saveRow) saveRow.innerHTML = `<button class="btn-soft" onclick="saveGratitudeEntry()">Save gratitude</button>`;
+}
+const GRATITUDE_PLACEHOLDERS = ['I\'m grateful for…', 'Something I appreciate…', 'A small joy today…'];
+function renderGratitude() {
+  const fields   = document.getElementById('gratitudeFields');
+  if (!fields) return;
+  const existing = getTodayGratitude();
+  const saved    = !!existing;
+  const items    = existing ? existing.items : ['', '', ''];
+  fields.innerHTML = [0,1,2].map(i => `
+<div class="gratitude-row">
+  <span class="gratitude-num">${i+1}</span>
+  <input type="text" class="gratitude-input" value="${escHtml(items[i]||'')}"
+    placeholder="${GRATITUDE_PLACEHOLDERS[i]}" ${saved ? 'disabled' : ''} maxlength="200" />
+</div>`).join('') + `<div class="gratitude-save-row">${
+  saved
+    ? `<span class="gratitude-saved-label">saved today</span><button class="btn-soft" style="padding:7px 14px;font-size:0.56rem" onclick="editGratitude()">edit</button>`
+    : `<button class="btn-soft" onclick="saveGratitudeEntry()">Save gratitude</button>`
+}</div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// MOOD HISTORY CHART
+// ═══════════════════════════════════════════════════
+const MOOD_CHART_COLORS = {
+  peaceful: '#7a9e7e', grateful: '#b9a9cc', heavy: '#8a7a6a', uncertain: '#9a9ab2', alive: '#c4a24a',
+};
+function renderMoodChart() {
+  const canvas = document.getElementById('moodHistoryCanvas');
+  if (!canvas) return;
+  const W   = canvas.offsetWidth || 660;
+  const H   = 80;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const entries = loadEntries();
+  const moodByDay = {};
+  entries.forEach(e => { if (e.dateKey && e.mood && !moodByDay[e.dateKey]) moodByDay[e.dateKey] = e.mood; });
+
+  const now  = new Date();
+  const days = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(now); d.setDate(d.getDate() - (29 - i));
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return { key, mood: moodByDay[key] || null, isToday: i === 29, month: d.getMonth() };
+  });
+
+  const pad = 14, cy = (H - 16) / 2, spacing = (W - pad * 2) / 29;
+
+  // Baseline
+  ctx.beginPath(); ctx.moveTo(pad, cy); ctx.lineTo(W - pad, cy);
+  ctx.strokeStyle = 'rgba(240,232,213,0.06)'; ctx.lineWidth = 1; ctx.stroke();
+
+  days.forEach((day, i) => {
+    const x = pad + i * spacing;
+    if (day.mood) {
+      const col = MOOD_CHART_COLORS[day.mood] || '#888';
+      const g   = ctx.createRadialGradient(x, cy, 0, x, cy, 16);
+      g.addColorStop(0, col + '44'); g.addColorStop(1, 'transparent');
+      ctx.beginPath(); ctx.arc(x, cy, 16, 0, Math.PI * 2);
+      ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); ctx.arc(x, cy, day.isToday ? 7 : 5, 0, Math.PI * 2);
+      ctx.fillStyle = col; ctx.fill();
+      if (day.isToday) {
+        ctx.beginPath(); ctx.arc(x, cy, 11, 0, Math.PI * 2);
+        ctx.strokeStyle = col + '77'; ctx.lineWidth = 1.5; ctx.stroke();
+      }
+    } else {
+      ctx.beginPath(); ctx.arc(x, cy, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(240,232,213,0.09)'; ctx.fill();
+    }
+  });
+
+  // Month labels
+  ctx.font = '300 9px "DM Mono",monospace';
+  ctx.fillStyle = 'rgba(240,232,213,0.22)';
+  ctx.textAlign = 'center';
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let lastM = -1;
+  days.forEach((day, i) => {
+    const x = pad + i * spacing;
+    if (day.month !== lastM) { ctx.fillText(MONTHS[day.month], x, H - 2); lastM = day.month; }
+  });
+
+  // Legend
+  const legend = document.getElementById('moodChartLegend');
+  if (legend) {
+    legend.innerHTML = Object.entries(MOOD_CHART_COLORS).map(([m, c]) =>
+      `<span class="legend-item"><span class="legend-dot" style="background:${c}"></span>${m}</span>`
+    ).join('');
+  }
+}
+
+// ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
 renderDate();
 renderHistory();
+renderDump();
+renderIntentions();
+renderGratitude();
+renderStreak();
 
 // Capture skin accent AFTER a tick (so skin CSS vars are computed)
 setTimeout(captureSkinAccent, 0);
+// Mood chart needs layout to be complete for correct canvas width
+setTimeout(renderMoodChart, 50);
+window.addEventListener('resize', () => renderMoodChart());
 </script>
 
 <script src="ranks.js"></script>
