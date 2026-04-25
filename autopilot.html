@@ -378,6 +378,19 @@
     .btn-copy:hover { border-color: var(--border-hover); color: var(--cream); }
     .btn-copy.copied { color: var(--sage); border-color: rgba(122,158,126,0.4); }
 
+    .post-type-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--lavender);
+      opacity: 0.65;
+      margin-bottom: 14px;
+      padding: 3px 10px;
+      border: 1px solid rgba(185,169,204,0.18);
+      border-radius: 99px;
+    }
+
     .divider {
       border: none;
       border-top: 1px solid var(--border);
@@ -467,6 +480,56 @@
   // ── State ──────────────────────────────────────────────────
   let queue = JSON.parse(localStorage.getItem('beings_queue') || '[]');
   let drafts = [];
+  let draftTypes = [];
+
+  // ── Post type definitions ──────────────────────────────────
+  const POST_TYPES = [
+    {
+      id: 'personal-truth',
+      label: 'Personal Truth',
+      instruction: 'A short, direct reflection rooted in Beings philosophy — the kind of thing you say out loud when you finally stop pretending. Feels like someone just named what you\'ve been carrying. Under 280 characters.',
+    },
+    {
+      id: 'real-world-tie-in',
+      label: 'Real World Tie-in',
+      instruction: 'Connect a recognizable cultural moment, shared human experience, or something from everyday Black life (music, family dynamics, church, hustle culture, social media pressure, etc.) to the idea of already being whole. Not news — something timeless and universally felt. Under 280 characters.',
+    },
+    {
+      id: 'question',
+      label: 'Question Post',
+      instruction: 'Ask the audience one question that makes them stop and actually think about themselves. Not rhetorical fluff. A real question that hits different. Short. Direct. No explanation needed. Under 280 characters.',
+    },
+    {
+      id: 'contrast',
+      label: 'Contrast Post',
+      instruction: 'A "most people do X, but what if you tried Y" format. The X is something common and exhausting — overworking, seeking validation, performing okayness. The Y is the quieter, truer alternative. AAVE welcome. Under 280 characters.',
+    },
+    {
+      id: 'story-snippet',
+      label: 'Story Snippet',
+      instruction: 'One quick, grounded moment from real life — a conversation, a realization in the car, something that happened at the kitchen table. One or two sentences of scene, then the lesson it left. Personal, specific, true-feeling. Under 280 characters.',
+    },
+    {
+      id: 'bold-statement',
+      label: 'Bold Statement',
+      instruction: 'One unexpected or mildly controversial truth stated plainly with no softening, no explanation, no call to action. The kind of thing that makes someone stop scrolling. Confident. No cap. Under 280 characters.',
+    },
+  ];
+
+  // ── Pick 3 types with no consecutive repeats ───────────────
+  function pickTypes() {
+    const lastId = localStorage.getItem('beings_last_post_type') || '';
+    const picked = [];
+    const ids = POST_TYPES.map(t => t.id);
+
+    while (picked.length < 3) {
+      const prev = picked.length ? picked[picked.length - 1].id : lastId;
+      const pool = ids.filter(id => id !== prev);
+      const chosen = pool[Math.floor(Math.random() * pool.length)];
+      picked.push(POST_TYPES.find(t => t.id === chosen));
+    }
+    return picked;
+  }
 
   // ── Init ──────────────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', () => {
@@ -494,23 +557,30 @@
   }
 
   // ── Anthropic API ─────────────────────────────────────────
-  async function callClaude(apiKey) {
+  async function callClaude(apiKey, types) {
+    const typeInstructions = types.map((t, i) =>
+      `Post ${i + 1} — ${t.label}: ${t.instruction}`
+    ).join('\n\n');
+
     const prompt = `You are the voice of Beings — a daily reflection app rooted in one belief: people are already whole. Nothing is missing.
 
 Your voice is real. Warm. Culturally grounded. You talk like a person, not a brand. You grew up around real people who carried real things and still showed up. You know what it means to be tired but not broken. You use natural, conversational language — and when it fits, you speak in AAVE (African American Vernacular English). Not as a performance. As a mother tongue. The way people actually talk to the people they love.
 
-Write exactly 3 original X (Twitter) posts for the @BeingsDaily account. Draw from themes of emotional healing, wholeness, self-compassion, presence, rest, and heart-centered living. Each post should feel like something a real person texted their friend at 11pm — true, direct, no fluff.
+Write exactly 3 original X (Twitter) posts for the @BeingsDaily account. Each post has a specific type — follow the instructions for each type exactly.
 
-Rules:
+Voice rules that apply to all posts:
 - Each post must be under 280 characters (count carefully)
 - Rooted in the belief that the person reading is already whole
 - No hashtags. No exclamation marks. Emojis only if they feel natural, not decorative
 - Not corporate. Not a life coach. Not a wellness brand. A real person who's been through it
-- Use AAVE naturally where it fits — "ain't", "finna", "that's giving", "on sight", "no cap", "we don't do that here", "you already know", "real ones", "stay on it", etc. Don't force it on every post — use it when it sounds right
-- Vary the style: one that hits like a gut check, one that feels like being held, one that sounds like something your wisest homie would say
+- Use AAVE naturally where it fits — "ain't", "finna", "that's giving", "on sight", "no cap", "we don't do that here", "you already know", "real ones", "stay on it", etc. Don't force it on every post — only when it sounds right
 - No "you should" or "try to" — speak from a place of already knowing
 
-Return ONLY a JSON array with exactly 3 strings, no other text. Example format:
+Post type instructions:
+
+${typeInstructions}
+
+Return ONLY a JSON array with exactly 3 strings in the same order as the posts above. No other text. Example format:
 ["post one text here","post two text here","post three text here"]`;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -523,7 +593,7 @@ Return ONLY a JSON array with exactly 3 strings, no other text. Example format:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 512,
+        max_tokens: 600,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -536,7 +606,6 @@ Return ONLY a JSON array with exactly 3 strings, no other text. Example format:
     const data = await res.json();
     const text = data.content?.[0]?.text?.trim() || '';
 
-    // Parse JSON array from response
     const match = text.match(/\[[\s\S]*\]/);
     if (!match) throw new Error('Could not parse posts from response');
     const posts = JSON.parse(match[0]);
@@ -552,12 +621,17 @@ Return ONLY a JSON array with exactly 3 strings, no other text. Example format:
       return;
     }
 
+    const types = pickTypes();
+    draftTypes = types;
+
     setLoading(true, 'Asking Claude…');
 
     try {
-      const posts = await callClaude(apiKey);
+      const posts = await callClaude(apiKey, types);
+      // Save the last type used so next batch avoids repeating it
+      localStorage.setItem('beings_last_post_type', types[types.length - 1].id);
       setLoading(false);
-      renderDrafts(posts);
+      renderDrafts(posts, types);
     } catch (err) {
       setLoading(false);
       setStatus('');
@@ -567,7 +641,7 @@ Return ONLY a JSON array with exactly 3 strings, no other text. Example format:
   }
 
   // ── Render draft cards ────────────────────────────────────
-  function renderDrafts(posts) {
+  function renderDrafts(posts, types) {
     drafts = posts;
     const section = document.getElementById('drafts-section');
     const grid = document.getElementById('cards-grid');
@@ -581,8 +655,10 @@ Return ONLY a JSON array with exactly 3 strings, no other text. Example format:
 
       const charLen = text.length;
       const overLimit = charLen > 280;
+      const typeLabel = types && types[i] ? types[i].label : '';
 
       card.innerHTML = `
+        ${typeLabel ? `<div class="post-type-badge">${escHtml(typeLabel)}</div>` : ''}
         <div class="post-text">${escHtml(text)}</div>
         <div class="char-count ${overLimit ? 'over' : ''}">${charLen} / 280 characters</div>
         <div class="card-actions">
