@@ -1404,13 +1404,13 @@
               <div class="book-cover-rule"></div>
               <div class="book-cover-author">by Tony Moore</div>
             </div>
-            <div class="book-cover-bottom">Beings Press · Coming Soon</div>
+            <div class="book-cover-bottom">Beings Press · Available Now</div>
           </div>
         </div>
 
         <!-- Book info -->
         <div class="reveal rd2">
-          <span class="book-eyebrow">Coming Soon</span>
+          <span class="book-eyebrow">Available Now</span>
           <h2 class="book-heading">Already Enough</h2>
           <p class="book-by">by Tony Moore</p>
           <p class="book-desc">
@@ -1427,17 +1427,7 @@
             <li class="ch-item"><span class="ch-num">04</span><span class="ch-name">The Practice of Coming Home</span></li>
           </ul>
 
-          <span class="book-form-label">Get notified when it drops</span>
-          <div class="inline-form" id="book-form-wrap">
-            <form id="book-form" name="beings-book-interest" method="POST"
-                  data-netlify="true" netlify-honeypot="bot-field" style="display:contents">
-              <input type="hidden" name="form-name" value="beings-book-interest" />
-              <p style="display:none"><input name="bot-field" /></p>
-              <input type="email" name="email" placeholder="your@email.com" autocomplete="email" required />
-              <button type="submit">Notify me</button>
-            </form>
-          </div>
-          <p class="book-thank" id="book-thank">You'll be first to know. 📖</p>
+          <a href="https://www.amazon.com/dp/B0GX36YC4J" target="_blank" rel="noopener noreferrer" class="btn-primary" style="display:inline-block;margin-bottom:20px;">Buy on Amazon →</a>
         </div>
 
       </div>
@@ -1533,12 +1523,6 @@
       document.getElementById('hero-thank').style.display = 'block';
     });
 
-    // Book form
-    const bookForm = document.getElementById('book-form');
-    if (bookForm) netlifySubmit(bookForm, () => {
-      document.getElementById('book-form-wrap').style.display = 'none';
-      document.getElementById('book-thank').style.display = 'block';
-    });
 
     // Join form
     const joinForm = document.getElementById('join-form');
