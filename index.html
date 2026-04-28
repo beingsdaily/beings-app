@@ -1430,6 +1430,181 @@
       flex-shrink: 0;
     }
 
+    .schedule-day-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 14px;
+    }
+
+    .schedule-day-nav button {
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, color 0.2s;
+      padding: 0;
+    }
+
+    .schedule-day-nav button:hover { border-color: var(--accent); color: var(--accent); }
+
+    .schedule-day-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      min-width: 72px;
+      text-align: center;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       POMODORO TIMER
+    ══════════════════════════════════════════════════════ */
+    .pomodoro-section {
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s 0.22s ease both;
+    }
+
+    .pomodoro-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 24px 24px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    @media (max-width: 540px) {
+      .pomodoro-card { flex-direction: column; gap: 20px; }
+    }
+
+    .pom-clock {
+      flex-shrink: 0;
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+
+    .pom-ring-bg {
+      fill: none;
+      stroke: var(--border-md);
+      stroke-width: 3;
+    }
+
+    .pom-ring-fill {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 251.2;
+      stroke-dashoffset: 0;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 1s linear, stroke 0.4s;
+    }
+
+    .pom-ring-fill.break-phase { stroke: var(--accent2); }
+
+    .pom-time-display {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .pom-digits {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .pom-phase-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.46rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.75;
+    }
+
+    .pom-phase-label.break-phase { color: var(--accent2); }
+
+    .pom-controls {
+      flex: 1;
+    }
+
+    .pom-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .pom-subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--text-faint);
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+    }
+
+    .pom-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-pom-primary {
+      background: var(--accent);
+      color: var(--cta-text);
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 9px 20px;
+      transition: opacity 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-pom-primary:hover { opacity: 0.88; box-shadow: 0 4px 14px var(--accent-glow); }
+
+    .btn-pom-secondary {
+      background: var(--bg-card2, var(--bg));
+      border: 1px solid var(--border-md);
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      padding: 9px 16px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-pom-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .pom-session-count {
+      margin-top: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      color: var(--text-faint);
+      letter-spacing: 0.08em;
+    }
+
     /* ══════════════════════════════════════════════════════
        ANIMATIONS
     ══════════════════════════════════════════════════════ */
@@ -1541,9 +1716,41 @@
   <section class="schedule-section">
     <div class="schedule-header">
       <div class="section-tag" style="margin-bottom:0;flex:1;">Daily Schedule</div>
+      <div class="schedule-day-nav">
+        <button onclick="scheduleNavDay(-1)" aria-label="Previous day">‹</button>
+        <span class="schedule-day-label" id="schedule-day-label">Today</span>
+        <button onclick="scheduleNavDay(1)" aria-label="Next day">›</button>
+      </div>
       <span class="schedule-progress" id="schedule-progress"></span>
     </div>
     <div class="checklist" id="schedule-checklist"></div>
+  </section>
+
+  <!-- ── Pomodoro Timer ── -->
+  <section class="pomodoro-section">
+    <div class="section-tag">Focus Timer</div>
+    <div class="pomodoro-card">
+      <div class="pom-clock" aria-label="Pomodoro timer">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="pom-ring-bg" cx="50" cy="50" r="40"/>
+          <circle class="pom-ring-fill" id="pom-ring" cx="50" cy="50" r="40" style="stroke-dasharray:251.2;stroke-dashoffset:0"/>
+        </svg>
+        <div class="pom-time-display">
+          <span class="pom-digits" id="pom-digits">25:00</span>
+          <span class="pom-phase-label" id="pom-phase-label">work</span>
+        </div>
+      </div>
+      <div class="pom-controls">
+        <div class="pom-title">Pomodoro</div>
+        <div class="pom-subtitle">25 min work · 5 min break</div>
+        <div class="pom-buttons">
+          <button class="btn-pom-primary" id="pom-start-btn" onclick="pomToggle()">Start</button>
+          <button class="btn-pom-secondary" onclick="pomReset()">Reset</button>
+          <button class="btn-pom-secondary" onclick="pomSkipPhase()">Skip</button>
+        </div>
+        <div class="pom-session-count" id="pom-session-count"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ── Schedule + Apps ── -->
@@ -2336,88 +2543,108 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
 
   // ── Daily Schedule Checklist ──────────────────────────────────
   const SCHEDULE_KEY = 'beings_schedule_v1';
+  let scheduleDayOffset = 0;
 
-  // Base schedule — always present
   const BASE_SCHEDULE = [
-    { id: 's0600', time: '6:00',  label: 'Wake up' },
-    { id: 's0615', time: '6:15',  label: 'Meditate (10 min)' },
-    { id: 's0625', time: '6:25',  label: 'Stretch (10 min)' },
-    { id: 's0635', time: '6:35',  label: 'Shower and get ready' },
-    { id: 's0655', time: '6:55',  label: 'Get girls up and through their routine' },
-    { id: 's0730', time: '7:30',  label: 'Breakfast together' },
-    { id: 's0815', time: '8:15',  label: 'Walk to school' },
-    { id: 's0830', time: '8:30',  label: 'Work' },
-    { id: 's1600', time: '4:00',  label: 'Decompress when home' },
-    { id: 's1700', time: '5:00',  label: 'Cook dinner' },
-    { id: 's1930', time: '7:30',  label: 'Family wind down' },
-    { id: 's2000', time: '8:00',  label: 'DataAnnotation block (90 min)' },
-    { id: 's2130', time: '9:30',  label: 'Beings work — X post, book, journal' },
-    { id: 's2200', time: '10:00', label: 'Wind down' },
+    { id: 's0600', time: '6:00 AM',  label: 'Wake up' },
+    { id: 's0615', time: '6:15 AM',  label: 'Meditate (10 min)' },
+    { id: 's0625', time: '6:25 AM',  label: 'Stretch (10 min)' },
+    { id: 's0635', time: '6:35 AM',  label: 'Shower and get ready' },
+    { id: 's0655', time: '6:55 AM',  label: 'Get girls up and through their routine' },
+    { id: 's0730', time: '7:30 AM',  label: 'Breakfast together' },
+    { id: 's0815', time: '8:15 AM',  label: 'Walk to school' },
+    { id: 's0830', time: '8:30 AM',  label: 'Work' },
+    { id: 's1600', time: '4:00 PM',  label: 'Decompress when home' },
+    { id: 's1700', time: '5:00 PM',  label: 'Cook dinner' },
+    { id: 's1930', time: '7:30 PM',  label: 'Family wind down' },
+    { id: 's2000', time: '8:00 PM',  label: 'DataAnnotation block (90 min)' },
+    { id: 's2130', time: '9:30 PM',  label: 'Beings work — X post, book, journal' },
+    { id: 's2200', time: '10:00 PM', label: 'Wind down' },
   ];
 
-  // Day-specific additions (0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat)
+  // Day-specific extras (0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat)
   const DAY_EXTRAS = {
-    1: [{ id: 'sx_mon_gym',    time: '4:20', label: 'Gymnastics',           special: true }],
-    2: [{ id: 'sx_tue_soccer', time: '6:00 PM', label: 'Soccer',            special: true }],
-    4: [{ id: 'sx_thu_soccer', time: '6:00 PM', label: 'Soccer',            special: true }],
-    6: [{ id: 'sx_sat_soccer', time: 'Morning', label: 'Check for soccer game', special: true }],
+    1: [{ id: 'sx_mon_gym',    time: '4:20 PM',  label: 'Gymnastics',            special: true }],
+    2: [{ id: 'sx_tue_soccer', time: '6:00 PM',  label: 'Soccer',                special: true }],
+    4: [{ id: 'sx_thu_soccer', time: '6:00 PM',  label: 'Soccer',                special: true }],
+    6: [{ id: 'sx_sat_soccer', time: 'Morning',  label: 'Check for soccer game', special: true }],
   };
 
-  // Sort key: convert display time to comparable string
-  function scheduleSort(item) {
-    const t = item.time;
-    if (t === 'Morning') return '07:00';
-    const pm = t.includes('PM');
-    const base = t.replace(' PM','').replace(' AM','');
-    const [h, m] = base.split(':').map(Number);
-    let h24 = h;
-    if (pm && h !== 12) h24 = h + 12;
-    if (!pm && h === 12) h24 = 0;
-    // Items without AM/PM: treat < 12 as next-day afternoon (they're PM times like 4:00, 5:00)
-    if (!pm && !t.includes('AM') && h < 12 && h >= 4) h24 = h + 12;
-    return String(h24).padStart(2,'0') + ':' + String(m || 0).padStart(2,'0');
+  const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  function offsetDate(offset) {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return d;
   }
 
-  function buildTodaySchedule() {
-    const dow = new Date().getDay();
+  function offsetDateKey(offset) {
+    const d = offsetDate(offset);
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+
+  function scheduleSortKey(time) {
+    if (time === 'Morning') return '0700';
+    const pm   = time.includes('PM');
+    const am   = time.includes('AM');
+    const base = time.replace(/ [AP]M/, '');
+    const [h, m = 0] = base.split(':').map(Number);
+    let h24 = h;
+    if (pm && h !== 12) h24 = h + 12;
+    if (am && h === 12) h24 = 0;
+    return String(h24).padStart(2,'0') + String(m).padStart(2,'0');
+  }
+
+  function buildScheduleForOffset(offset) {
+    const dow    = offsetDate(offset).getDay();
     const extras = DAY_EXTRAS[dow] || [];
     return [...BASE_SCHEDULE, ...extras].sort((a, b) =>
-      scheduleSort(a).localeCompare(scheduleSort(b))
+      scheduleSortKey(a.time).localeCompare(scheduleSortKey(b.time))
     );
   }
 
-  function loadScheduleState() {
+  function loadScheduleState(offset) {
+    const key = offsetDateKey(offset);
     try {
-      const raw = JSON.parse(localStorage.getItem(SCHEDULE_KEY));
-      if (raw && raw.date === todayKey()) return raw.checked || {};
-    } catch {}
-    return {};
+      const raw = JSON.parse(localStorage.getItem(SCHEDULE_KEY + '_' + key));
+      return raw || {};
+    } catch { return {}; }
   }
 
-  function saveScheduleState(checked) {
-    localStorage.setItem(SCHEDULE_KEY, JSON.stringify({ date: todayKey(), checked }));
+  function saveScheduleState(offset, checked) {
+    const key = offsetDateKey(offset);
+    localStorage.setItem(SCHEDULE_KEY + '_' + key, JSON.stringify(checked));
   }
 
   function toggleScheduleItem(id) {
-    const checked = loadScheduleState();
+    const checked = loadScheduleState(scheduleDayOffset);
     checked[id] = !checked[id];
-    saveScheduleState(checked);
+    saveScheduleState(scheduleDayOffset, checked);
+    renderSchedule();
+  }
+
+  function scheduleNavDay(delta) {
+    scheduleDayOffset += delta;
     renderSchedule();
   }
 
   function renderSchedule() {
-    const items   = buildTodaySchedule();
-    const checked = loadScheduleState();
+    const offset  = scheduleDayOffset;
+    const items   = buildScheduleForOffset(offset);
+    const checked = loadScheduleState(offset);
     const list    = document.getElementById('schedule-checklist');
     const prog    = document.getElementById('schedule-progress');
+    const dayLbl  = document.getElementById('schedule-day-label');
     if (!list) return;
 
+    // Day label
+    const dow = offsetDate(offset).getDay();
+    dayLbl.textContent = offset === 0 ? 'Today' : offset === 1 ? 'Tomorrow' : offset === -1 ? 'Yesterday' : DAY_NAMES[dow];
+
+    // Progress
     const doneCount = items.filter(i => checked[i.id]).length;
-    const allDone   = doneCount === items.length;
-    prog.textContent = doneCount === items.length
-      ? 'all done ✦'
-      : `${doneCount} / ${items.length}`;
-    prog.classList.toggle('all-done', allDone);
+    prog.textContent = doneCount === items.length ? 'all done ✦' : `${doneCount} / ${items.length}`;
+    prog.classList.toggle('all-done', doneCount === items.length);
 
     list.innerHTML = items.map(item => {
       const done = !!checked[item.id];
@@ -2437,15 +2664,94 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
         </div>`;
     }).join('');
 
-    // Keyboard support
     list.querySelectorAll('.checklist-item').forEach(el => {
       el.addEventListener('keydown', e => {
-        if (e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault();
-          el.click();
-        }
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); el.click(); }
       });
     });
+  }
+
+  // ── Pomodoro Timer ────────────────────────────────────────────
+  const POM_WORK_SECS  = 25 * 60;
+  const POM_BREAK_SECS = 5  * 60;
+  const CIRCUMFERENCE  = 2 * Math.PI * 40; // r=40
+
+  let pomPhase      = 'work';   // 'work' | 'break'
+  let pomSecsLeft   = POM_WORK_SECS;
+  let pomRunning    = false;
+  let pomInterval   = null;
+  let pomSessions   = 0;        // completed work sessions
+
+  function pomFmt(secs) {
+    return `${String(Math.floor(secs / 60)).padStart(2,'0')}:${String(secs % 60).padStart(2,'0')}`;
+  }
+
+  function pomUpdateUI() {
+    const total    = pomPhase === 'work' ? POM_WORK_SECS : POM_BREAK_SECS;
+    const fraction = pomSecsLeft / total;
+    const offset   = CIRCUMFERENCE * (1 - fraction);
+
+    document.getElementById('pom-digits').textContent      = pomFmt(pomSecsLeft);
+    document.getElementById('pom-ring').style.strokeDashoffset = offset;
+    document.getElementById('pom-start-btn').textContent   = pomRunning ? 'Pause' : (pomSecsLeft < total ? 'Resume' : 'Start');
+
+    const phaseEl = document.getElementById('pom-phase-label');
+    phaseEl.textContent = pomPhase === 'work' ? 'work' : 'break';
+    phaseEl.classList.toggle('break-phase', pomPhase === 'break');
+    document.getElementById('pom-ring').classList.toggle('break-phase', pomPhase === 'break');
+
+    const sc = document.getElementById('pom-session-count');
+    sc.textContent = pomSessions > 0 ? `${pomSessions} session${pomSessions === 1 ? '' : 's'} completed today` : '';
+  }
+
+  function pomTick() {
+    pomSecsLeft--;
+    if (pomSecsLeft <= 0) {
+      // Phase complete
+      if (pomPhase === 'work') {
+        pomSessions++;
+        pomPhase    = 'break';
+        pomSecsLeft = POM_BREAK_SECS;
+        toast('Work session done — take a 5 min break 🌿');
+      } else {
+        pomPhase    = 'work';
+        pomSecsLeft = POM_WORK_SECS;
+        toast('Break over — back to focus 🔥');
+      }
+    }
+    pomUpdateUI();
+  }
+
+  function pomToggle() {
+    if (pomRunning) {
+      clearInterval(pomInterval);
+      pomRunning = false;
+    } else {
+      pomInterval = setInterval(pomTick, 1000);
+      pomRunning  = true;
+    }
+    pomUpdateUI();
+  }
+
+  function pomReset() {
+    clearInterval(pomInterval);
+    pomRunning  = false;
+    pomPhase    = 'work';
+    pomSecsLeft = POM_WORK_SECS;
+    pomUpdateUI();
+  }
+
+  function pomSkipPhase() {
+    clearInterval(pomInterval);
+    pomRunning = false;
+    if (pomPhase === 'work') {
+      pomPhase    = 'break';
+      pomSecsLeft = POM_BREAK_SECS;
+    } else {
+      pomPhase    = 'work';
+      pomSecsLeft = POM_WORK_SECS;
+    }
+    pomUpdateUI();
   }
 
   // ── Init ──────────────────────────────────────────────────────
@@ -2457,6 +2763,7 @@ Speak in 2–4 sentences. Be human and warm, not poetic for its own sake. Let th
   renderPriority();
   renderHabits();
   renderSchedule();
+  pomUpdateUI();
   renderTimeline();
   renderDump();
   initReflection();
