@@ -390,18 +390,19 @@
 
   // ── Reddit data gathering ────────────────────────────────────────────────
   async function redditFetch(url) {
-    const proxied = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
-    const r = await fetch(proxied);
+    const r = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+    });
     if (!r.ok) throw new Error(`Reddit returned ${r.status} — try a different topic.`);
     return r.json();
   }
 
   async function gatherData(topic) {
-    // 1. Search top posts
+    // 1. Search posts via public JSON API
     setStatus('Searching Reddit for relevant posts…', true);
     const searchUrl =
       `https://www.reddit.com/search.json?q=${encodeURIComponent(topic)}`
-      + `&sort=top&t=month&limit=25&raw_json=1`;
+      + `&sort=hot&limit=10&raw_json=1`;
     const searchData = await redditFetch(searchUrl);
     const posts = searchData.data.children.map(c => c.data);
 
@@ -466,7 +467,7 @@
           comments: [],
         });
       }
-      await new Promise(r => setTimeout(r, 120)); // gentle rate limiting
+      await new Promise(r => setTimeout(r, 120));
     }
 
     return results;
