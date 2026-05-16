@@ -621,6 +621,78 @@ canvas#perfChart {
 .vol-value.below   { color: var(--red); }
 .vol-value.neutral { color: var(--muted); }
 
+/* ── FEAT Analysis ── */
+.feat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.feat-ms-badge {
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid;
+  border-radius: 2px;
+}
+
+.feat-ms-badge.bullish { border-color: var(--sage); color: var(--sage); }
+.feat-ms-badge.bearish { border-color: var(--red);  color: var(--red); }
+.feat-ms-badge.neutral { border-color: var(--border); color: var(--muted); }
+
+.bos-alert {
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.45rem;
+  background: rgba(196,162,74,0.14);
+  color: #c4a24a;
+  border-radius: 2px;
+  animation: pulse 1.8s infinite;
+}
+
+.poi-section {
+  margin-bottom: 0.75rem;
+}
+
+.poi-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.28rem;
+}
+
+.poi-levels { display: flex; flex-direction: column; gap: 0.12rem; }
+
+.poi-level {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+}
+
+.poi-level-name  { color: var(--muted); }
+.poi-level-price { color: var(--cream); }
+.poi-level-price.active { color: var(--sage); font-weight: 400; }
+
+.feat-trade-tag {
+  display: inline-block;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.38rem;
+  background: rgba(196,162,74,0.14);
+  color: #c4a24a;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+
 /* ── Flash animation for new signals ── */
 @keyframes cardFlash {
   0%  { background: rgba(122,158,126,0.12); }
@@ -771,6 +843,10 @@ const LS_KEY         = 'beings_crypto_bot_v3';
 const LS_QUEUE       = 'beings_crypto_queue';
 const CG             = 'https://api.coingecko.com/api/v3';
 
+// FEAT strategy constants
+const FEAT_SWING_PERIOD = 5;   // bars on each side to confirm a swing point
+const FEAT_MIN_HISTORY  = 30;  // minimum price history required for analysis
+
 // ═══════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════
@@ -793,6 +869,7 @@ function defaultState() {
     lastBuyTime:     {},   // { BTC: timestamp }
     volumeHistory:   {},   // { BTC: [number, ...] }
     signals:         {},   // { BTC: { rsi, ema9, ema21, ema9Above, macd, macdSignal, macdAbove, lastAction } }
+    featSignals:     {},   // { BTC: { structure, bos, orderBlock, poi } }
     trades:          [],
     portfolioHistory:[],
     totalRealizedPnl: 0,
@@ -893,6 +970,168 @@ function detectBreakout(sym) {
   const prevPrice  = prior[prior.length - 1];
   const curPrice   = prices[prices.length - 1];
   return prevPrice <= resistance && curPrice > resistance && isVolumeAboveAvg(sym);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FEAT ANALYZER — market structure, BOS, order blocks, POI
+// ═══════════════════════════════════════════════════════════════
+
+function findSwingHighs(prices, period) {
+  const highs = [];
+  for (let i = period; i < prices.length - period; i++) {
+    let isHigh = true;
+    for (let j = i - period; j <= i + period; j++) {
+      if (j !== i && prices[j] >= prices[i]) { isHigh = false; break; }
+    }
+    if (isHigh) highs.push({ idx: i, price: prices[i] });
+  }
+  return highs;
+}
+
+function findSwingLows(prices, period) {
+  const lows = [];
+  for (let i = period; i < prices.length - period; i++) {
+    let isLow = true;
+    for (let j = i - period; j <= i + period; j++) {
+      if (j !== i && prices[j] <= prices[i]) { isLow = false; break; }
+    }
+    if (isLow) lows.push({ idx: i, price: prices[i] });
+  }
+  return lows;
+}
+
+function detectMarketStructureFEAT(prices) {
+  // Use last 80 bars for structure detection
+  const window = prices.slice(-80);
+  const highs  = findSwingHighs(window, FEAT_SWING_PERIOD);
+  const lows   = findSwingLows(window,  FEAT_SWING_PERIOD);
+  if (highs.length < 2 || lows.length < 2) return 'NEUTRAL';
+
+  const [h1, h2] = highs.slice(-2);  // two most recent swing highs
+  const [l1, l2] = lows.slice(-2);   // two most recent swing lows
+
+  const hhhl = h2.price > h1.price && l2.price > l1.price; // higher highs + higher lows
+  const lhll = h2.price < h1.price && l2.price < l1.price; // lower highs + lower lows
+
+  if (hhhl) return 'BULLISH';
+  if (lhll) return 'BEARISH';
+  return 'NEUTRAL';
+}
+
+function detectBOSFEAT(prices) {
+  // Break of Structure: current close breaks a confirmed swing high (bullish BOS)
+  // or a confirmed swing low (bearish BOS)
+  if (prices.length < FEAT_MIN_HISTORY + 2) return null;
+  const window    = prices.slice(-80);
+  const highs     = findSwingHighs(window, FEAT_SWING_PERIOD);
+  const lows      = findSwingLows(window,  FEAT_SWING_PERIOD);
+  const curPrice  = prices[prices.length - 1];
+  const prevPrice = prices[prices.length - 2];
+
+  if (highs.length) {
+    const lastHigh = highs[highs.length - 1].price;
+    if (prevPrice <= lastHigh && curPrice > lastHigh)
+      return { direction: 'BULLISH', price: lastHigh, label: 'BOS ↑' };
+  }
+
+  if (lows.length) {
+    const lastLow = lows[lows.length - 1].price;
+    if (prevPrice >= lastLow && curPrice < lastLow)
+      return { direction: 'BEARISH', price: lastLow, label: 'BOS ↓' };
+  }
+
+  return null;
+}
+
+function detectOrderBlockFEAT(prices, structure) {
+  // Order block: last opposing price cluster before a reversal.
+  // Approximated from close-only data as the 3 closes surrounding the last swing.
+  if (prices.length < 20) return null;
+  const window = prices.slice(-50);
+
+  if (structure === 'BULLISH') {
+    // OB = the area around the last swing low (where buyers overwhelmed sellers)
+    const lows = findSwingLows(window, FEAT_SWING_PERIOD);
+    if (!lows.length) return null;
+    const lastLow = lows[lows.length - 1];
+    const start   = Math.max(0, lastLow.idx - 3);
+    const slice   = window.slice(start, lastLow.idx + 2);
+    if (!slice.length) return null;
+    return { low: Math.min(...slice), high: Math.max(...slice), type: 'bullish' };
+  }
+
+  if (structure === 'BEARISH') {
+    // OB = the area around the last swing high (where sellers overwhelmed buyers)
+    const highs = findSwingHighs(window, FEAT_SWING_PERIOD);
+    if (!highs.length) return null;
+    const lastHigh = highs[highs.length - 1];
+    const start    = Math.max(0, lastHigh.idx - 3);
+    const slice    = window.slice(start, lastHigh.idx + 2);
+    if (!slice.length) return null;
+    return { low: Math.min(...slice), high: Math.max(...slice), type: 'bearish' };
+  }
+
+  return null;
+}
+
+function calcPOILevels(prices, structure, orderBlock) {
+  // Three POI entry levels per structure context
+  if (prices.length < FEAT_MIN_HISTORY) return [];
+  const window   = prices.slice(-80);
+  const highs    = findSwingHighs(window, FEAT_SWING_PERIOD);
+  const lows     = findSwingLows(window,  FEAT_SWING_PERIOD);
+  if (!highs.length || !lows.length) return [];
+
+  const lastHigh = highs[highs.length - 1].price;
+  const lastLow  = lows[lows.length - 1].price;
+  const range    = lastHigh - lastLow;
+  const cur      = prices[prices.length - 1];
+
+  if (structure === 'BULLISH') {
+    const ob50 = orderBlock ? (orderBlock.high + orderBlock.low) / 2 : lastLow + range * 0.382;
+    return [
+      { name: 'OB / 0.5 Fib', price: lastLow + range * 0.5,  active: Math.abs(cur - (lastLow + range * 0.5))  / cur < 0.005 },
+      { name: 'Order Block',  price: ob50,                    active: Math.abs(cur - ob50) / cur < 0.004 },
+      { name: 'Swing Low',    price: lastLow,                 active: Math.abs(cur - lastLow) / cur < 0.003 },
+    ];
+  }
+
+  if (structure === 'BEARISH') {
+    const ob50 = orderBlock ? (orderBlock.high + orderBlock.low) / 2 : lastHigh - range * 0.382;
+    return [
+      { name: 'OB / 0.5 Fib', price: lastHigh - range * 0.5, active: Math.abs(cur - (lastHigh - range * 0.5)) / cur < 0.005 },
+      { name: 'Order Block',  price: ob50,                    active: Math.abs(cur - ob50) / cur < 0.004 },
+      { name: 'Swing High',   price: lastHigh,                active: Math.abs(cur - lastHigh) / cur < 0.003 },
+    ];
+  }
+
+  // Neutral — show key levels
+  return [
+    { name: 'Resistance', price: lastHigh,                    active: cur >= lastHigh * 0.997 },
+    { name: 'Mid Range',  price: (lastHigh + lastLow) / 2,    active: false },
+    { name: 'Support',    price: lastLow,                     active: cur <= lastLow * 1.003 },
+  ];
+}
+
+function runFEATAnalysis(sym) {
+  const prices = S.priceHistory[sym] || [];
+  if (!S.featSignals) S.featSignals = {};
+
+  if (prices.length < FEAT_MIN_HISTORY) {
+    S.featSignals[sym] = { structure: 'NEUTRAL', bos: null, orderBlock: null, poi: [] };
+    return;
+  }
+
+  const structure  = detectMarketStructureFEAT(prices);
+  const bos        = detectBOSFEAT(prices);
+  const orderBlock = detectOrderBlockFEAT(prices, structure);
+  const poi        = calcPOILevels(prices, structure, orderBlock);
+
+  // Preserve last BOS for a few ticks so it's visible on the card
+  const prev = S.featSignals[sym] || {};
+  const finalBos = bos || (prev.bosAge < 3 ? { ...prev.bos, bosAge: (prev.bosAge || 0) + 1 } : null);
+
+  S.featSignals[sym] = { structure, bos: finalBos, bosAge: bos ? 0 : (prev.bosAge || 0) + 1, orderBlock, poi };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1012,6 +1251,9 @@ function processSignals(sym, isInit) {
     lastAction: S.signals[sym].lastAction || 'HOLD',
   };
 
+  // Always run FEAT analysis so cards display even during init
+  runFEATAnalysis(sym);
+
   if (isInit || S.botPaused || !initialized) return;
 
   // MACD direction filter (current state, not crossover)
@@ -1040,10 +1282,17 @@ function processSignals(sym, isInit) {
 
   if (buys.length && sells.length) return; // conflicting — skip
 
-  if (buys.length) {
+  // FEAT agreement gate — both the existing signal AND FEAT must point the same way
+  const feat     = S.featSignals[sym] || {};
+  const featBull = feat.structure === 'BULLISH' || feat.bos?.direction === 'BULLISH';
+  const featBear = feat.structure === 'BEARISH' || feat.bos?.direction === 'BEARISH';
+
+  if (buys.length && featBull) {
     const cooldownOk = Date.now() - (S.lastBuyTime[sym] || 0) > BUY_COOLDOWN;
     if (cooldownOk) {
-      const t = executeBuy(sym, buys.join(' + '));
+      const bosTag = feat.bos ? ' + BOS↑' : '';
+      const label  = `FEAT+RSI/MACD: ${buys.join(' + ')} [${feat.structure}${bosTag}]`;
+      const t = executeBuy(sym, label);
       if (t) {
         S.lastBuyTime[sym] = Date.now();
         S.signals[sym].lastAction = 'BUY';
@@ -1052,8 +1301,10 @@ function processSignals(sym, isInit) {
     }
   }
 
-  if (sells.length) {
-    const t = executeSell(sym, sells.join(' + '));
+  if (sells.length && featBear) {
+    const bosTag = feat.bos ? ' + BOS↓' : '';
+    const label  = `FEAT+RSI/MACD: ${sells.join(' + ')} [${feat.structure}${bosTag}]`;
+    const t = executeSell(sym, label);
     if (t) {
       S.lastBuyTime[sym] = 0;
       S.signals[sym].lastAction = 'SELL';
@@ -1410,6 +1661,19 @@ function renderCoinCard(c) {
 
   const badgeClass = lastAct === 'BUY' ? 'buy' : lastAct === 'SELL' ? 'sell' : 'hold';
 
+  // FEAT display
+  const feat     = S.featSignals[sym] || {};
+  const msClass  = (feat.structure || 'NEUTRAL').toLowerCase();
+  const bosHtml  = feat.bos && feat.bosAge < 3
+    ? `<span class="bos-alert">${feat.bos.label}</span>` : '';
+  const poiRows  = (feat.poi || []).map(p => {
+    const cls = p.active ? ' active' : '';
+    return `<div class="poi-level"><span class="poi-level-name">${p.name}</span><span class="poi-level-price${cls}">${fmtPrice(p.price)}</span></div>`;
+  }).join('');
+  const poiHtml  = poiRows
+    ? `<div class="poi-section"><div class="poi-label">POI Levels</div><div class="poi-levels">${poiRows}</div></div>`
+    : '';
+
   return `
 <div class="coin-card" id="card-${sym}">
   <div class="coin-top">
@@ -1455,6 +1719,13 @@ function renderCoinCard(c) {
     <span class="vol-label">Volume</span>
     <span class="vol-value ${volClass}">${volText}</span>
   </div>
+
+  <div class="feat-row">
+    <span class="feat-ms-badge ${msClass}">${feat.structure || 'NEUTRAL'}</span>
+    ${bosHtml}
+  </div>
+
+  ${poiHtml}
 
   ${posHtml}
 
@@ -1518,13 +1789,15 @@ function renderTradeLog() {
   }
 
   log.innerHTML = S.trades.slice(0, 50).map(t => {
-    const pnlHtml = t.pnl != null
+    const pnlHtml  = t.pnl != null
       ? `<div class="trade-pnl ${t.pnl >= 0 ? 'pos' : 'neg'}">${fmtPnl(t.pnl)}</div>`
       : '';
+    const featTag  = t.signal?.startsWith('FEAT+')
+      ? '<span class="feat-trade-tag">FEAT+</span>' : '';
     return `
 <div class="trade-item">
   <div>
-    <div class="trade-badge ${t.action.toLowerCase()}">${t.action}</div>
+    <div class="trade-badge ${t.action.toLowerCase()}">${t.action}${featTag}</div>
     <div class="trade-time">${fmtDateShort(t.ts)}<br>${fmtTime(t.ts)}</div>
   </div>
   <div class="trade-details">
