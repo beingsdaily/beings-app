@@ -1,799 +1,1253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Beings Autopilot</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Beings Autopilot v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141417;
+    --surface-2: #1c1c21;
+    --surface-3: #242429;
+    --border: rgba(255,255,255,0.07);
+    --border-active: rgba(255,255,255,0.18);
+    --text: #f0ede8;
+    --text-muted: #7a7880;
+    --text-dim: #4a4852;
 
-    :root {
-      --bg:         #0e1410;
-      --bg-card:    #131a14;
-      --bg-input:   #1a231b;
-      --border:     rgba(122,158,126,0.15);
-      --border-hover: rgba(122,158,126,0.35);
-      --sage:       #7a9e7e;
-      --sage-dim:   #4e6b52;
-      --sage-bright:#8db492;
-      --lavender:   #b9a9cc;
-      --cream:      #e8e0d0;
-      --cream-dim:  #9a9288;
-      --red-dim:    #7a4a4a;
-      --red-soft:   rgba(180,80,80,0.12);
+    --heart: #e8785a;
+    --heart-glow: rgba(232,120,90,0.15);
+    --truth: #7eb8d4;
+    --truth-glow: rgba(126,184,212,0.15);
+    --ai: #a78bfa;
+    --ai-glow: rgba(167,139,250,0.15);
+    --build: #6db88a;
+    --build-glow: rgba(109,184,138,0.15);
+
+    --gold: #c9a96e;
+    --gold-dim: rgba(201,169,110,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,13,15,0.92);
+    backdrop-filter: blur(16px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,169,110,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--gold);
+  }
+
+  .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--build);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── MAIN LAYOUT ─────────────────────────────── */
+  main {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    flex: 1;
+    height: calc(100vh - 65px);
+    overflow: hidden;
+  }
+
+  /* ── LEFT PANEL ──────────────────────────────── */
+  .left-panel {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-3) transparent;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  /* ── PILLAR SELECTOR ──────────────────────────── */
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .pillar-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pillar-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    border-radius: 10px;
+  }
+
+  .pillar-btn[data-pillar="heart"]::before { background: var(--heart-glow); }
+  .pillar-btn[data-pillar="truth"]::before { background: var(--truth-glow); }
+  .pillar-btn[data-pillar="ai"]::before    { background: var(--ai-glow); }
+  .pillar-btn[data-pillar="build"]::before { background: var(--build-glow); }
+
+  .pillar-btn:hover::before,
+  .pillar-btn.active::before { opacity: 1; }
+
+  .pillar-btn.active { border-color: var(--border-active); }
+  .pillar-btn[data-pillar="heart"].active { border-color: var(--heart); }
+  .pillar-btn[data-pillar="truth"].active { border-color: var(--truth); }
+  .pillar-btn[data-pillar="ai"].active    { border-color: var(--ai); }
+  .pillar-btn[data-pillar="build"].active { border-color: var(--build); }
+
+  .pillar-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .pillar-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    position: relative;
+  }
+
+  .pillar-tag {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    position: relative;
+    font-weight: 400;
+  }
+
+  .pillar-btn[data-pillar="heart"].active .pillar-name { color: var(--heart); }
+  .pillar-btn[data-pillar="truth"].active .pillar-name { color: var(--truth); }
+  .pillar-btn[data-pillar="ai"].active    .pillar-name { color: var(--ai); }
+  .pillar-btn[data-pillar="build"].active .pillar-name { color: var(--build); }
+
+  /* ── PLATFORM TOGGLE ──────────────────────────── */
+  .platform-toggle {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .platform-btn {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .platform-btn.active {
+    background: var(--surface-3);
+    color: var(--text);
+    border: 1px solid var(--border-active);
+  }
+
+  .platform-icon {
+    font-size: 15px;
+  }
+
+  /* ── TONE / COUNT CONTROLS ────────────────────── */
+  .controls-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .control-group {
+    flex: 1;
+  }
+
+  .control-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 7px;
+  }
+
+  .select-wrap {
+    position: relative;
+  }
+
+  .select-wrap select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 30px 9px 12px;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.18s;
+  }
+
+  .select-wrap select:focus {
+    border-color: var(--border-active);
+  }
+
+  .select-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+
+  /* ── CONTEXT INPUT ────────────────────────────── */
+  .context-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 90px;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.18s;
+  }
+
+  .context-input::placeholder {
+    color: var(--text-dim);
+  }
+
+  .context-input:focus {
+    border-color: var(--border-active);
+  }
+
+  /* ── GENERATE BUTTON ──────────────────────────── */
+  .generate-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,169,110,0.35);
+    border-radius: 10px;
+    color: var(--gold);
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .generate-btn:hover {
+    background: rgba(201,169,110,0.2);
+    border-color: rgba(201,169,110,0.55);
+    transform: translateY(-1px);
+  }
+
+  .generate-btn:active {
+    transform: translateY(0);
+  }
+
+  .generate-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .generate-btn .btn-spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(201,169,110,0.3);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .generate-btn.loading .btn-spinner { display: block; }
+  .generate-btn.loading .btn-label { display: none; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RIGHT PANEL ──────────────────────────────── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .right-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .right-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--text);
+  }
+
+  .right-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .queue-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .action-btn {
+    padding: 7px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .action-btn:hover {
+    color: var(--text);
+    border-color: var(--border-active);
+    background: var(--surface-2);
+  }
+
+  /* ── POST QUEUE ───────────────────────────────── */
+  .post-queue {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-3) transparent;
+  }
+
+  /* ── EMPTY STATE ──────────────────────────────── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 40px;
+    color: var(--text-dim);
+  }
+
+  .empty-glyph {
+    font-family: 'DM Serif Display', serif;
+    font-size: 56px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+
+  .empty-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .empty-body {
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 320px;
+  }
+
+  /* ── POST CARD ────────────────────────────────── */
+  .post-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    animation: card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  @keyframes card-in {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .post-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .post-tags {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .tag-pillar-heart  { background: var(--heart-glow);  color: var(--heart); }
+  .tag-pillar-truth  { background: var(--truth-glow);  color: var(--truth); }
+  .tag-pillar-ai     { background: var(--ai-glow);     color: var(--ai); }
+  .tag-pillar-build  { background: var(--build-glow);  color: var(--build); }
+
+  .tag-platform {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .char-count.over { color: #f87171; }
+
+  .post-body {
+    padding: 16px 16px 12px;
+  }
+
+  .post-text {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 60px;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .post-text:focus {
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+    padding: 4px 6px;
+    margin: -4px -6px;
+  }
+
+  .post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-timestamp {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .post-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .post-btn {
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .post-btn:hover {
+    color: var(--text);
+    border-color: var(--border-active);
+    background: var(--surface-2);
+  }
+
+  .post-btn.copy-btn.copied {
+    color: var(--build);
+    border-color: var(--build);
+    background: var(--build-glow);
+  }
+
+  .post-btn.delete-btn:hover {
+    color: #f87171;
+    border-color: rgba(248,113,113,0.4);
+    background: rgba(248,113,113,0.08);
+  }
+
+  /* ── LOADING SKELETON ─────────────────────────── */
+  .skeleton-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    animation: card-in 0.25s ease forwards;
+    opacity: 0;
+  }
+
+  .skeleton-header {
+    height: 44px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skeleton-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .skeleton-line {
+    height: 13px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── TOAST ────────────────────────────────────── */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 999;
+  }
+
+  .toast {
+    background: var(--surface-3);
+    border: 1px solid var(--border-active);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+    animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    max-width: 280px;
+    font-weight: 500;
+  }
+
+  .toast.success { border-color: rgba(109,184,138,0.5); }
+  .toast.error   { border-color: rgba(248,113,113,0.5); }
+
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ── SCROLLBAR ────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+
+  /* ── RESPONSIVE ───────────────────────────────── */
+  @media (max-width: 760px) {
+    main {
+      grid-template-columns: 1fr;
+      height: auto;
+      overflow: auto;
     }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--cream);
-      font-family: 'Inter', sans-serif;
-      font-weight: 300;
-      min-height: 100vh;
-      line-height: 1.6;
-    }
-
-    /* ── Noise ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.025; pointer-events: none; z-index: 0;
-    }
-
-    .wrap {
-      position: relative; z-index: 1;
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 24px 80px;
-    }
-
-    /* ── Header ── */
-    header {
-      padding: 44px 0 40px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
+    .left-panel {
+      height: auto;
+      overflow: visible;
+      border-right: none;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 40px;
     }
-
-    .wordmark {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 1.1rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--sage);
-      text-decoration: none;
+    .right-panel {
+      overflow: visible;
+      height: auto;
     }
-
-    .page-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: clamp(1.8rem, 4vw, 2.4rem);
-      letter-spacing: -0.01em;
-      color: var(--cream);
-      line-height: 1;
-    }
-
-    .page-sub {
-      font-size: 0.78rem;
-      color: var(--cream-dim);
-      margin-top: 6px;
-      letter-spacing: 0.04em;
-    }
-
-    /* ── API key ── */
-    .api-section {
-      margin-bottom: 36px;
-    }
-
-    .field-label {
-      display: block;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--sage-dim);
-      margin-bottom: 10px;
-    }
-
-    .api-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    input[type="password"], input[type="text"] {
-      flex: 1;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 11px 16px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 300;
-      color: var(--cream);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus { border-color: var(--border-hover); }
-    input::placeholder { color: var(--cream-dim); opacity: 0.4; }
-
-    .btn-save {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 11px 20px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--sage);
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-      white-space: nowrap;
-    }
-
-    .btn-save:hover { border-color: var(--sage); color: var(--sage-bright); }
-
-    .api-status {
-      margin-top: 8px;
-      font-size: 0.72rem;
-      color: var(--sage-dim);
-      letter-spacing: 0.04em;
-    }
-
-    /* ── Generate button ── */
-    .generate-wrap {
-      margin-bottom: 44px;
-      text-align: center;
-    }
-
-    .btn-generate {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--sage);
-      border: none;
-      border-radius: 60px;
-      padding: 16px 48px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 400;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--bg);
-      cursor: pointer;
-      transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
-    }
-
-    .btn-generate:hover:not(:disabled) {
-      background: var(--sage-bright);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(122,158,126,0.22);
-    }
-
-    .btn-generate:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    .spinner {
-      width: 14px; height: 14px;
-      border: 2px solid rgba(14,20,16,0.3);
-      border-top-color: var(--bg);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: none;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .status-line {
-      margin-top: 14px;
-      font-size: 0.76rem;
-      color: var(--cream-dim);
-      min-height: 18px;
-      letter-spacing: 0.03em;
-    }
-
-    /* ── Section heading ── */
-    .section-heading {
-      font-size: 0.68rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--sage-dim);
-      margin-bottom: 20px;
-    }
-
-    /* ── Post cards ── */
-    #drafts-section { margin-bottom: 56px; }
-
-    .cards-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .post-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px;
-      transition: border-color 0.2s, opacity 0.3s, transform 0.3s;
-      animation: fadeUp 0.4s ease forwards;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .post-card:nth-child(2) { animation-delay: 0.08s; }
-    .post-card:nth-child(3) { animation-delay: 0.16s; }
-
-    .post-card.skipped {
-      opacity: 0;
-      transform: translateX(20px);
-      pointer-events: none;
-    }
-
-    .post-card.approved {
-      border-color: rgba(122,158,126,0.5);
-      background: rgba(122,158,126,0.06);
-    }
-
-    .post-text {
-      font-size: 0.95rem;
-      line-height: 1.7;
-      color: var(--cream);
-      margin-bottom: 20px;
-      white-space: pre-wrap;
-    }
-
-    .char-count {
-      font-size: 0.68rem;
-      color: var(--cream-dim);
-      opacity: 0.5;
-      margin-bottom: 16px;
-    }
-
-    .char-count.over { color: #c07070; opacity: 1; }
-
-    .card-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .btn-approve {
-      flex: 1;
-      background: rgba(122,158,126,0.12);
-      border: 1px solid rgba(122,158,126,0.3);
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--sage);
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-    }
-
-    .btn-approve:hover {
-      background: rgba(122,158,126,0.22);
-      border-color: var(--sage);
-    }
-
-    .btn-skip {
-      background: var(--red-soft);
-      border: 1px solid rgba(180,80,80,0.2);
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--red-dim);
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-    }
-
-    .btn-skip:hover {
-      background: rgba(180,80,80,0.2);
-      border-color: rgba(180,80,80,0.4);
-    }
-
-    /* ── Queue ── */
-    #queue-section { }
-
-    .queue-empty {
-      font-size: 0.82rem;
-      color: var(--cream-dim);
-      opacity: 0.4;
-      text-align: center;
-      padding: 24px 0;
-      letter-spacing: 0.04em;
-    }
-
-    .queue-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .queue-item {
-      background: var(--bg-card);
-      border: 1px solid rgba(185,169,204,0.15);
-      border-radius: 12px;
-      padding: 20px 20px 20px 24px;
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      animation: fadeUp 0.3s ease forwards;
-    }
-
-    .queue-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem;
-      color: var(--lavender);
-      opacity: 0.5;
-      flex-shrink: 0;
-      line-height: 1.5;
-      min-width: 20px;
-    }
-
-    .queue-text {
-      flex: 1;
-      font-size: 0.88rem;
-      line-height: 1.65;
-      color: var(--cream);
-    }
-
-    .btn-copy {
-      flex-shrink: 0;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 8px 14px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.7rem;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--cream-dim);
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-      white-space: nowrap;
-    }
-
-    .btn-copy:hover { border-color: var(--border-hover); color: var(--cream); }
-    .btn-copy.copied { color: var(--sage); border-color: rgba(122,158,126,0.4); }
-
-    .post-type-badge {
-      display: inline-block;
-      font-size: 0.62rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--lavender);
-      opacity: 0.65;
-      margin-bottom: 14px;
-      padding: 3px 10px;
-      border: 1px solid rgba(185,169,204,0.18);
-      border-radius: 99px;
-    }
-
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 48px 0 36px;
-    }
-
-    /* ── Error toast ── */
-    .toast {
-      position: fixed;
-      bottom: 28px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #2a1a1a;
-      border: 1px solid rgba(180,80,80,0.3);
-      border-radius: 10px;
-      padding: 12px 24px;
-      font-size: 0.8rem;
-      color: #d09090;
-      opacity: 0;
-      transition: opacity 0.3s, transform 0.3s;
-      pointer-events: none;
-      z-index: 100;
-      max-width: 420px;
-      text-align: center;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    @media (max-width: 480px) {
-      header { flex-direction: column; align-items: flex-start; gap: 16px; }
-      .btn-generate { padding: 14px 32px; }
-    }
-  </style>
+    .post-queue { overflow: visible; }
+    header { padding: 16px 20px; }
+  }
+</style>
 </head>
 <body>
-<div class="wrap">
 
-  <!-- Header -->
-  <header>
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">B</div>
     <div>
-      <div class="page-title">Autopilot</div>
-      <div class="page-sub">Generate · Review · Queue · Post</div>
+      <div class="logo-text">Beings</div>
+      <div class="logo-sub">Autopilot v2</div>
     </div>
-    <a href="index.html" class="wordmark">Beings</a>
-  </header>
+  </div>
+  <div class="header-right">
+    <div class="status-dot"></div>
+    <span id="queueCount">0 posts in queue</span>
+  </div>
+</header>
 
-  <!-- API Key -->
-  <section class="api-section">
-    <label class="field-label" for="api-key-input">Anthropic API Key</label>
-    <div class="api-row">
-      <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
-      <button class="btn-save" onclick="saveKey()">Save</button>
+<!-- MAIN -->
+<main>
+
+  <!-- LEFT: CONTROLS -->
+  <div class="left-panel">
+
+    <!-- PILLAR -->
+    <div>
+      <div class="section-label">Content Pillar</div>
+      <div class="pillar-grid">
+        <button class="pillar-btn active" data-pillar="heart" onclick="selectPillar('heart', this)">
+          <span class="pillar-icon">🤲</span>
+          <div class="pillar-name">Heart-Centered Leadership</div>
+          <div class="pillar-tag">#leadership</div>
+        </button>
+        <button class="pillar-btn" data-pillar="truth" onclick="selectPillar('truth', this)">
+          <span class="pillar-icon">🔥</span>
+          <div class="pillar-name">Unfiltered Truth</div>
+          <div class="pillar-tag">#realness</div>
+        </button>
+        <button class="pillar-btn" data-pillar="ai" onclick="selectPillar('ai', this)">
+          <span class="pillar-icon">⚡</span>
+          <div class="pillar-name">AI & Future of Work</div>
+          <div class="pillar-tag">#futureofwork</div>
+        </button>
+        <button class="pillar-btn" data-pillar="build" onclick="selectPillar('build', this)">
+          <span class="pillar-icon">🏗️</span>
+          <div class="pillar-name">Building in Public</div>
+          <div class="pillar-tag">#buildinpublic</div>
+        </button>
+      </div>
     </div>
-    <div class="api-status" id="api-status"></div>
-  </section>
 
-  <!-- Generate -->
-  <div class="generate-wrap">
-    <button class="btn-generate" id="gen-btn" onclick="generate()">
-      <span class="spinner" id="spinner"></span>
-      <span id="gen-label">Generate Today's Posts</span>
+    <!-- PLATFORM -->
+    <div>
+      <div class="section-label">Platform</div>
+      <div class="platform-toggle">
+        <button class="platform-btn active" id="btn-x" onclick="selectPlatform('x')">
+          <span class="platform-icon">𝕏</span>
+          X / Twitter
+        </button>
+        <button class="platform-btn" id="btn-linkedin" onclick="selectPlatform('linkedin')">
+          <span class="platform-icon">in</span>
+          LinkedIn
+        </button>
+      </div>
+    </div>
+
+    <!-- COUNT + TONE -->
+    <div class="controls-row">
+      <div class="control-group">
+        <label>Generate</label>
+        <div class="select-wrap">
+          <select id="countSelect">
+            <option value="1">1 post</option>
+            <option value="3" selected>3 posts</option>
+            <option value="5">5 posts</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Tone</label>
+        <div class="select-wrap">
+          <select id="toneSelect">
+            <option value="signature">Signature</option>
+            <option value="reflective">Reflective</option>
+            <option value="direct">Direct</option>
+            <option value="story">Story Mode</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTEXT -->
+    <div>
+      <div class="section-label">Context / Spark (optional)</div>
+      <textarea id="contextInput" class="context-input"
+        placeholder="Give me a seed thought, recent experience, or specific angle you want to hit..."></textarea>
+    </div>
+
+    <!-- GENERATE -->
+    <button class="generate-btn" id="generateBtn" onclick="generate()">
+      <div class="btn-spinner"></div>
+      <span class="btn-label">✦ Generate Posts</span>
     </button>
-    <div class="status-line" id="status-line"></div>
+
   </div>
 
-  <!-- Draft cards -->
-  <section id="drafts-section" style="display:none;">
-    <div class="section-heading">Review &amp; Approve</div>
-    <div class="cards-grid" id="cards-grid"></div>
-  </section>
+  <!-- RIGHT: QUEUE -->
+  <div class="right-panel">
+    <div class="right-header">
+      <div>
+        <div class="right-title">Post Queue</div>
+        <div class="right-meta" id="rightMeta">Select a pillar and generate content</div>
+      </div>
+      <div class="queue-actions">
+        <button class="action-btn" onclick="copyAll()">Copy All</button>
+        <button class="action-btn" onclick="clearQueue()">Clear</button>
+      </div>
+    </div>
+    <div class="post-queue" id="postQueue">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-glyph">✦</div>
+        <div class="empty-title">Your queue is empty</div>
+        <div class="empty-body">Choose a pillar, set your platform, and generate posts. Each one is built in your voice — ready to copy and post.</div>
+      </div>
+    </div>
+  </div>
 
-  <hr class="divider" id="queue-divider" style="display:none;" />
+</main>
 
-  <!-- Queue -->
-  <section id="queue-section" style="display:none;">
-    <div class="section-heading">Post Queue</div>
-    <div class="queue-list" id="queue-list"></div>
-  </section>
-
-</div>
-
-<div class="toast" id="toast"></div>
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
-  // ── State ──────────────────────────────────────────────────
-  let queue = JSON.parse(localStorage.getItem('beings_queue') || '[]');
-  let drafts = [];
-  let draftTypes = [];
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let currentPillar   = 'heart';
+let currentPlatform = 'x';
+let postQueue       = [];
 
-  // ── Post type definitions ──────────────────────────────────
-  const POST_TYPES = [
-    {
-      id: 'personal-truth',
-      label: 'Personal Truth',
-      instruction: 'A short, direct reflection rooted in Beings philosophy — the kind of thing you say out loud when you finally stop pretending. Feels like someone just named what you\'ve been carrying. Under 280 characters.',
-    },
-    {
-      id: 'real-world-tie-in',
-      label: 'Real World Tie-in',
-      instruction: 'Connect a recognizable cultural moment, shared human experience, or something from everyday Black life (music, family dynamics, church, hustle culture, social media pressure, etc.) to the idea of already being whole. Not news — something timeless and universally felt. Under 280 characters.',
-    },
-    {
-      id: 'question',
-      label: 'Question Post',
-      instruction: 'Ask the audience one question that makes them stop and actually think about themselves. Not rhetorical fluff. A real question that hits different. Short. Direct. No explanation needed. Under 280 characters.',
-    },
-    {
-      id: 'contrast',
-      label: 'Contrast Post',
-      instruction: 'A "most people do X, but what if you tried Y" format. The X is something common and exhausting — overworking, seeking validation, performing okayness. The Y is the quieter, truer alternative. AAVE welcome. Under 280 characters.',
-    },
-    {
-      id: 'story-snippet',
-      label: 'Story Snippet',
-      instruction: 'One quick, grounded moment from real life — a conversation, a realization in the car, something that happened at the kitchen table. One or two sentences of scene, then the lesson it left. Personal, specific, true-feeling. Under 280 characters.',
-    },
-    {
-      id: 'bold-statement',
-      label: 'Bold Statement',
-      instruction: 'One unexpected or mildly controversial truth stated plainly with no softening, no explanation, no call to action. The kind of thing that makes someone stop scrolling. Confident. No cap. Under 280 characters.',
-    },
-  ];
+const PILLAR_META = {
+  heart: {
+    label: 'Heart-Centered Leadership',
+    tag: 'heart',
+    emoji: '🤲',
+    hashtags: '#leadership #heartcentered #beings',
+  },
+  truth: {
+    label: 'Unfiltered Truth',
+    tag: 'truth',
+    emoji: '🔥',
+    hashtags: '#unfiltered #truth #beings',
+  },
+  ai: {
+    label: 'AI & Future of Work',
+    tag: 'ai',
+    emoji: '⚡',
+    hashtags: '#AI #futureofwork #beings',
+  },
+  build: {
+    label: 'Building in Public',
+    tag: 'build',
+    emoji: '🏗️',
+    hashtags: '#buildinpublic #entrepreneurship #beings',
+  },
+};
 
-  // ── Pick 3 types with no consecutive repeats ───────────────
-  function pickTypes() {
-    const lastId = localStorage.getItem('beings_last_post_type') || '';
-    const picked = [];
-    const ids = POST_TYPES.map(t => t.id);
+const CHAR_LIMITS = { x: 280, linkedin: 500 };
 
-    while (picked.length < 3) {
-      const prev = picked.length ? picked[picked.length - 1].id : lastId;
-      const pool = ids.filter(id => id !== prev);
-      const chosen = pool[Math.floor(Math.random() * pool.length)];
-      picked.push(POST_TYPES.find(t => t.id === chosen));
-    }
-    return picked;
+// ─────────────────────────────────────────────────────────────
+// PILLAR / PLATFORM SELECTION
+// ─────────────────────────────────────────────────────────────
+function selectPillar(pillar, btn) {
+  currentPillar = pillar;
+  document.querySelectorAll('.pillar-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function selectPlatform(platform) {
+  currentPlatform = platform;
+  document.getElementById('btn-x').classList.toggle('active', platform === 'x');
+  document.getElementById('btn-linkedin').classList.toggle('active', platform === 'linkedin');
+}
+
+// ─────────────────────────────────────────────────────────────
+// SYSTEM PROMPT BUILDER
+// ─────────────────────────────────────────────────────────────
+function buildSystemPrompt(pillar, platform, tone, count, context) {
+  const meta    = PILLAR_META[pillar];
+  const charLim = CHAR_LIMITS[platform];
+
+  const VOICE_ANCHOR = `
+You are writing social content for Tony Moore, founder of Beings — a heart-centered philosophy and app ecosystem built on the conviction that people are already whole. Tony's voice is:
+
+VOICE CHARACTERISTICS:
+- Natural and conversational, not corporate
+- Short punchy lines with rhythm — often in threes
+- Uses AAVE naturally, not forced or performative ("don't" instead of "doesn't", "ain't" always earned)
+- Builds narrative tension before releasing it
+- Weaves in faith authentically — not preachy, just real ("motion matters more than perfection")
+- Closes with a question or hard declaration that stays with you
+- Never uses buzzwords, never performs depth, always earns it
+
+POST STRUCTURE (always follow):
+1. SETUP — establish a scene or observation (1-3 lines)
+2. TENSION — complicate it or introduce contrast (2-4 lines)  
+3. PIVOT — the turn, the insight, the reframe (1-3 lines)
+4. CLOSER — question or declaration that lands (1-2 lines)
+
+ACTUAL VOICE EXAMPLES:
+
+[Heart-Centered Leadership example]
+The leader everybody remembers ain't always the most talented one in the room.
+It's the one who made people feel seen.
+Who checked on you when things were hard.
+Who told you the truth when it was uncomfortable.
+Who believed in you before you believed in yourself.
+That kind of leadership don't come from a course.
+It comes from deciding that people matter more than metrics.
+That's the work. The real work.
+Who's a leader that actually made you feel like you mattered?
+
+[Unfiltered Truth example]
+You can feel when somebody is leading from fear.
+Everything is urgent. Everybody is a threat.
+Every decision is about protecting their position.
+And you can feel when somebody is leading from purpose too.
+They're steady. They're honest.
+They make you better just by being around them.
+One of those leaders builds loyalty. The other builds turnover.
+Which one are you becoming?
+`;
+
+  const PILLAR_CONTEXT = {
+    heart: `
+PILLAR: Heart-Centered Leadership
+This pillar is about what real leadership feels like — not titles, not tactics, but presence, honesty, and genuine care for people. Draw from themes like: leaders who make people feel seen, the difference between managing and leading with love, emotional courage, the cost of leading from ego vs. purpose, decisions that honor people over metrics.
+Tony runs multiple ventures and manages people. He parents daughters. He lost his mother at 16. His leadership is born from loss, love, and lived experience — not MBA programs.
+`,
+    truth: `
+PILLAR: Unfiltered Truth
+This pillar is about saying what's real when most people won't. Draw from themes like: the stories we tell ourselves, fear-based vs purpose-based living, the gap between who we perform and who we are, difficult conversations, things people feel but don't say out loud. 
+Tony has done deep inner work — somatic healing, shadow work, spiritual study. His truths land because they're earned, not borrowed.
+`,
+    ai: `
+PILLAR: AI & Future of Work
+This pillar is about what AI actually means for regular people — workers, builders, parents trying to create freedom. NOT hype. Draw from themes like: how AI shifts leverage, what it means to build with AI tools, the human-in-the-loop role, what skills matter now, the democratization of entrepreneurship, the gap between AI promise and AI reality.
+Tony builds AI-powered apps. He does AI evaluation work. He thinks about this daily.
+`,
+    build: `
+PILLAR: Building in Public
+This pillar is about the raw, real side of entrepreneurship — the doubt, the slow days, the moments where it almost didn't work, and the compounding of small wins. NOT highlight reel. Draw from themes like: building without validation, the courage to ship imperfect things, what it actually costs to go all-in, the difference between grinding and growing, partnership, delegation, not doing it alone.
+Tony is building Zenvra (e-commerce) and Beings (philosophy + apps) simultaneously as a father and on a Chromebook.
+`,
+  };
+
+  const TONE_MODS = {
+    signature: '',
+    reflective: 'Write in a more contemplative, inward tone. Let the post breathe. More em-dashes, longer pauses.',
+    direct: 'Be sharper and more declarative. Less setup, more direct fire. Minimal softening.',
+    story: 'Lead with a specific moment or scene. Ground the post in a single story before pulling the lesson out.',
+  };
+
+  const platformNote = platform === 'x'
+    ? `FORMAT: X/Twitter. Hard limit of ${charLim} characters including spaces and line breaks. Punchy and tight — no word is wasted. Do NOT include hashtags (they eat characters). Line breaks are meaningful rhythm, not decoration.`
+    : `FORMAT: LinkedIn. Up to ${charLim} characters. You have room to breathe — use it for richer setup and payoff. Still no bloat. You may include 2-3 hashtags at the end as a single line.`;
+
+  const contextBlock = context && context.trim()
+    ? `\nUSER SEED / CONTEXT: ${context.trim()}\nUse this as your spark or anchor. Build around it.`
+    : '';
+
+  return `${VOICE_ANCHOR}
+---
+${PILLAR_CONTEXT[pillar]}
+---
+${platformNote}
+${TONE_MODS[tone] ? `\nTONE MODIFIER: ${TONE_MODS[tone]}` : ''}
+${contextBlock}
+
+TASK: Generate exactly ${count} post${count > 1 ? 's' : ''} for the "${meta.label}" pillar on ${platform === 'x' ? 'X/Twitter' : 'LinkedIn'}.
+
+CRITICAL OUTPUT RULES:
+- Return ONLY a JSON array. No preamble, no explanation, no markdown fences.
+- Each element is a string containing one complete post.
+- Posts must be separated in the array. Do not combine them.
+- Example format: ["Post one full text here.", "Post two full text here."]
+- Respect the character limit strictly. Count every character including newlines.
+- Do NOT start any post with "I" — vary your openers.
+- Each post must follow the SETUP → TENSION → PIVOT → CLOSER structure.
+- Voice must match the examples above exactly. No corporate language. No AI-sounding sentences.
+`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// GENERATE
+// ─────────────────────────────────────────────────────────────
+async function generate() {
+  const btn     = document.getElementById('generateBtn');
+  const count   = parseInt(document.getElementById('countSelect').value, 10);
+  const tone    = document.getElementById('toneSelect').value;
+  const context = document.getElementById('contextInput').value;
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  const queue = document.getElementById('postQueue');
+  hideEmpty();
+
+  // Show skeletons
+  const skeletons = [];
+  for (let i = 0; i < count; i++) {
+    const sk = buildSkeleton();
+    queue.appendChild(sk);
+    skeletons.push(sk);
   }
 
-  // ── Init ──────────────────────────────────────────────────
-  window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('beings_api_key');
-    if (saved) {
-      document.getElementById('api-key-input').value = saved;
-      document.getElementById('api-status').textContent = 'Key loaded from storage.';
-    }
-    renderQueue();
-  });
+  try {
+    const systemPrompt = buildSystemPrompt(currentPillar, currentPlatform, tone, count, context);
 
-  // ── API Key ───────────────────────────────────────────────
-  function saveKey() {
-    const val = document.getElementById('api-key-input').value.trim();
-    if (!val.startsWith('sk-ant-')) {
-      showToast('Key should start with sk-ant-');
-      return;
-    }
-    localStorage.setItem('beings_api_key', val);
-    document.getElementById('api-status').textContent = 'Saved.';
-  }
-
-  function getKey() {
-    return localStorage.getItem('beings_api_key') || document.getElementById('api-key-input').value.trim();
-  }
-
-  // ── Anthropic API ─────────────────────────────────────────
-  async function callClaude(apiKey, types) {
-    const typeInstructions = types.map((t, i) =>
-      `Post ${i + 1} — ${t.label}: ${t.instruction}`
-    ).join('\n\n');
-
-    const prompt = `You are the voice of Beings — a daily reflection app rooted in one belief: people are already whole. Nothing is missing.
-
-Your voice is real. Warm. Culturally grounded. You talk like a person, not a brand. You grew up around real people who carried real things and still showed up. You know what it means to be tired but not broken. You use natural, conversational language — and when it fits, you speak in AAVE (African American Vernacular English). Not as a performance. As a mother tongue. The way people actually talk to the people they love.
-
-Write exactly 3 original X (Twitter) posts for the @BeingsDaily account. Each post has a specific type — follow the instructions for each type exactly.
-
-Voice rules that apply to all posts:
-- Each post must be under 280 characters (count carefully)
-- Rooted in the belief that the person reading is already whole
-- No hashtags. No exclamation marks. Emojis only if they feel natural, not decorative
-- Not corporate. Not a life coach. Not a wellness brand. A real person who's been through it
-- Use AAVE naturally where it fits — "ain't", "finna", "that's giving", "on sight", "no cap", "we don't do that here", "you already know", "real ones", "stay on it", etc. Don't force it on every post — only when it sounds right
-- No "you should" or "try to" — speak from a place of already knowing
-
-Post type instructions:
-
-${typeInstructions}
-
-Return ONLY a JSON array with exactly 3 strings in the same order as the posts above. No other text. Example format:
-["post one text here","post two text here","post three text here"]`;
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 600,
-        messages: [{ role: 'user', content: prompt }],
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: `Generate ${count} post${count > 1 ? 's' : ''} now. Return only the JSON array.`,
+          },
+        ],
       }),
     });
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `API error ${res.status}`);
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `API error ${response.status}`);
     }
 
-    const data = await res.json();
-    const text = data.content?.[0]?.text?.trim() || '';
+    const data = await response.json();
+    const raw  = data.content
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('');
 
-    const match = text.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('Could not parse posts from response');
-    const posts = JSON.parse(match[0]);
-    if (!Array.isArray(posts) || posts.length < 1) throw new Error('Unexpected response format');
-    return posts.slice(0, 3);
-  }
-
-  // ── Generate ──────────────────────────────────────────────
-  async function generate() {
-    const apiKey = getKey();
-    if (!apiKey || !apiKey.startsWith('sk-ant-')) {
-      showToast('Please enter and save your Anthropic API key first.');
-      return;
-    }
-
-    const types = pickTypes();
-    draftTypes = types;
-
-    setLoading(true, 'Asking Claude…');
-
+    // Strip any accidental markdown fences
+    const cleaned = raw.replace(/```json|```/gi, '').trim();
+    let posts;
     try {
-      const posts = await callClaude(apiKey, types);
-      // Save the last type used so next batch avoids repeating it
-      localStorage.setItem('beings_last_post_type', types[types.length - 1].id);
-      setLoading(false);
-      renderDrafts(posts, types);
-    } catch (err) {
-      setLoading(false);
-      setStatus('');
-      showToast(err.message || 'Something went wrong. Try again.');
-      console.error(err);
+      posts = JSON.parse(cleaned);
+    } catch {
+      // Fallback: try to extract array substring
+      const match = cleaned.match(/\[[\s\S]*\]/);
+      if (!match) throw new Error('Could not parse response as JSON array.');
+      posts = JSON.parse(match[0]);
     }
-  }
 
-  // ── Render draft cards ────────────────────────────────────
-  function renderDrafts(posts, types) {
-    drafts = posts;
-    const section = document.getElementById('drafts-section');
-    const grid = document.getElementById('cards-grid');
-    grid.innerHTML = '';
-    section.style.display = 'block';
+    if (!Array.isArray(posts) || posts.length === 0) {
+      throw new Error('No posts returned.');
+    }
 
+    // Remove skeletons, insert cards
+    skeletons.forEach(sk => sk.remove());
     posts.forEach((text, i) => {
-      const card = document.createElement('div');
-      card.className = 'post-card';
-      card.id = `card-${i}`;
-
-      const charLen = text.length;
-      const overLimit = charLen > 280;
-      const typeLabel = types && types[i] ? types[i].label : '';
-
-      card.innerHTML = `
-        ${typeLabel ? `<div class="post-type-badge">${escHtml(typeLabel)}</div>` : ''}
-        <div class="post-text">${escHtml(text)}</div>
-        <div class="char-count ${overLimit ? 'over' : ''}">${charLen} / 280 characters</div>
-        <div class="card-actions">
-          <button class="btn-approve" data-index="${i}">Approve</button>
-          <button class="btn-skip" data-index="${i}">Skip</button>
-        </div>`;
-
-      card.querySelector('.btn-approve').addEventListener('click', () => approve(i));
-      card.querySelector('.btn-skip').addEventListener('click', () => skip(i));
-
-      grid.appendChild(card);
-    });
-  }
-
-  function approve(i) {
-    const text = drafts[i];
-    const card = document.getElementById(`card-${i}`);
-    card.classList.add('approved');
-    card.querySelector('.card-actions').innerHTML =
-      `<span style="font-size:0.75rem;color:var(--sage);letter-spacing:0.1em;">Approved</span>`;
-
-    queue.push(text);
-    localStorage.setItem('beings_queue', JSON.stringify(queue));
-    renderQueue();
-
-    setTimeout(() => {
-      card.style.display = 'none';
-      checkDraftsEmpty();
-    }, 600);
-  }
-
-  function skip(i) {
-    const card = document.getElementById(`card-${i}`);
-    card.classList.add('skipped');
-    setTimeout(() => {
-      card.style.display = 'none';
-      checkDraftsEmpty();
-    }, 350);
-  }
-
-  function checkDraftsEmpty() {
-    const grid = document.getElementById('cards-grid');
-    const visible = [...grid.children].filter(c => c.style.display !== 'none');
-    if (!visible.length) {
-      document.getElementById('drafts-section').style.display = 'none';
-    }
-  }
-
-  // ── Render queue ──────────────────────────────────────────
-  function renderQueue() {
-    const section = document.getElementById('queue-section');
-    const divider = document.getElementById('queue-divider');
-    const list = document.getElementById('queue-list');
-
-    if (!queue.length) {
-      section.style.display = 'none';
-      divider.style.display = 'none';
-      return;
-    }
-
-    section.style.display = 'block';
-    divider.style.display = 'block';
-    list.innerHTML = '';
-
-    queue.forEach((text, i) => {
-      const item = document.createElement('div');
-      item.className = 'queue-item';
-      item.innerHTML = `
-        <span class="queue-num">${i + 1}</span>
-        <span class="queue-text">${escHtml(text)}</span>
-        <button class="btn-copy" id="copy-${i}" onclick="copyPost(${i})">Copy</button>`;
-      list.appendChild(item);
-    });
-  }
-
-  function copyPost(i) {
-    const text = queue[i];
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById(`copy-${i}`);
-      btn.textContent = 'Copied';
-      btn.classList.add('copied');
       setTimeout(() => {
-        btn.textContent = 'Copy';
-        btn.classList.remove('copied');
-      }, 2200);
-    }).catch(() => {
-      // Fallback for non-secure contexts
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      const btn = document.getElementById(`copy-${i}`);
-      btn.textContent = 'Copied';
-      btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = 'Copy';
-        btn.classList.remove('copied');
-      }, 2200);
+        const card = buildPostCard(text, currentPillar, currentPlatform);
+        queue.appendChild(card);
+        postQueue.push({ text, pillar: currentPillar, platform: currentPlatform, ts: Date.now() });
+        updateQueueCount();
+        updateRightMeta();
+      }, i * 80);
     });
+
+    toast('Posts generated ✦', 'success');
+
+  } catch (err) {
+    skeletons.forEach(sk => sk.remove());
+    toast('Error: ' + err.message, 'error');
+    console.error(err);
+    if (postQueue.length === 0) showEmpty();
   }
 
-  // ── Helpers ───────────────────────────────────────────────
-  function setLoading(on, msg) {
-    const btn = document.getElementById('gen-btn');
-    const spinner = document.getElementById('spinner');
-    const label = document.getElementById('gen-label');
-    btn.disabled = on;
-    spinner.style.display = on ? 'block' : 'none';
-    label.textContent = on ? 'Working…' : 'Generate Today\'s Posts';
-    if (msg) setStatus(msg);
-    else if (!on) setStatus('');
-  }
+  btn.disabled = false;
+  btn.classList.remove('loading');
+}
 
-  function setStatus(msg) {
-    document.getElementById('status-line').textContent = msg;
-  }
+// ─────────────────────────────────────────────────────────────
+// POST CARD BUILDER
+// ─────────────────────────────────────────────────────────────
+function buildPostCard(text, pillar, platform) {
+  const meta  = PILLAR_META[pillar];
+  const limit = CHAR_LIMITS[platform];
+  const len   = text.length;
+  const over  = len > limit;
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 4000);
-  }
+  const card = document.createElement('div');
+  card.className = 'post-card';
 
-  function escHtml(str) {
-    return str
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;');
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  card.innerHTML = `
+    <div class="post-card-header">
+      <div class="post-tags">
+        <span class="tag tag-pillar-${pillar}">${meta.emoji} ${meta.label}</span>
+        <span class="tag tag-platform">${platform === 'x' ? '𝕏' : 'in'} ${platform === 'x' ? 'X/Twitter' : 'LinkedIn'}</span>
+      </div>
+      <span class="char-count ${over ? 'over' : ''}" data-limit="${limit}">${len}/${limit}</span>
+    </div>
+    <div class="post-body">
+      <div class="post-text" contenteditable="true">${escapeHtml(text)}</div>
+    </div>
+    <div class="post-footer">
+      <span class="post-timestamp">Generated at ${time}</span>
+      <div class="post-actions">
+        <button class="post-btn copy-btn" onclick="copyPost(this)">Copy</button>
+        <button class="post-btn delete-btn" onclick="deletePost(this)">Delete</button>
+      </div>
+    </div>
+  `;
+
+  // Live char count on edit
+  const textEl   = card.querySelector('.post-text');
+  const countEl  = card.querySelector('.char-count');
+  textEl.addEventListener('input', () => {
+    const l = textEl.innerText.length;
+    const lim = parseInt(countEl.dataset.limit, 10);
+    countEl.textContent = `${l}/${lim}`;
+    countEl.classList.toggle('over', l > lim);
+  });
+
+  return card;
+}
+
+function buildSkeleton() {
+  const sk = document.createElement('div');
+  sk.className = 'skeleton-card';
+  const widths = [92, 78, 85, 60].map(w => `<div class="skeleton-line" style="width:${w}%"></div>`).join('');
+  sk.innerHTML = `<div class="skeleton-header"></div><div class="skeleton-body">${widths}</div>`;
+  return sk;
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/\n/g, '<br>');
+}
+
+// ─────────────────────────────────────────────────────────────
+// COPY / DELETE / QUEUE ACTIONS
+// ─────────────────────────────────────────────────────────────
+function copyPost(btn) {
+  const textEl = btn.closest('.post-card').querySelector('.post-text');
+  const text   = textEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 1800);
+  });
+}
+
+function deletePost(btn) {
+  const card = btn.closest('.post-card');
+  card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+  card.style.opacity    = '0';
+  card.style.transform  = 'translateX(20px)';
+  setTimeout(() => {
+    card.remove();
+    postQueue.pop();
+    updateQueueCount();
+    updateRightMeta();
+    const remaining = document.querySelectorAll('.post-card').length;
+    if (remaining === 0) showEmpty();
+  }, 200);
+}
+
+function copyAll() {
+  const cards = document.querySelectorAll('.post-card .post-text');
+  if (cards.length === 0) { toast('Nothing to copy', 'error'); return; }
+  const all = Array.from(cards).map(c => c.innerText).join('\n\n---\n\n');
+  navigator.clipboard.writeText(all).then(() => toast(`Copied ${cards.length} posts ✦`, 'success'));
+}
+
+function clearQueue() {
+  const cards = document.querySelectorAll('.post-card');
+  if (cards.length === 0) return;
+  cards.forEach((c, i) => {
+    setTimeout(() => {
+      c.style.transition = 'opacity 0.15s ease';
+      c.style.opacity    = '0';
+      setTimeout(() => c.remove(), 150);
+    }, i * 40);
+  });
+  setTimeout(() => {
+    postQueue = [];
+    updateQueueCount();
+    updateRightMeta();
+    showEmpty();
+  }, cards.length * 40 + 200);
+}
+
+// ─────────────────────────────────────────────────────────────
+// UI HELPERS
+// ─────────────────────────────────────────────────────────────
+function showEmpty() {
+  const es = document.getElementById('emptyState');
+  if (es) es.style.display = 'flex';
+}
+
+function hideEmpty() {
+  const es = document.getElementById('emptyState');
+  if (es) es.style.display = 'none';
+}
+
+function updateQueueCount() {
+  const n = document.querySelectorAll('.post-card').length;
+  document.getElementById('queueCount').textContent = `${n} post${n !== 1 ? 's' : ''} in queue`;
+}
+
+function updateRightMeta() {
+  const n    = document.querySelectorAll('.post-card').length;
+  const meta = document.getElementById('rightMeta');
+  if (n === 0) {
+    meta.textContent = 'Select a pillar and generate content';
+  } else {
+    const pillarLabel = PILLAR_META[currentPillar].label;
+    const platLabel   = currentPlatform === 'x' ? 'X/Twitter' : 'LinkedIn';
+    meta.textContent  = `${n} post${n !== 1 ? 's' : ''} · ${pillarLabel} · ${platLabel}`;
   }
+}
+
+function toast(msg, type = 'default') {
+  const container = document.getElementById('toastContainer');
+  const t         = document.createElement('div');
+  t.className     = `toast ${type}`;
+  t.textContent   = msg;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    t.style.opacity    = '0';
+    t.style.transform  = 'translateY(6px)';
+    setTimeout(() => t.remove(), 300);
+  }, 2800);
+}
 </script>
 </body>
 </html>
